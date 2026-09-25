@@ -39,6 +39,7 @@ Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy
 | D26 | 25.09.2026 | Moduły „przed zajęciami” w **odtwarzaczu mikrokroków** (`shared/js/player.js`, strona `lc/modul.html`): 1 ekran = 1 pojęcie lub 1 zadanie, przyklejony chromatogram, duży przycisk na dole; nie można przeskoczyć nierozwiązanego zadania; po 3 błędnych próbach „Pokaż rozwiązanie” = krok „z pomocą”; na końcu podsumowanie + pytanie na seminarium | prototyp: moduł 1 (LC) = ten sam zakres obliczeń i tolerancje co lekcja 1; test: ekran informacyjny ≤ 80 słów, przejście całego modułu PL/EN |
 | D27 | 25.09.2026 | **Zaakceptowano** kierunek mikrokroków: ilość treści na ekran odpowiednia, pytania prowadzą krok po kroku; w materiałach „przed zajęciami” **wolno odsłaniać rozwiązanie** (po 3 próbach, krok „z pomocą”) | ocena prototypu modułu 1 przez Mariusza; ten format obowiązuje dla kolejnych modułów |
 | D28 | 25.09.2026 | Moodle GUMed = **wersja 5.2** (komunikat CWD) – wymaganie LTI 1.3 (≥ 3.10) spełnione; do ustalenia z CWD: narzędzie na poziomie kursu czy platformy, usługa ocen LTI, hosting/IOD, kurs testowy | kontakt: Centrum Wsparcia Dydaktyki (osoba wskazana w komunikacie); szkic zapytania: `docs/zapytanie_CWD_LTI.md` (niewysłany) |
+| D29 | 25.09.2026 | Moduły LC **m1–m5** = lekcje podstawowe 1–5 w formacie mikrokroków; zadania modułów 2–5 **pobierają logikę z trybu „Zajęcia”** (`from: [lekcja, krok]`: te same progi, tolerancje i sprawdzenia), moduł dodaje tylko krótkie teksty; zadania „cel” na telefonie z kontrolkami (suwak/pole/lista) i wskaźnikami na żywo; `modul.html` bez `?m` = lista modułów z postępem | jedno źródło wymagań dla zajęć i modułów (D7); test przechodzi wszystkie moduły PL/EN, w tym zadania „cel” (nie zaliczone na starcie, zaliczone z rozwiązaniem) |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
@@ -48,7 +49,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 1a. ~~Zmiana nazwy~~ – zrobione (25.09.2026). Nowa struktura `shared/` + `lc/` + strona główna – zrobione na gałęzi roboczej (krok 1); do scalenia z `main` po akceptacji.
 1b. ~~Widoczność~~ → repo **na razie publiczne i darmowe** (D24).
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
-3. ~~Ocena prototypu~~ → zaakceptowany (D27). Dalej: pozostałe lekcje i casy w formacie mikrokroków; raport (po Moodle).
+3. ~~Ocena prototypu~~ → zaakceptowany (D27). ~~Moduły 2–5~~ → zrobione na gałęzi roboczej (D29), **do oceny przez Mariusza** i scalenia z `main`. Dalej: casy z monografii (lekcje 6–10) w formacie modułów; raport (po Moodle).
 4. Przegląd merytoryczny wersji EN przez English Division.
 5. Rozszerzenie `npm test` o kryteria z §8.
 
@@ -59,10 +60,11 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `README.md` | struktura kodu, linki PL/EN, testy |
 | `lc/i18n/pl.js`, `lc/i18n/en.js` | wszystkie teksty LC (lekcje, komunikaty, wzory) |
 | `lc/js/lessons.js` | logika zadań LC (wspólna dla języków) |
-| `shared/js/player.js`, `lc/js/modules.js`, `lc/modul.html` | odtwarzacz modułów „przed zajęciami” i moduł 1 LC |
+| `shared/js/player.js`, `lc/js/modules.js`, `lc/modul.html` | odtwarzacz modułów „przed zajęciami” i moduły LC m1–m5 (teksty: `L10.modules` w `lc/i18n/*.js`) |
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 25.09.2026 — Claude Code: D29 – moduły LC 2–5 (retencja/selektywność, sprawność, aparatura, SST), lista modułów, kontrolki w zadaniach „cel”; testy wszystkich modułów PL/EN.
 - 25.09.2026 — Claude Code: D28 – Moodle 5.2; szkic zapytania do CWD.
 - 25.09.2026 — Claude Code: D27 – akceptacja mikrokroków i odsłaniania rozwiązań.
 - 25.09.2026 — Claude Code: D26 – odtwarzacz mikrokroków i prototyp modułu 1 (krok 2).

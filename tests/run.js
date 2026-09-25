@@ -142,47 +142,68 @@ async function structure(browser) {
   for (const lang of ["pl", "en"]) {
     const p = await browser.newPage({ viewport: { width: 390, height: 844 } }); const errs = [];
     p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error" || m.type() === "warning") errs.push(m.text()); });
-    await p.goto(ROOT + "/lc/modul.html?lang=" + lang + "&m=m1"); await p.evaluate(() => localStorage.clear());
-    await p.goto(ROOT + "/lc/modul.html?lang=" + lang + "&m=m1#1"); await p.waitForTimeout(300);
-    const r = await p.evaluate(() => {
-      const out = { words: [], undef: [], answers: [] };
-      PLAYER.mod.steps.forEach((st, i) => {
-        const tx = PLAYER.tx.steps[st.id] || {};
-        if (st.kind === "info") {
-          const w = (tx.text || "").replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
-          if (w > 80) out.words.push(`${st.id}: ${w} słów`);
-        }
-        const texts = [tx.title, tx.text, tx.q, tx.more, tx.hint, tx.seminar].filter(x => x != null);
-        if (st.kind === "num" || st.kind === "choice") texts.push(tx.explain(PLAYER.R));
-        if (texts.some(x => typeof x !== "string" || /undefined|NaN/.test(x))) out.undef.push(st.id);
-        if (st.kind === "num") out.answers.push(+st.answer(PLAYER.R).toPrecision(6));
-      });
-      out.skip = (location.hash = "#10", true);
-      return out;
-    });
-    await p.waitForTimeout(150);
-    const reached = await p.evaluate(() => PLAYER.i + 1);
-    reached <= 2 ? ok(`${lang}: nie da się przeskoczyć zadań (#10 → krok ${reached})`) : fail(`${lang}: przeskok do kroku ${reached}`);
-    // przejście całego modułu poprawnymi odpowiedziami
-    await p.evaluate(() => { location.hash = "#1"; }); await p.waitForTimeout(150);
-    const n = await p.evaluate(() => PLAYER.mod.steps.length);
-    for (let i = 0; i < n && await p.evaluate(() => PLAYER.mod.steps[PLAYER.i].kind !== "summary"); i++) {
-      const st = await p.evaluate(() => ({ kind: PLAYER.mod.steps[PLAYER.i].kind, ans: PLAYER.mod.steps[PLAYER.i].answer ? PLAYER.mod.steps[PLAYER.i].answer(PLAYER.R) : null, c: PLAYER.mod.steps[PLAYER.i].correct }));
-      if (st.kind === "num") { await p.fill("#plAns", String(+st.ans.toPrecision(4))); await p.click("#plMain"); }
-      if (st.kind === "choice") { await p.click(`.pl-opt[data-j="${st.c}"]`); await p.click("#plMain"); }
-      await p.click("#plMain");
-    }
-    const end = await p.evaluate(() => ({ i: PLAYER.i + 1, n: PLAYER.mod.steps.length, ok: PLAYER.mod.steps.filter(s => s.kind === "num" || s.kind === "choice").every(s => PLAYER.res[s.id] && PLAYER.res[s.id].ok),
+    await p.goto(ROOT + "/lc/modul.html?lang=" + lang); await p.evaluate(() => localStorage.clear());
+    await p.goto(ROOT + "/lc/modul.html?lang=" + lang); await p.waitForTimeout(200);
+    const menu = await p.evaluate(() => ({ n: document.querySelectorAll(".pl-mod").length, keys: Object.keys(MODULES), undef: /undefined|NaN/.test(document.body.innerHTML),
       over: document.documentElement.scrollWidth > innerWidth }));
-    end.i === end.n && end.ok ? ok(`${lang}: moduł m1 przechodzi do podsumowania, wszystkie zadania zaliczone`) : fail(`${lang}: moduł m1 zatrzymał się na kroku ${end.i}/${end.n}`);
-    if (end.over) fail(`${lang}: przewijanie w poziomie w module`);
-    r.words.length ? r.words.forEach(w => fail(`${lang}: za dużo tekstu (${w})`)) : ok(`${lang}: każdy ekran informacyjny ≤ 80 słów`);
-    r.undef.length ? fail(`${lang}: undefined/NaN w krokach ${r.undef.join(", ")}`) : ok(`${lang}: teksty kompletne`);
+    menu.n === menu.keys.length && !menu.undef && !menu.over ? ok(`${lang}: lista ${menu.n} modułów`) : fail(`${lang}: lista modułów (${menu.n}/${menu.keys.length}, undefined: ${menu.undef}, przewijanie: ${menu.over})`);
+    modAns[lang] = {};
+    for (const key of menu.keys) {
+      await p.goto(ROOT + "/lc/modul.html?lang=" + lang + "&m=" + key + "#1"); await p.waitForTimeout(250);
+      const r = await p.evaluate(() => {
+        const out = { words: [], undef: [], answers: [] };
+        PLAYER.mod.steps.forEach((st, i) => {
+          const tx = PLAYER.tx.steps[st.id] || {}, tk = plTask(st);
+          if (!PLAYER.tx.steps[st.id]) out.undef.push(st.id + " (brak tekstu)");
+          if (st.kind === "info") {
+            const w = (tx.text || "").replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
+            if (w > 80) out.words.push(`${st.id}: ${w} słów`);
+          }
+          const texts = [tk.title, tk.text, tk.more, tk.seminar, tx.seminar].filter(x => x != null);
+          if (plIsTask(st)) texts.push(tk.q, tk.short);
+          if (st.kind === "choice") texts.push(...tk.options);
+          if (st.kind === "goal") texts.push(tk.hint);
+          if (texts.some(x => typeof x !== "string" || /undefined|NaN/.test(x))) out.undef.push(st.id);
+          if (st.kind === "num") out.answers.push(+tk.answer(PLAYER.R).toPrecision(6));
+        });
+        out.skip = (location.hash = "#" + PLAYER.mod.steps.length, true);
+        return out;
+      });
+      await p.waitForTimeout(150);
+      const reached = await p.evaluate(() => [PLAYER.i, PLAYER.mod.steps.findIndex(plIsTask)]);
+      reached[0] <= reached[1] ? ok(`${lang} ${key}: nie da się przeskoczyć zadań`) : fail(`${lang} ${key}: przeskok do kroku ${reached[0] + 1}`);
+      await p.evaluate(() => { location.hash = "#1"; }); await p.waitForTimeout(150);
+      const n = await p.evaluate(() => PLAYER.mod.steps.length);
+      const goalFail = [];
+      for (let i = 0; i < n + 2 && await p.evaluate(() => plStep().kind !== "summary"); i++) {
+        const st = await p.evaluate(() => { const s = plStep(), tk = plTask(s);
+          return { id: s.id, kind: s.kind, from: s.from, ans: s.kind === "num" ? tk.answer(PLAYER.R) : null, c: tk.correct, done: plDone(s) }; });
+        if (!st.done && st.kind === "num") { await p.fill("#plAns", String(+st.ans.toPrecision(4))); await p.click("#plMain"); }
+        if (!st.done && st.kind === "choice") { await p.click(`.pl-opt[data-j="${st.c}"]`); await p.click("#plMain"); }
+        if (!st.done && st.kind === "goal") {
+          await p.click("#plMain");
+          if (await p.evaluate(() => !!(PLAYER.res[plStep().id] || {}).ok)) goalFail.push(st.id + " zaliczone na starcie");
+          const sol = SOLUTIONS[st.from[0] + 1 + "." + (st.from[1] + 1)];
+          await p.evaluate(sol => { Object.assign(state, sol); PLAYER.R = result = compute(state); plRefresh(); }, sol);
+          await p.click("#plMain");
+          if (!await p.evaluate(() => !!(PLAYER.res[plStep().id] || {}).ok)) goalFail.push(st.id + ": " + await p.evaluate(() => $("plFb").textContent));
+        }
+        await p.click("#plMain");
+      }
+      const end = await p.evaluate(() => ({ i: PLAYER.i + 1, n: PLAYER.mod.steps.length, ok: PLAYER.mod.steps.filter(plIsTask).every(s => PLAYER.res[s.id] && PLAYER.res[s.id].ok),
+        over: document.documentElement.scrollWidth > innerWidth, undef: /undefined|NaN/.test(document.body.innerHTML) }));
+      goalFail.forEach(g => fail(`${lang} ${key}: ${g}`));
+      end.i === end.n && end.ok ? ok(`${lang} ${key}: przejście do podsumowania, wszystkie zadania zaliczone`) : fail(`${lang} ${key}: zatrzymanie na kroku ${end.i}/${end.n}`);
+      if (end.over) fail(`${lang} ${key}: przewijanie w poziomie`);
+      if (end.undef) fail(`${lang} ${key}: undefined/NaN w podsumowaniu`);
+      r.words.length ? r.words.forEach(w => fail(`${lang} ${key}: za dużo tekstu (${w})`)) : ok(`${lang} ${key}: ekrany informacyjne ≤ 80 słów`);
+      if (r.undef.length) fail(`${lang} ${key}: undefined/NaN lub brak tekstu w krokach ${r.undef.join(", ")}`);
+      modAns[lang][key] = JSON.stringify(r.answers);
+    }
     errs.length ? errs.forEach(fail) : ok(`${lang}: brak błędów w konsoli`);
-    modAns[lang] = JSON.stringify(r.answers);
     await p.close();
   }
-  modAns.pl === modAns.en ? ok("moduł m1: identyczne odpowiedzi PL/EN") : fail("moduł m1: odpowiedzi PL/EN się różnią");
+  JSON.stringify(modAns.pl) === JSON.stringify(modAns.en) ? ok("moduły: identyczne odpowiedzi PL/EN") : fail("moduły: odpowiedzi PL/EN się różnią");
   console.log("Zgodność wyników PL/EN");
   const same = JSON.stringify(R.pl.steps.map(s => [s.tR, s.ans, s.correct, s.initial, s.solved])) === JSON.stringify(R.en.steps.map(s => [s.tR, s.ans, s.correct, s.initial, s.solved]));
   same ? ok("identyczne czasy retencji, odpowiedzi i wyniki sprawdzeń") : fail("wyniki PL i EN się różnią");

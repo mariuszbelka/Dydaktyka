@@ -186,8 +186,8 @@ function drawColumn(T) {
                m.l + cw / 2, cy + ch / 2 + 24);
 }
 
-function drawVD() {
-  const R = result, canvas = document.getElementById("vd");
+function drawVD(canvasId) {
+  const R = result, canvas = document.getElementById(canvasId || "vd");
   const { ctx, w, h } = prep(canvas);
   const C = { text: cssVar("--text"), muted: cssVar("--muted"), grid: cssVar("--grid"), border: cssVar("--border"), accent: cssVar("--accent") };
   const m = { l: 44, r: 12, t: 12, b: 34 };

@@ -45,7 +45,7 @@ lc/js/ui.js                wykresy, tabela, formularz, animacja
 lc/js/lessons.js           logika zadań (wspólna dla języków) i silnik zajęć
 lc/js/formulas.js          wzory LC w MathML
 lc/js/app.js               zdarzenia i start
-lc/modul.html, lc/js/modules.js   moduły „przed zajęciami” LC (?m=m1)
+lc/modul.html, lc/js/modules.js   moduły „przed zajęciami” LC: lista (bez ?m) lub moduł ?m=m1…m5
 tests/run.js               test (wszystkie strony, oba języki)
 docs/                      założenia projektowe
 ```

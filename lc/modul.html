@@ -38,11 +38,15 @@
 <script>
   applyI18n();
   const q = new URLSearchParams(location.search);
-  const key = MODULES[q.get("m")] ? q.get("m") : "m1";
-  $("plBack").href = "./?lang=" + LANG;
+  const key = MODULES[q.get("m")] ? q.get("m") : null;
+  $("plBack").href = (key ? "?lang=" : "../?lang=") + LANG;
   const start = /^#\d+$/.test(location.hash) ? +location.hash.slice(1) - 1 : null;
-  playerStart(MODULES[key], L10.modules[key], start);
-  new ResizeObserver(() => { if (!$("plViz").classList.contains("hidden")) PLAYER_HOOKS.view("plChrom"); }).observe($("plViz"));
+  if (key) playerStart(key, MODULES[key], L10.modules[key], start);
+  else playerMenu(MODULES, L10.modules);
+  new ResizeObserver(() => {
+    if (!key || $("plViz").classList.contains("hidden")) return;
+    const st = plStep(); if (st.view) PLAYER_HOOKS.view("plChrom", st.view, st.zoom);
+  }).observe($("plViz"));
 </script>
 </body>
 </html>

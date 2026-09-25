@@ -7,7 +7,7 @@ I18N.pl = {
     title: "Ćwiczenia z analityki farmaceutycznej",
     subtitle: "Materiały do zajęć: symulatory, moduły przed zajęciami i karty wzorów. Wersja polska i angielska.",
     available: "dostępne", soon: "w przygotowaniu",
-    module1: "Moduł 1 (telefon)",
+    module1: "Moduły (telefon)",
     open: "Otwórz", lessons: "Zajęcia", formulas: "Wzory",
     lcTitle: "Chromatografia cieczowa (LC)",
     lcDesc: "Symulator HPLC/UHPLC, lekcje wg Ph. Eur. 2.2.46 i 2.2.29, przykłady z monografii, karta wzorów.",

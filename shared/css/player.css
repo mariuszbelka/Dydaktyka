@@ -45,3 +45,16 @@ body.player { background: var(--bg); min-height: 100vh; }
 .pl-sum li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
 .pl-seminar { background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.5; }
 @media (min-width: 700px) { .pl-viz canvas { height: 230px; } }
+/* Kontrolki symulatora w kroku „cel”, wskaźniki na żywo, lista modułów */
+.pl-ctrl { display: grid; gap: 10px; margin: 8px 0 4px; }
+.pl-field { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; font-size: 14px; }
+.pl-field > span { color: var(--muted); }
+.pl-field input[type="number"], .pl-field select { font-size: 16px; padding: 8px 10px; border-radius: 10px; min-height: 44px; max-width: 150px; }
+.pl-field input[type="number"] { width: 110px; text-align: right; }
+.pl-field input[type="range"] { grid-column: 1 / -1; width: 100%; min-height: 32px; }
+.pl-field .invalid { border-color: var(--bad); box-shadow: 0 0 0 2px var(--bad-bg); }
+.pl-live { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.pl-chip { font-size: 13px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-variant-numeric: tabular-nums; }
+.pl-mod { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-decoration: none; color: var(--text); background: var(--panel);
+          border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin: 10px 0; min-height: 56px; }
+.pl-mod small { color: var(--muted); }
