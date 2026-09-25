@@ -36,7 +36,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 ## Kluczowe pliki
 | Ścieżka | Co to |
 |---|---|
-| `docs/ZALOZENIA_PROJEKTOWE.md` | cele i zasady dydaktyczne D6–D10, pytania otwarte, kryteria akceptacji |
+| `docs/ZALOZENIA_PROJEKTOWE.md` | cele i zasady dydaktyczne D6–D11, struktura repozytorium, pytania otwarte, kryteria akceptacji |
 | `README.md` | struktura kodu, linki PL/EN, testy |
 | `i18n/pl.js`, `i18n/en.js` | wszystkie teksty (lekcje, komunikaty, wzory) |
 | `js/lessons.js` | logika zadań (wspólna dla języków) |
