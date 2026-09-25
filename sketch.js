@@ -1,21 +1,21 @@
 // ----- Zmienne globalne -----
-let anality = [];             // kolekcja analitów (kulki)
-let zdarzeniaWyjscia = [];      // zapamiêtane momenty wyjœcia analitów
-let substancje = [];          // definicje substancji (analitów) z ich wspó³czynnikami retencji
+let anality = [];             // kolekcja analitÃ³w (kulki)
+let zdarzeniaWyjscia = [];      // zapamiÄ™tane momenty wyjÅ›cia analitÃ³w
+let substancje = [];          // definicje substancji (analitÃ³w) z ich wspÃ³Å‚czynnikami retencji
 let czasSymulacji = 0;        // czas symulacji (w klatkach)
 
 // Obszar kolumny (faza stacjonarna)
 let kolumnaLewo, kolumnaPrawo, kolumnaGora, kolumnaDol;
 
-// Obszar chromatogramu (dolna czêœæ)
+// Obszar chromatogramu (dolna czÄ™Å›Ä‡)
 let chromGora, chromWysokosc;
 
 // Parametry symulacji
-let predkoscPodstawowa = 2;   // przep³yw fazy ruchomej (ml/min, u¿ywany jako piksele/klatkê)
-let czasCalkowity = 1200;     // zakres czasu symulacji (w klatkach) dla mapowania chromatogramu
-const amplituda = 50;         // bazowa amplituda pików
+let predkoscPodstawowa = 2;   // przepÅ‚yw fazy ruchomej (ml/min, uÅ¼ywany jako piksele/klatkÄ™)
+let czasCalkowity = 1200;     // zakres osi czasu chromatogramu (w klatkach), przeliczany w inicjujSymulacje()
+const amplituda = 50;         // bazowa amplituda pikÃ³w
 
-// Parametr dyspersji – im wiêksza wartoœæ, tym wiêkszy losowy rozrzut (w pikselach na klatkê)
+// Parametr dyspersji â€“ im wiÄ™ksza wartoÅ›Ä‡, tym wiÄ™kszy losowy rozrzut (w pikselach na klatkÄ™)
 let wspolczynnikDyspersji = 0.5;
 
 // Pola edytowalne (HTML)
@@ -23,6 +23,7 @@ let polePrzeplywu, poleRetencji0, poleRetencji1, poleRetencji2;
 let poleStezenia0, poleStezenia1, poleStezenia2;
 let poleDyspersji;
 let przyciskAktualizacji;
+let komunikatBledu;
 let etykietaPrzeplywu, etykietaRetencji0, etykietaRetencji1, etykietaRetencji2;
 let etykietaStezenia0, etykietaStezenia1, etykietaStezenia2;
 let etykietaDyspersji;
@@ -40,58 +41,62 @@ function setup() {
   chromGora      = 350;
   chromWysokosc  = height - 400;
   
-  // Definicja substancji z domyœlnymi wspó³czynnikami retencji i kolorami
-  // Im wy¿szy k, tym analit porusza siê wolniej (predkosc = predkoscPodstawowa/(1+k))
+  // Definicja substancji z domyÅ›lnymi wspÃ³Å‚czynnikami retencji i kolorami
+  // Im wyÅ¼szy k, tym analit porusza siÄ™ wolniej (predkosc = predkoscPodstawowa/(1+k))
   substancje = [
-    { id: 0, k: 0.5, kolor: color(255, 0, 0) },   // czerwona
-    { id: 1, k: 1.0, kolor: color(0, 200, 0) },     // zielona
-    { id: 2, k: 2.0, kolor: color(0, 0, 255) }      // niebieska
+    { id: 0, k: 0.5, c: 1, kolor: color(255, 0, 0) },   // czerwona
+    { id: 1, k: 1.0, c: 1, kolor: color(0, 200, 0) },     // zielona
+    { id: 2, k: 2.0, c: 1, kolor: color(0, 0, 255) }      // niebieska
   ];
   
-  // Tworzenie pól edytowalnych i etykiet (umieszczone pod canvasem)
-  etykietaPrzeplywu = createP("Przep³yw fazy ruchomej (ml/min):");
+  // Tworzenie pÃ³l edytowalnych i etykiet (umieszczone pod canvasem)
+  etykietaPrzeplywu = createP("PrzepÅ‚yw fazy ruchomej (ml/min):");
   etykietaPrzeplywu.position(20, height + 10);
   polePrzeplywu = createInput("2");
   polePrzeplywu.position(20, height + 40);
   
-  etykietaRetencji0 = createP("Wspó³czynnik retencji dla analitu 1 (czerwony):");
+  etykietaRetencji0 = createP("WspÃ³Å‚czynnik retencji dla analitu 1 (czerwony):");
   etykietaRetencji0.position(20, height + 70);
   poleRetencji0 = createInput("0.5");
   poleRetencji0.position(20, height + 100);
   
-  etykietaRetencji1 = createP("Wspó³czynnik retencji dla analitu 2 (zielony):");
+  etykietaRetencji1 = createP("WspÃ³Å‚czynnik retencji dla analitu 2 (zielony):");
   etykietaRetencji1.position(20, height + 130);
   poleRetencji1 = createInput("1.0");
   poleRetencji1.position(20, height + 160);
   
-  etykietaRetencji2 = createP("Wspó³czynnik retencji dla analitu 3 (niebieski):");
+  etykietaRetencji2 = createP("WspÃ³Å‚czynnik retencji dla analitu 3 (niebieski):");
   etykietaRetencji2.position(20, height + 190);
   poleRetencji2 = createInput("2.0");
   poleRetencji2.position(20, height + 220);
   
-  etykietaStezenia0 = createP("Stê¿enie substancji 1 (czerwony):");
+  etykietaStezenia0 = createP("StÄ™Å¼enie substancji 1 (czerwony):");
   etykietaStezenia0.position(20, height + 250);
   poleStezenia0 = createInput("1");
   poleStezenia0.position(20, height + 280);
   
-  etykietaStezenia1 = createP("Stê¿enie substancji 2 (zielony):");
+  etykietaStezenia1 = createP("StÄ™Å¼enie substancji 2 (zielony):");
   etykietaStezenia1.position(20, height + 310);
   poleStezenia1 = createInput("1");
   poleStezenia1.position(20, height + 340);
   
-  etykietaStezenia2 = createP("Stê¿enie substancji 3 (niebieski):");
+  etykietaStezenia2 = createP("StÄ™Å¼enie substancji 3 (niebieski):");
   etykietaStezenia2.position(20, height + 370);
   poleStezenia2 = createInput("1");
   poleStezenia2.position(20, height + 400);
   
-  etykietaDyspersji = createP("Wspó³czynnik dyspersji:");
+  etykietaDyspersji = createP("WspÃ³Å‚czynnik dyspersji:");
   etykietaDyspersji.position(20, height + 430);
   poleDyspersji = createInput("0.5");
   poleDyspersji.position(20, height + 460);
   
-  przyciskAktualizacji = createButton("Aktualizuj parametry i zresetuj symulacjê");
+  przyciskAktualizacji = createButton("Aktualizuj parametry i zresetuj symulacjÄ™");
   przyciskAktualizacji.position(20, height + 490);
   przyciskAktualizacji.mousePressed(aktualizujParametry);
+  
+  komunikatBledu = createP("");
+  komunikatBledu.position(20, height + 520);
+  komunikatBledu.style("color", "#c00000");
   
   inicjujSymulacje();
 }
@@ -101,26 +106,24 @@ function inicjujSymulacje() {
   anality = [];
   zdarzeniaWyjscia = [];
   
-  // Dla ka¿dej substancji generujemy osobno anality zgodnie z ustalonym stê¿eniem.
-  // Bazowa liczba kulek dla danej substancji wynosi 30, mno¿ona przez wartoœæ stê¿enia.
+  // Zakres osi czasu dopasowany do najwolniejszego analitu (z zapasem 30% na dyspersjÄ™),
+  // Å¼eby piki nie wypadaÅ‚y poza chromatogram przy maÅ‚ym przepÅ‚ywie lub duÅ¼ym k
+  let kMax = max(substancje.map(s => s.k));
+  let czasNajwolniejszego = (kolumnaPrawo - kolumnaLewo) / (predkoscPodstawowa / (1 + kMax));
+  czasCalkowity = max(1200, ceil(1.3 * czasNajwolniejszego));
+  
+  // Dla kaÅ¼dej substancji generujemy osobno anality zgodnie z ustalonym stÄ™Å¼eniem.
+  // Bazowa liczba kulek dla danej substancji wynosi 30, mnoÅ¼ona przez wartoÅ›Ä‡ stÄ™Å¼enia.
   for (let i = 0; i < substancje.length; i++) {
-    let stZ;
-    if (substancje[i].id === 0) {
-      stZ = parseFloat(poleStezenia0.value());
-    } else if (substancje[i].id === 1) {
-      stZ = parseFloat(poleStezenia1.value());
-    } else if (substancje[i].id === 2) {
-      stZ = parseFloat(poleStezenia2.value());
-    }
-    let liczbaAnalitow = round(30 * stZ);
+    let liczbaAnalitow = round(30 * substancje[i].c);
     for (let j = 0; j < liczbaAnalitow; j++) {
       let analit = {
         typ: substancje[i].id,
         k: substancje[i].k,
         kolor: substancje[i].kolor,
-        x: kolumnaLewo,  // start przy lewej krawêdzi kolumny
+        x: kolumnaLewo,  // start przy lewej krawÄ™dzi kolumny
         y: random(kolumnaGora, kolumnaDol),
-        // Efektywna prêdkoœæ zale¿na od retencji
+        // Efektywna prÄ™dkoÅ›Ä‡ zaleÅ¼na od retencji
         predkosc: predkoscPodstawowa / (1 + substancje[i].k),
         wyszedl: false,
         czasWyjscia: null
@@ -130,29 +133,62 @@ function inicjujSymulacje() {
   }
 }
 
+// Odczytuje liczbÄ™ z pola; zwraca null (i podÅ›wietla pole), gdy wartoÅ›Ä‡ jest nieprawidÅ‚owa
+function czytajLiczbe(pole, min, maks, minWlacznie) {
+  let tekst = pole.value().trim().replace(",", ".");
+  let wartosc = Number(tekst);
+  let poprawna = tekst !== "" && isFinite(wartosc) && wartosc <= maks &&
+                 (minWlacznie ? wartosc >= min : wartosc > min);
+  pole.style("background-color", poprawna ? "" : "#ffd0d0");
+  return poprawna ? wartosc : null;
+}
+
 function aktualizujParametry() {
-  // Aktualizuj przep³yw, wspó³czynniki retencji oraz wspó³czynnik dyspersji na podstawie pól
-  predkoscPodstawowa = parseFloat(polePrzeplywu.value());
-  substancje[0].k = parseFloat(poleRetencji0.value());
-  substancje[1].k = parseFloat(poleRetencji1.value());
-  substancje[2].k = parseFloat(poleRetencji2.value());
-  wspolczynnikDyspersji = parseFloat(poleDyspersji.value());
+  // Wszystkie parametry (takÅ¼e stÄ™Å¼enia) sÄ… przyjmowane dopiero po klikniÄ™ciu przycisku
+  let przeplyw  = czytajLiczbe(polePrzeplywu, 0, 50, false);
+  let k0        = czytajLiczbe(poleRetencji0, 0, 50, true);
+  let k1        = czytajLiczbe(poleRetencji1, 0, 50, true);
+  let k2        = czytajLiczbe(poleRetencji2, 0, 50, true);
+  let c0        = czytajLiczbe(poleStezenia0, 0, 20, true);
+  let c1        = czytajLiczbe(poleStezenia1, 0, 20, true);
+  let c2        = czytajLiczbe(poleStezenia2, 0, 20, true);
+  let dyspersja = czytajLiczbe(poleDyspersji, 0, 10, true);
+  
+  if ([przeplyw, k0, k1, k2, c0, c1, c2, dyspersja].includes(null)) {
+    komunikatBledu.html("NieprawidÅ‚owe wartoÅ›ci w zaznaczonych polach: przepÅ‚yw 0â€“50 (> 0), " +
+                        "k 0â€“50, stÄ™Å¼enie 0â€“20, dyspersja 0â€“10. Symulacja nie zostaÅ‚a zresetowana.");
+    return;
+  }
+  komunikatBledu.html("");
+  
+  predkoscPodstawowa = przeplyw;
+  substancje[0].k = k0;
+  substancje[1].k = k1;
+  substancje[2].k = k2;
+  substancje[0].c = c0;
+  substancje[1].c = c1;
+  substancje[2].c = c2;
+  wspolczynnikDyspersji = dyspersja;
   
   inicjujSymulacje();
-  loop(); // Wznów pêtlê rysuj¹c¹, jeœli zosta³a zatrzymana
+  loop(); // WznÃ³w pÄ™tlÄ™ rysujÄ…cÄ…, jeÅ›li zostaÅ‚a zatrzymana
 }
 
 function draw() {
   background(240);
   czasSymulacji++;
+  // Przy duÅ¼ej dyspersji czÄ™Å›Ä‡ kulek moÅ¼e wyjÅ›Ä‡ pÃ³Åºniej niÅ¼ zakÅ‚adaÅ‚ zapas â€“ rozszerz oÅ› czasu
+  if (czasSymulacji > czasCalkowity) {
+    czasCalkowity = ceil(1.2 * czasSymulacji);
+  }
   
-  // --- Aktualizacja po³o¿enia analitów z efektem dyspersji ---
+  // --- Aktualizacja poÅ‚oÅ¼enia analitÃ³w z efektem dyspersji ---
   for (let analit of anality) {
     if (!analit.wyszedl) {
-      // Dodajemy do deterministycznego przesuniêcia losowy sk³adnik z rozk³adu normalnego
+      // Dodajemy do deterministycznego przesuniÄ™cia losowy skÅ‚adnik z rozkÅ‚adu normalnego
       let przyrostX = analit.predkosc + randomGaussian(0, wspolczynnikDyspersji);
       analit.x += przyrostX;
-      // Zapewnij, ¿e analit nie cofnie siê poza lew¹ krawêdŸ
+      // Zapewnij, Å¼e analit nie cofnie siÄ™ poza lewÄ… krawÄ™dÅº
       analit.x = max(analit.x, kolumnaLewo);
       if (analit.x > kolumnaPrawo) {
         analit.wyszedl = true;
@@ -167,45 +203,37 @@ function draw() {
   stroke(0);
   rect(kolumnaLewo, kolumnaGora, kolumnaPrawo - kolumnaLewo, kolumnaDol - kolumnaGora);
   
-  // --- Rysowanie analitów jako kolorowych kulek ---
+  // --- Rysowanie analitÃ³w jako kolorowych kulek ---
   noStroke();
   for (let analit of anality) {
     fill(analit.kolor);
     ellipse(analit.x, analit.y, 10, 10);
   }
   
-  // --- Rysowanie t³a chromatogramu ---
+  // --- Rysowanie tÅ‚a chromatogramu ---
   fill(255);
   stroke(0);
   rect(kolumnaLewo, chromGora, kolumnaPrawo - kolumnaLewo, chromWysokosc);
   
   // --- Przygotowanie danych do rysowania chromatogramu ---
   let sigmaCzas = 10; // odchylenie standardowe w klatkach
-  let daneChromatogramu = [];  // dane dla ka¿dej substancji
-  let globalMax = 0;           // globalna maksymalna intensywnoœæ (dla skalowania)
+  let daneChromatogramu = [];  // dane dla kaÅ¼dej substancji
+  let globalMax = 0;           // globalna maksymalna intensywnoÅ›Ä‡ (dla skalowania)
   
-  // Dla ka¿dej substancji obliczamy intensywnoœæ w kolejnych punktach na osi x
+  // Dla kaÅ¼dej substancji obliczamy intensywnoÅ›Ä‡ w kolejnych punktach na osi x.
+  // StÄ™Å¼enie jest juÅ¼ odzwierciedlone w liczbie kulek, wiÄ™c kaÅ¼da kulka wnosi tÄ™ samÄ…
+  // amplitudÄ™ â€“ sygnaÅ‚ jest liniowy wzglÄ™dem stÄ™Å¼enia.
   for (let subst of substancje) {
     let punkty = [];
-    // Ustal stê¿enie odpowiednie dla danej substancji
-    let stZ = 1;
-    if (subst.id === 0) {
-      stZ = parseFloat(poleStezenia0.value());
-    } else if (subst.id === 1) {
-      stZ = parseFloat(poleStezenia1.value());
-    } else if (subst.id === 2) {
-      stZ = parseFloat(poleStezenia2.value());
-    }
-    let amplitudaUzyta = amplituda * stZ;
     
     for (let x = kolumnaLewo; x <= kolumnaPrawo; x += 2) {
-      // Mapuj pozycjê x na czas symulacji (w klatkach)
+      // Mapuj pozycjÄ™ x na czas symulacji (w klatkach)
       let t = map(x, kolumnaLewo, kolumnaPrawo, 0, czasCalkowity);
       let intensywnosc = 0;
-      // Sumuj wk³ad z ka¿dego zdarzenia wyjœcia dla danej substancji
+      // Sumuj wkÅ‚ad z kaÅ¼dego zdarzenia wyjÅ›cia dla danej substancji
       for (let zdarzenie of zdarzeniaWyjscia) {
         if (zdarzenie.typ === subst.id) {
-          intensywnosc += amplitudaUzyta * exp(-sq(t - zdarzenie.czas) / (2 * sq(sigmaCzas)));
+          intensywnosc += amplituda * exp(-sq(t - zdarzenie.czas) / (2 * sq(sigmaCzas)));
         }
       }
       if (intensywnosc > globalMax) {
@@ -216,7 +244,7 @@ function draw() {
     daneChromatogramu.push({ substancja: subst, punkty: punkty });
   }
   
-  // Oblicz wspólczynnik skalowania, aby najwy¿szy szczyt mieœci³ siê w polu chromatogramu
+  // Oblicz wspÃ³lczynnik skalowania, aby najwyÅ¼szy szczyt mieÅ›ciÅ‚ siÄ™ w polu chromatogramu
   let wspolczynnikSkali = 1;
   if (globalMax > chromWysokosc) {
     wspolczynnikSkali = chromWysokosc / globalMax;
@@ -236,14 +264,14 @@ function draw() {
   
   // --- Rysowanie osi chromatogramu ---
   stroke(0);
-  // Oœ X (czas retencji [s])
+  // OÅ› X (czas retencji [s])
   line(kolumnaLewo, chromGora + chromWysokosc, kolumnaPrawo, chromGora + chromWysokosc);
   let liczbaTickowX = 5;
   textSize(10);
   for (let i = 0; i <= liczbaTickowX; i++) {
     let xTick = map(i, 0, liczbaTickowX, kolumnaLewo, kolumnaPrawo);
     line(xTick, chromGora + chromWysokosc, xTick, chromGora + chromWysokosc + 5);
-    // Oblicz czas retencji w sekundach (przyjmuj¹c 60 klatek/s)
+    // Oblicz czas retencji w sekundach (przyjmujÄ…c 60 klatek/s)
     let czasSekundy = map(xTick, kolumnaLewo, kolumnaPrawo, 0, czasCalkowity/60);
     text(nf(czasSekundy, 1, 1), xTick - 10, chromGora + chromWysokosc + 20);
   }
@@ -251,7 +279,7 @@ function draw() {
   textSize(12);
   text("czas retencji [s]", (kolumnaLewo + kolumnaPrawo) / 2 - 40, chromGora + chromWysokosc + 40);
   
-  // Oœ Y (sygna³ [a.u.])
+  // OÅ› Y (sygnaÅ‚ [a.u.])
   line(kolumnaLewo, chromGora, kolumnaLewo, chromGora + chromWysokosc);
   let liczbaTickowY = 5;
   for (let i = 0; i <= liczbaTickowY; i++) {
@@ -260,25 +288,25 @@ function draw() {
     let sygnal = nf(map(i, 0, liczbaTickowY, 0, globalMax * wspolczynnikSkali), 1, 1);
     text(sygnal, kolumnaLewo - 30, yTick + 3);
   }
-  // Podpis osi Y (obrócony)
+  // Podpis osi Y (obrÃ³cony)
   push();
   translate(kolumnaLewo - 50, chromGora + chromWysokosc/2);
   rotate(-HALF_PI);
-  text("sygna³ [a.u.]", 0, 0);
+  text("sygnaÅ‚ [a.u.]", 0, 0);
   pop();
   
-  // --- Wyœwietlenie czasu symulacji ---
+  // --- WyÅ›wietlenie czasu symulacji ---
   fill(0);
   noStroke();
   textSize(14);
   text("Czas symulacji: " + czasSymulacji, 10, height - 10);
   
-  // --- Zakoñczenie symulacji, gdy wszystkie kulki dotr¹ do koñca kolumny ---
+  // --- ZakoÅ„czenie symulacji, gdy wszystkie kulki dotrÄ… do koÅ„ca kolumny ---
   let wszyscyWyszli = anality.every(a => a.wyszedl);
   if (wszyscyWyszli) {
     noLoop();
     fill(0);
     textSize(16);
-    text("Symulacja zakoñczona", width/2 - 70, 30);
+    text("Symulacja zakoÅ„czona", width/2 - 70, 30);
   }
 }
