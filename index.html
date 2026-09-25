@@ -1,13 +1,939 @@
 <!DOCTYPE html>
 <html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Chromatografia - p5.js</title>
-    <!-- Dołącz p5.js z CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
-  </head>
-  <body>
-    <!-- Plik ze szkicem -->
-    <script src="sketch.js"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symulator HPLC</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --text: #1b1f24;
+    --muted: #5d6673;
+    --border: #e1e4e9;
+    --grid: #eef0f3;
+    --accent: #2563eb;
+    --accent-soft: rgba(37, 99, 235, 0.10);
+    --mp-rgb: 37, 99, 235;
+    --column: #e8ecf1;
+    --good: #15803d;
+    --warn: #b45309;
+    --bad: #b91c1c;
+    --good-bg: rgba(21, 128, 61, 0.10);
+    --warn-bg: rgba(180, 83, 9, 0.12);
+    --bad-bg: rgba(185, 28, 28, 0.10);
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1216;
+      --panel: #171b21;
+      --text: #e6e9ee;
+      --muted: #9aa4b1;
+      --border: #2a313a;
+      --grid: #222830;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.14);
+      --mp-rgb: 96, 165, 250;
+      --column: #20262e;
+      --good: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --good-bg: rgba(74, 222, 128, 0.12);
+      --warn-bg: rgba(251, 191, 36, 0.12);
+      --bad-bg: rgba(248, 113, 113, 0.12);
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1216;
+    --panel: #171b21;
+    --text: #e6e9ee;
+    --muted: #9aa4b1;
+    --border: #2a313a;
+    --grid: #222830;
+    --accent: #60a5fa;
+    --accent-soft: rgba(96, 165, 250, 0.14);
+    --mp-rgb: 96, 165, 250;
+    --column: #20262e;
+    --good: #4ade80;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --good-bg: rgba(74, 222, 128, 0.12);
+    --warn-bg: rgba(251, 191, 36, 0.12);
+    --bad-bg: rgba(248, 113, 113, 0.12);
+    --shadow: none;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  header {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px;
+    padding: 18px 20px 6px; max-width: 1480px; margin: 0 auto;
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  main {
+    display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px;
+    padding: 12px 20px 28px; max-width: 1480px; margin: 0 auto;
+  }
+  @media (max-width: 960px) {
+    main { grid-template-columns: minmax(0, 1fr); padding: 12px 16px 24px; }
+    header { padding: 16px 16px 4px; }
+  }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 14px 16px; min-width: 0;
+  }
+  .card h2 {
+    margin: 0 0 10px; font-size: 12px; font-weight: 650; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--muted);
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .card-head h2 { margin: 0; }
+
+  aside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .content { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+  .field { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin: 8px 0; }
+  .field > label { font-size: 13px; }
+  .field > label small { color: var(--muted); }
+  .field .range { grid-column: 1 / -1; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .row2 .field { grid-template-columns: 1fr; margin: 4px 0; }
+
+  input[type="number"], input[type="text"], select {
+    font: inherit; font-size: 13px; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 7px; padding: 5px 8px; min-width: 0; width: 100%;
+  }
+  .field > input[type="number"] { width: 84px; text-align: right; }
+  input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input.invalid { border-color: var(--bad); background: var(--bad-bg); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; padding: 2px; background: var(--bg); }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; border-radius: 6px; font: inherit; font-size: 13px; cursor: pointer; }
+  .seg button.on { background: var(--panel); color: var(--text); box-shadow: var(--shadow); font-weight: 600; }
+
+  .btn {
+    font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  :root[data-theme="dark"] .btn.primary { color: #0f1216; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0f1216; } }
+  .btn.icon { padding: 4px 8px; line-height: 1; }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 1280px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { padding: 12px 14px; }
+  .kpi .lab { font-size: 12px; color: var(--muted); }
+  .kpi .val { font-size: 20px; font-weight: 650; margin-top: 2px; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 2px; min-height: 1.2em; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; }
+  .badge.good { color: var(--good); background: var(--good-bg); }
+  .badge.warn { color: var(--warn); background: var(--warn-bg); }
+  .badge.bad { color: var(--bad); background: var(--bad-bg); }
+
+  .canvas-wrap { position: relative; width: 100%; }
+  canvas { display: block; width: 100%; }
+  #chrom { height: 320px; }
+  #column { height: 132px; }
+  #vd { height: 240px; }
+  @media (max-width: 560px) { #chrom { height: 260px; } }
+  .readout { position: absolute; top: 4px; right: 8px; font-size: 12px; color: var(--muted); pointer-events: none; font-variant-numeric: tabular-nums; }
+
+  .transport { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .transport input[type="range"] { flex: 1; }
+  .transport .t { font-size: 12px; color: var(--muted); min-width: 92px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 1180px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { font-size: 12px; font-weight: 600; color: var(--muted); }
+  th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+  tr.critical td { background: var(--accent-soft); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+
+  .analytes { display: flex; flex-direction: column; gap: 6px; }
+  .an-head, .an-row { display: grid; grid-template-columns: 14px minmax(0, 1fr) 56px 50px 50px 26px; gap: 6px; align-items: center; }
+  .an-head { font-size: 11px; color: var(--muted); }
+  .an-row input { padding: 4px 6px; font-size: 12px; }
+  .an-row input[type="number"] { text-align: right; }
+  .an-row .del { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0; }
+  .an-row .del:hover { color: var(--bad); }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+
+  details.model summary { cursor: pointer; font-weight: 600; }
+  details.model { font-size: 13px; }
+  details.model ul { padding-left: 18px; margin: 8px 0 0; }
+  details.model li { margin: 4px 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; background: var(--bg); padding: 1px 4px; border-radius: 4px; }
+  .hidden { display: none !important; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 0.95; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Symulator HPLC</h1>
+    <p>Retencja (model LSS), sprawność (van Deemter), rozdzielczość i ciśnienie w elucji izokratycznej i gradientowej</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn" id="btnShare" title="Kopiuje link z zapisanymi ustawieniami">Kopiuj link do ustawień</button>
+    <button class="btn" id="btnPng">Pobierz chromatogram (PNG)</button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <section class="card">
+      <h2>Scenariusz</h2>
+      <select id="preset" aria-label="Scenariusz">
+        <option value="">— wybierz, aby wczytać —</option>
+        <option value="uhplc">UHPLC 100×2,1 mm, 1,7 µm – gradient</option>
+        <option value="hplc">HPLC 150×4,6 mm, 5 µm – izokratycznie 40% B</option>
+        <option value="crit">Para krytyczna: selektywność zależna od %B</option>
+        <option value="gep">Ogólny problem elucji (izokratycznie)</option>
+        <option value="ecv">Wpływ objętości pozakolumnowej</option>
+      </select>
+      <p class="hint" id="presetHint"></p>
+    </section>
+
+    <section class="card">
+      <h2>Kolumna</h2>
+      <div class="row2">
+        <div class="field"><label for="L">Długość <small>[mm]</small></label>
+          <select id="L"><option>30</option><option>50</option><option>75</option><option>100</option><option>150</option><option>250</option></select></div>
+        <div class="field"><label for="ID">Średnica wewn. <small>[mm]</small></label>
+          <select id="ID"><option>1.0</option><option>2.1</option><option>3.0</option><option>4.6</option></select></div>
+        <div class="field"><label for="dp">Ziarno <small>[µm]</small></label>
+          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3.5</option><option>5</option></select></div>
+        <div class="field"><label for="ptype">Typ cząstek</label>
+          <select id="ptype"><option value="porous">porowate</option><option value="coreshell">core-shell</option></select></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Faza ruchoma</h2>
+      <div class="field"><label for="F">Przepływ <small>[mL/min]</small></label>
+        <input type="number" id="F" step="0.05" min="0.01" max="5">
+        <input type="range" class="range" id="Fr" min="0.05" max="3" step="0.01"></div>
+      <div class="field"><label for="mod">Modyfikator organiczny (B)</label>
+        <select id="mod" style="width:auto"><option value="ACN">acetonitryl</option><option value="MeOH">metanol</option></select></div>
+      <div class="field" style="margin-top:12px"><label>Tryb elucji</label>
+        <div class="seg" id="modeSeg"><button data-mode="iso">izokratyczny</button><button data-mode="grad">gradient</button></div></div>
+
+      <div id="isoBox">
+        <div class="field"><label for="phiIso">Udział B <small>[%]</small></label>
+          <input type="number" id="phiIso" step="1" min="0" max="100">
+          <input type="range" class="range" id="phiIsoR" min="0" max="100" step="1"></div>
+      </div>
+      <div id="gradBox">
+        <div class="row2">
+          <div class="field"><label for="phi0">B start <small>[%]</small></label><input type="number" id="phi0" step="1" min="0" max="100"></div>
+          <div class="field"><label for="phi1">B koniec <small>[%]</small></label><input type="number" id="phi1" step="1" min="0" max="100"></div>
+          <div class="field"><label for="tG">Czas gradientu <small>[min]</small></label><input type="number" id="tG" step="0.5" min="0.5" max="120"></div>
+          <div class="field"><label for="hold">Izokrata końcowa <small>[min]</small></label><input type="number" id="hold" step="0.5" min="0" max="60"></div>
+          <div class="field"><label for="VD">Objętość opóźnienia <small>[mL]</small></label><input type="number" id="VD" step="0.05" min="0" max="5"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Sprawność i system</h2>
+      <div class="field"><label for="sigEC">Dyspersja pozakolumnowa σ<sub>V</sub> <small>[µL]</small></label>
+        <input type="number" id="sigEC" step="0.5" min="0" max="100"></div>
+      <div class="field"><label for="Dm">Współcz. dyfuzji D<sub>m</sub> <small>[10⁻⁵ cm²/s]</small></label>
+        <input type="number" id="Dm" step="0.1" min="0.05" max="5"></div>
+      <p class="hint">Typowo σ<sub>V</sub>: 10–15 µL dla HPLC, 2–5 µL dla UHPLC. D<sub>m</sub> ≈ 1 dla małych cząsteczek, ≈ 0,1 dla peptydów.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Anality</h2><button class="btn icon" id="addAn" title="Dodaj analit">+ dodaj</button></div>
+      <div class="analytes" id="anList"></div>
+      <p class="hint">log k = log k<sub>w</sub> − S·φ; ilość to względne pole piku.</p>
+    </section>
+  </aside>
+
+  <div class="content">
+    <div class="kpis">
+      <div class="card kpi"><div class="lab">Czas martwy t₀</div><div class="val" id="k_t0">–</div><div class="sub" id="k_t0s"></div></div>
+      <div class="card kpi"><div class="lab">Sprawność kolumny N</div><div class="val" id="k_N">–</div><div class="sub" id="k_Ns"></div></div>
+      <div class="card kpi"><div class="lab">Ciśnienie ΔP</div><div class="val" id="k_P">–</div><div class="sub" id="k_Ps"></div></div>
+      <div class="card kpi"><div class="lab">Para krytyczna R<sub>s</sub></div><div class="val" id="k_Rs">–</div><div class="sub" id="k_Rss"></div></div>
+      <div class="card kpi"><div class="lab">Czas analizy</div><div class="val" id="k_T">–</div><div class="sub" id="k_Ts"></div></div>
+      <div class="card kpi"><div class="lab">Zużycie fazy</div><div class="val" id="k_V">–</div><div class="sub" id="k_Vs"></div></div>
+    </div>
+
+    <section class="card">
+      <div class="card-head"><h2>Chromatogram</h2></div>
+      <div class="canvas-wrap"><canvas id="chrom" aria-label="Chromatogram"></canvas><div class="readout" id="readout"></div></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Pasma w kolumnie</h2></div>
+      <canvas id="column" aria-label="Położenie pasm analitów w kolumnie"></canvas>
+      <div class="transport">
+        <button class="btn primary" id="play">▶ Odtwórz</button>
+        <input type="range" id="scrub" min="0" max="1000" step="1" value="1000" aria-label="Czas">
+        <span class="t" id="tLabel"></span>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Wyniki</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Analit</th><th>t<sub>R</sub> [min]</th><th id="thK">k</th><th>α</th><th>w<sub>½</sub> [s]</th><th>N<sub>obs</sub></th><th>R<sub>s</sub></th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="tableHint"></p>
+      </section>
+      <section class="card">
+        <h2>Krzywa van Deemtera</h2>
+        <canvas id="vd" aria-label="Krzywa van Deemtera"></canvas>
+        <p class="hint" id="vdHint"></p>
+      </section>
+    </div>
+
+    <section class="card">
+      <details class="model">
+        <summary>Model i założenia</summary>
+        <ul>
+          <li><b>Retencja:</b> model LSS, <code>log k = log k_w − S·φ</code>. Parametry k<sub>w</sub> i S odnoszą się do wybranego modyfikatora; zmiana ACN/MeOH wpływa tu tylko na lepkość.</li>
+          <li><b>Migracja:</b> prędkość pasma <code>dx/dt = u/(1+k(φ(x,t)))</code> całkowana numerycznie. W gradiencie skład w punkcie x w chwili t to <code>φ(t − t_D − x/u)</code>, gdzie t<sub>D</sub> = V<sub>D</sub>/F. Ta sama procedura daje t<sub>R</sub> w obu trybach.</li>
+          <li><b>Czas martwy:</b> <code>V_M = ε_T·πr²L</code>, ε<sub>T</sub> = 0,65 (porowate) lub 0,50 (core-shell); <code>t₀ = V_M/F</code>.</li>
+          <li><b>Sprawność:</b> zredukowane równanie van Deemtera <code>h = A + B/ν + C·ν</code>, <code>ν = u·d_p/D_m</code>, <code>H = h·d_p</code>, <code>N = L/H</code>. Porowate: A = 1,2, B = 2,0, C = 0,08; core-shell: A = 0,7, B = 1,6, C = 0,06.</li>
+          <li><b>Szerokość piku:</b> <code>σ_t = t₀(1 + k_e)/√N</code>, gdzie k<sub>e</sub> to k w chwili elucji (w izokracji k<sub>e</sub> = k). Dodatkowo wariancja pozakolumnowa <code>(σ_V/F)²</code>. Kompresja pasma w gradiencie jest pominięta, więc piki gradientowe są nieco zawyżone.</li>
+          <li><b>Pojemność pików (gradient):</b> <code>n_c = 1 + (t_R,ost − t_R,pierw)/(4σ̄)</code>.</li>
+          <li><b>Rozdzielczość:</b> <code>R_s = (t_R2 − t_R1) / (2(σ₁ + σ₂))</code>; N<sub>obs</sub> = (t<sub>R</sub>/σ)². Piki są gaussowskie (bez ogonowania).</li>
+          <li><b>Ciśnienie:</b> prawo Darcy'ego <code>ΔP = Φ·η·L·u_s/d_p²</code>, Φ = 1500, u<sub>s</sub> – prędkość pozorna. Lepkość mieszanin woda–ACN i woda–MeOH w 25 °C z przybliżenia empirycznego; w gradiencie podawane jest maksimum.</li>
+          <li>Wartości są orientacyjne: model służy do nauki zależności (φ, F, L, d<sub>p</sub>, V<sub>D</sub>, σ<sub>V</sub>), a nie do przewidywania konkretnej metody.</li>
+        </ul>
+      </details>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+// ---------- Stałe modelu ----------
+const PALETTE = ["#2563eb", "#dc2626", "#059669", "#d97706", "#7c3aed", "#db2777", "#0891b2", "#65a30d"];
+const PARTICLES = {
+  porous:    { A: 1.2, B: 2.0, C: 0.08, eps: 0.65 },
+  coreshell: { A: 0.7, B: 1.6, C: 0.06, eps: 0.50 }
+};
+const FLOW_RESISTANCE = 1500;   // Φ w prawie Darcy'ego
+const MAX_ANALYTES = 8;
+
+function viscosity(phi, mod) {  // cP, 25 °C, przybliżenie empiryczne
+  return mod === "MeOH"
+    ? 0.89 * (1 - phi) + 0.54 * phi + 3.0 * phi * (1 - phi)
+    : 0.89 * (1 - phi) + 0.34 * phi + 0.9 * phi * (1 - phi);
+}
+
+const DEFAULT_ANALYTES = [
+  { name: "Analit 1", logkw: 1.00, S: 2.5, amt: 1.0 },
+  { name: "Analit 2", logkw: 1.80, S: 3.5, amt: 0.8 },
+  { name: "Analit 3", logkw: 2.40, S: 4.0, amt: 1.0 },
+  { name: "Analit 4", logkw: 2.55, S: 4.3, amt: 0.7 },
+  { name: "Analit 5", logkw: 3.10, S: 4.6, amt: 1.2 }
+];
+
+const PRESETS = {
+  uhplc: {
+    hint: "Typowy układ LC-MS: krótka kolumna, małe ziarno, gradient 5→95% B.",
+    s: { L: 100, ID: 2.1, dp: 1.7, ptype: "porous", F: 0.4, mod: "ACN", mode: "grad", phiIso: 40,
+         phi0: 5, phi1: 95, tG: 10, hold: 2, VD: 0.35, sigEC: 4, Dm: 1.0 }
+  },
+  hplc: {
+    hint: "Klasyczna kolumna analityczna. Sprawdź, jak zmiana %B o kilka punktów zmienia R_s pary 3/4.",
+    s: { L: 150, ID: 4.6, dp: 5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 40,
+         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+  },
+  crit: {
+    hint: "Anality 3 i 4 mają różne S: przy ~50% B koeluują, powyżej zmieniają kolejność elucji. Przesuwaj suwak %B.",
+    s: { L: 150, ID: 4.6, dp: 3.5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 46,
+         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+  },
+  gep: {
+    hint: "Przy stałym %B wczesne piki są słabo rozdzielone, a późne szerokie i niskie. Przełącz na gradient.",
+    s: { L: 150, ID: 4.6, dp: 5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 30,
+         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+  },
+  ecv: {
+    hint: "Kolumna 50×2,1 mm ma V_M ≈ 0,1 mL; σ_V = 10 µL niszczy sprawność wczesnych pików. Porównaj N_obs z N kolumny i zmniejsz σ_V.",
+    s: { L: 50, ID: 2.1, dp: 1.7, ptype: "coreshell", F: 0.5, mod: "ACN", mode: "iso", phiIso: 45,
+         phi0: 5, phi1: 95, tG: 5, hold: 1, VD: 0.35, sigEC: 10, Dm: 1.0 }
+  }
+};
+
+let state = Object.assign({}, PRESETS.uhplc.s, { analytes: DEFAULT_ANALYTES.map(a => Object.assign({}, a)) });
+let result = null;
+let animT = null;      // null = pełny chromatogram
+let playing = false;
+
+// ---------- Obliczenia ----------
+function compute(s) {
+  const P = PARTICLES[s.ptype];
+  const L = s.L;                                   // mm
+  const r = s.ID / 2;                              // mm
+  const dpmm = s.dp / 1000;                        // mm
+  const Vm = P.eps * Math.PI * r * r * L / 1000;   // mL
+  const t0 = Vm / s.F;                             // min
+  const uMin = L / t0;                             // mm/min
+  const u = uMin / 60;                             // mm/s
+  const Dmm = s.Dm * 1e-5 * 100;                   // mm²/s
+  const nu = u * dpmm / Dmm;
+  const h = P.A + P.B / nu + P.C * nu;
+  const H = h * dpmm;                              // mm
+  const N = L / H;
+  const sigEC = (s.sigEC / 1000) / s.F;            // min
+  const iso = s.mode === "iso";
+  const tD = iso ? 0 : s.VD / s.F;
+  const p0 = s.phi0 / 100, p1 = s.phi1 / 100, pIso = s.phiIso / 100;
+
+  const phiProg = iso
+    ? () => pIso
+    : (tau) => tau <= 0 ? p0 : (tau >= s.tG ? p1 : p0 + (p1 - p0) * tau / s.tG);
+  const phiAt = (x, t) => phiProg(t - tD - (x / L) * t0);
+  const kOf = (a, phi) => Math.pow(10, a.logkw - a.S * phi);
+
+  const progEnd = iso ? 0 : tD + t0 + s.tG + s.hold;
+  const tMax = progEnd + 150 * t0;
+  const dt = t0 / 400;
+
+  const peaks = s.analytes.map((a, i) => {
+    let x = 0, t = 0, step = 0;
+    const tr = [0], xr = [0];
+    while (x < L && t < tMax) {
+      const k1 = kOf(a, phiAt(x, t));
+      const xm = x + 0.5 * dt * uMin / (1 + k1);
+      const k2 = kOf(a, phiAt(xm, t + 0.5 * dt));
+      const xn = x + dt * uMin / (1 + k2);
+      if (xn >= L) { t += dt * (L - x) / (xn - x); x = L; }
+      else { x = xn; t += dt; }
+      if (++step % 4 === 0 || x >= L) { tr.push(t); xr.push(x); }
+    }
+    const eluted = x >= L;
+    const tR = eluted ? t : null;
+    const kE = eluted ? kOf(a, phiAt(L, tR)) : null;
+    const sigCol = eluted ? t0 * (1 + kE) / Math.sqrt(N) : null;
+    const sigma = eluted ? Math.sqrt(sigCol * sigCol + sigEC * sigEC) : null;
+    return {
+      i, name: a.name || "Analit " + (i + 1), color: PALETTE[i % PALETTE.length], amt: a.amt,
+      eluted, tR, kE, sigma, Nobs: eluted ? Math.pow(tR / sigma, 2) : null, traj: { t: tr, x: xr }
+    };
+  });
+
+  const el = peaks.filter(p => p.eluted).sort((a, b) => a.tR - b.tR);
+  let crit = null;
+  el.forEach((p, j) => {
+    p.Rs = null; p.alpha = null;
+    if (j > 0) {
+      const q = el[j - 1];
+      p.Rs = (p.tR - q.tR) / (2 * (p.sigma + q.sigma));
+      if (iso) p.alpha = p.kE / q.kE;
+      if (!crit || p.Rs < crit.Rs) crit = { Rs: p.Rs, a: q, b: p };
+    }
+  });
+
+  // Ciśnienie (maksimum po składzie fazy)
+  const us = (s.F * 1e-6 / 60) / (Math.PI * Math.pow(r / 1000, 2));   // m/s
+  const phis = iso ? [pIso] : Array.from({ length: 41 }, (_, j) => Math.min(p0, p1) + Math.abs(p1 - p0) * j / 40);
+  const etaMax = Math.max(...phis.map(p => viscosity(p, s.mod)));
+  const dP = FLOW_RESISTANCE * etaMax * 1e-3 * (L / 1000) * us / Math.pow(dpmm / 1000, 2) / 1e5;  // bar
+
+  const lastPeak = el.length ? Math.max(...el.map(p => p.tR + 4 * p.sigma)) : 2 * t0;
+  const tEnd = Math.max(lastPeak, progEnd, 1.5 * t0) * 1.02;
+
+  // Optimum van Deemtera
+  const nuOpt = Math.sqrt(P.B / P.C);
+  const uOpt = nuOpt * Dmm / dpmm;                 // mm/s
+  const Fopt = s.F * uOpt / u;
+
+  return { s, P, t0, u, nu, h, H, N, sigEC, tD, iso, phiProg, phiAt, peaks, el, crit, dP, tEnd,
+           runTime: el.length ? Math.max(lastPeak, progEnd) : progEnd, uOpt, Fopt, Dmm, dpmm, Vm };
+}
+
+// ---------- Formatowanie ----------
+const nf = (v, d) => v.toLocaleString("pl-PL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const nInt = v => Math.round(v).toLocaleString("pl-PL");
+function niceStep(range, target) {
+  const raw = range / target, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+}
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+}
+
+// ---------- Canvas ----------
+function prep(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  return { ctx, w, h };
+}
+
+function gauss(t, p) { const z = (t - p.tR) / p.sigma; return Math.exp(-0.5 * z * z) / (p.sigma * 2.5066283); }
+
+let chromGeom = null;
+function drawChrom(T) {
+  const R = result, canvas = document.getElementById("chrom");
+  const { ctx, w, h } = prep(canvas);
+  const C = { text: cssVar("--text"), muted: cssVar("--muted"), grid: cssVar("--grid"), border: cssVar("--border"), accent: cssVar("--accent") };
+  const m = { l: 44, r: R.iso ? 14 : 40, t: 22, b: 34 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const tEnd = R.tEnd, tShow = T == null ? tEnd : T;
+  const X = t => m.l + t / tEnd * pw;
+
+  const n = Math.max(200, Math.round(pw));
+  const ts = Array.from({ length: n + 1 }, (_, j) => j / n * tEnd);
+  const ind = R.el.map(p => ts.map(t => p.amt * gauss(t, p)));
+  const tot = ts.map((_, j) => ind.reduce((s, a) => s + a[j], 0));
+  const ymax = Math.max(1e-9, ...tot) * 1.12;
+  const Y = v => m.t + ph - v / ymax * ph;
+  chromGeom = { m, pw, tEnd };
+
+  // siatka i oś czasu
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  const st = niceStep(tEnd, Math.max(4, Math.floor(pw / 80)));
+  for (let t = 0; t <= tEnd + 1e-9; t += st) {
+    const x = Math.round(X(t)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); ctx.stroke();
+    ctx.fillText(nf(t, st < 1 ? 1 : 0), x, m.t + ph + 6);
+  }
+  ctx.fillText("czas [min]", m.l + pw / 2, m.t + ph + 20);
+  for (let j = 0; j <= 4; j++) {
+    const y = Math.round(m.t + ph * j / 4) + 0.5;
+    ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); ctx.stroke();
+  }
+  ctx.save(); ctx.translate(12, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = "middle";
+  ctx.fillText("sygnał [j.u.]", 0, 0); ctx.restore();
+
+  // program gradientu na detektorze
+  if (!R.iso) {
+    ctx.strokeStyle = C.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.25; ctx.beginPath();
+    ts.forEach((t, j) => { const y = m.t + ph - R.phiProg(t - R.tD - R.t0) * ph; j ? ctx.lineTo(X(t), y) : ctx.moveTo(X(t), y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.accent; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    [0, 50, 100].forEach(v => ctx.fillText(v + "%", m.l + pw + 6, m.t + ph - v / 100 * ph));
+    ctx.textAlign = "right"; ctx.textBaseline = "bottom"; ctx.fillText("%B na detektorze", m.l + pw, m.t - 4);
+  }
+
+  // t0
+  ctx.strokeStyle = C.muted; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+  const x0 = Math.round(X(R.t0)) + 0.5;
+  ctx.beginPath(); ctx.moveTo(x0, m.t); ctx.lineTo(x0, m.t + ph); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.fillText("t₀", x0, m.t - 4);
+
+  // piki (wypełnienie) + sygnał sumaryczny, do chwili tShow
+  const jMax = Math.min(n, Math.floor(tShow / tEnd * n));
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l, 0, X(tShow) - m.l + 0.5, h); ctx.clip();
+  R.el.forEach((p, k) => {
+    ctx.fillStyle = hexA(p.color, 0.18); ctx.strokeStyle = p.color; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0));
+    ts.forEach((t, j) => ctx.lineTo(X(t), Y(ind[k][j])));
+    ctx.lineTo(X(tEnd), Y(0)); ctx.closePath(); ctx.fill();
+  });
+  ctx.restore();
+  ctx.strokeStyle = C.text; ctx.lineWidth = 1.6; ctx.lineJoin = "round"; ctx.beginPath();
+  for (let j = 0; j <= jMax; j++) { const px = X(ts[j]), py = Y(tot[j]); j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  ctx.stroke();
+
+  // etykiety pików
+  let lastX = -1e9, lvl = 0;
+  ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.font = "600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  R.el.forEach(p => {
+    if (p.tR > tShow) return;
+    const x = X(p.tR), top = Y(p.amt * gauss(p.tR, p));
+    lvl = x - lastX < 18 ? lvl + 1 : 0; lastX = x;
+    ctx.fillStyle = p.color;
+    ctx.fillText(String(p.i + 1), x, Math.max(m.t + 10, top - 4 - lvl * 12));
+  });
+
+  // znacznik bieżącego czasu
+  if (T != null && T < tEnd) {
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(X(T), m.t); ctx.lineTo(X(T), m.t + ph); ctx.stroke();
+  }
+  ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(m.l + 0.5, m.t + 0.5, pw, ph);
+}
+
+function interpX(traj, T) {
+  const { t, x } = traj;
+  if (T >= t[t.length - 1]) return x[x.length - 1];
+  let lo = 0, hi = t.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (t[mid] <= T) lo = mid; else hi = mid; }
+  const f = (T - t[lo]) / (t[hi] - t[lo] || 1);
+  return x[lo] + f * (x[hi] - x[lo]);
+}
+
+function drawColumn(T) {
+  const R = result, canvas = document.getElementById("column");
+  const { ctx, w, h } = prep(canvas);
+  const C = { text: cssVar("--text"), muted: cssVar("--muted"), border: cssVar("--border"), column: cssVar("--column"), mp: cssVar("--mp-rgb") };
+  const m = { l: 56, r: 64 };
+  const cw = w - m.l - m.r, cy = 44, ch = 40;
+  const L = R.s.L, tNow = T == null ? R.tEnd : T;
+  const X = x => m.l + x / L * cw;
+
+  // kolumna z tłem odpowiadającym składowi fazy ruchomej
+  ctx.fillStyle = C.column; ctx.fillRect(m.l, cy - ch / 2, cw, ch);
+  for (let px = 0; px < cw; px += 2) {
+    const phi = R.phiAt(px / cw * L, tNow);
+    ctx.fillStyle = `rgba(${C.mp},${(0.05 + 0.35 * phi).toFixed(3)})`;
+    ctx.fillRect(m.l + px, cy - ch / 2, 2, ch);
+  }
+
+  // pasma
+  const sInj = 0.004 * L;
+  R.peaks.forEach(p => {
+    if (p.eluted && tNow >= p.tR) return;
+    const xc = interpX(p.traj, tNow);
+    const sx = Math.sqrt(R.H * xc + sInj * sInj);
+    const pxS = Math.max(1.2, sx / L * cw);
+    const a0 = Math.min(0.95, 0.35 + 0.6 * p.amt / Math.max(...R.s.analytes.map(a => a.amt), 1e-9));
+    for (let d = -3.2 * pxS; d <= 3.2 * pxS; d += 1) {
+      const px = X(xc) + d;
+      if (px < m.l || px > m.l + cw) continue;
+      ctx.fillStyle = hexA(p.color, a0 * Math.exp(-0.5 * (d / pxS) ** 2));
+      ctx.fillRect(px, cy - ch / 2 + 3, 1.2, ch - 6);
+    }
+    if (pxS < 30) {
+      ctx.fillStyle = p.color; ctx.font = "600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      ctx.fillText(String(p.i + 1), Math.min(Math.max(X(xc), m.l + 6), m.l + cw - 6), cy - ch / 2 - 3);
+    }
+  });
+
+  ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(m.l + 0.5, cy - ch / 2 + 0.5, cw, ch);
+  ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = C.muted; ctx.textBaseline = "middle";
+  ctx.textAlign = "right"; ctx.fillText("wlot", m.l - 8, cy);
+  ctx.textAlign = "left"; ctx.fillText("detektor", m.l + cw + 8, cy);
+  ctx.textBaseline = "top"; ctx.textAlign = "left"; ctx.fillText("0", m.l, cy + ch / 2 + 6);
+  ctx.textAlign = "right"; ctx.fillText(L + " mm", m.l + cw, cy + ch / 2 + 6);
+  ctx.textAlign = "center";
+  const phiIn = R.phiAt(0, tNow), phiOut = R.phiAt(L, tNow);
+  ctx.fillText(R.iso ? `faza ruchoma: ${nf(phiIn * 100, 0)}% B`
+                     : `%B: wlot ${nf(phiIn * 100, 0)}% → wylot ${nf(phiOut * 100, 0)}%` + (cw > 420 ? "  (odcień tła = %B)" : ""),
+               m.l + cw / 2, cy + ch / 2 + 24);
+}
+
+function drawVD() {
+  const R = result, canvas = document.getElementById("vd");
+  const { ctx, w, h } = prep(canvas);
+  const C = { text: cssVar("--text"), muted: cssVar("--muted"), grid: cssVar("--grid"), border: cssVar("--border"), accent: cssVar("--accent") };
+  const m = { l: 44, r: 12, t: 12, b: 34 };
+  const pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const P = R.P, dpUm = R.s.dp;
+  const Hof = u => dpUm * (P.A + P.B / (u * R.dpmm / R.Dmm) + P.C * (u * R.dpmm / R.Dmm));  // µm
+  const uMax = Math.max(3 * R.uOpt, 1.3 * R.u);
+  const uMin = uMax / 200;
+  const Hmin = Hof(R.uOpt);
+  const yMax = Math.max(4 * Hmin, 1.25 * Hof(R.u));
+  const X = u => m.l + u / uMax * pw, Y = v => m.t + ph - Math.min(v, yMax) / yMax * ph;
+
+  ctx.strokeStyle = C.grid; ctx.fillStyle = C.muted; ctx.lineWidth = 1; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  const sx = niceStep(uMax, 5);
+  for (let u = 0; u <= uMax + 1e-9; u += sx) { const x = Math.round(X(u)) + 0.5; ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); ctx.stroke(); ctx.fillText(nf(u, sx < 1 ? 1 : 0), x, m.t + ph + 6); }
+  ctx.fillText("prędkość liniowa u [mm/s]", m.l + pw / 2, m.t + ph + 20);
+  const sy = niceStep(yMax, 4);
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let v = 0; v <= yMax + 1e-9; v += sy) { const y = Math.round(Y(v)) + 0.5; ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); ctx.stroke(); ctx.fillText(nf(v, sy < 1 ? 1 : 0), m.l - 6, y); }
+  ctx.save(); ctx.translate(11, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("H [µm]", 0, 0); ctx.restore();
+
+  const curve = (f, color, dash, lw) => {
+    ctx.strokeStyle = color; ctx.setLineDash(dash); ctx.lineWidth = lw; ctx.beginPath();
+    for (let j = 0; j <= 200; j++) { const u = uMin + (uMax - uMin) * j / 200; const y = Y(f(u)); j ? ctx.lineTo(X(u), y) : ctx.moveTo(X(u), y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
+  curve(() => dpUm * P.A, C.muted, [3, 3], 1);
+  curve(u => dpUm * P.B / (u * R.dpmm / R.Dmm), C.muted, [3, 3], 1);
+  curve(u => dpUm * P.C * (u * R.dpmm / R.Dmm), C.muted, [3, 3], 1);
+  curve(Hof, C.text, [], 2);
+  ctx.restore();
+
+  // optimum i punkt pracy
+  ctx.fillStyle = C.muted; ctx.beginPath(); ctx.arc(X(R.uOpt), Y(Hmin), 3.5, 0, 7); ctx.fill();
+  ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(X(R.u), Y(R.H * 1000), 5.5, 0, 7); ctx.fill();
+  ctx.textAlign = X(R.u) > m.l + pw - 90 ? "right" : "left"; ctx.textBaseline = "bottom";
+  ctx.fillText("punkt pracy", X(R.u) + (ctx.textAlign === "left" ? 8 : -8), Y(R.H * 1000) - 4);
+  ctx.fillStyle = C.muted; ctx.font = "11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif"; ctx.textAlign = "right"; ctx.textBaseline = "top";
+  ctx.fillText("przerywane: A, B/u, C·u", m.l + pw - 6, m.t + 4);
+  ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(m.l + 0.5, m.t + 0.5, pw, ph);
+}
+
+// ---------- Panele liczbowe ----------
+function renderStats() {
+  const R = result, s = R.s;
+  const set = (id, v) => { document.getElementById(id).innerHTML = v; };
+  set("k_t0", nf(R.t0, 2) + " min");
+  set("k_t0s", `V<sub>M</sub> = ${nf(R.Vm * 1000, 0)} µL · u = ${nf(R.u, 2)} mm/s`);
+  set("k_N", nInt(R.N));
+  let ncTxt = "";
+  if (!R.iso && R.el.length > 1) {
+    const sAvg = R.el.reduce((a, p) => a + p.sigma, 0) / R.el.length;
+    ncTxt = ` · n<sub>c</sub> ≈ ${nInt(1 + (R.el[R.el.length - 1].tR - R.el[0].tR) / (4 * sAvg))}`;
+  }
+  set("k_Ns", `H = ${nf(R.H * 1000, 1)} µm · h = ${nf(R.h, 2)}${ncTxt}`);
+  const pBadge = R.dP > 1300 ? '<span class="badge bad">powyżej UHPLC</span>' : R.dP > 400 ? '<span class="badge warn">wymaga UHPLC</span>' : '<span class="badge good">HPLC ok</span>';
+  set("k_P", nInt(R.dP) + " bar");
+  set("k_Ps", (R.iso ? "" : "maks. w gradiencie · ") + pBadge);
+  if (R.crit) {
+    const cls = R.crit.Rs >= 1.5 ? "good" : R.crit.Rs >= 1.0 ? "warn" : "bad";
+    set("k_Rs", nf(R.crit.Rs, 2));
+    set("k_Rss", `<span class="badge ${cls}">${R.crit.Rs >= 1.5 ? "rozdzielone" : R.crit.Rs >= 1 ? "częściowo" : "koelucja"}</span> ${R.crit.a.i + 1} / ${R.crit.b.i + 1}`);
+  } else { set("k_Rs", "–"); set("k_Rss", ""); }
+  set("k_T", nf(R.runTime, 1) + " min");
+  const notEl = R.peaks.filter(p => !p.eluted).length;
+  set("k_Ts", notEl ? `<span class="badge bad">${notEl} nie eluuje</span>` : (R.iso ? "do końca ostatniego piku" : `t<sub>D</sub> = ${nf(R.tD, 2)} min`));
+  set("k_V", nf(s.F * R.runTime, 1) + " mL");
+  set("k_Vs", `przy ${nf(s.F, 2)} mL/min`);
+
+  document.getElementById("thK").innerHTML = R.iso ? "k" : "k<sub>e</sub>";
+  const rows = R.el.map(p => {
+    const rsCls = p.Rs == null ? "" : p.Rs >= 1.5 ? "good" : p.Rs >= 1 ? "warn" : "bad";
+    const crit = R.crit && (R.crit.a === p || R.crit.b === p) ? ' class="critical"' : "";
+    return `<tr${crit}><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td>
+      <td>${nf(p.tR, 2)}</td><td>${nf(p.kE, 2)}</td><td>${p.alpha == null ? "–" : nf(p.alpha, 3)}</td>
+      <td>${nf(2.3548 * p.sigma * 60, 1)}</td><td>${R.iso ? nInt(p.Nobs) : "–"}</td>
+      <td>${p.Rs == null ? "–" : `<span class="badge ${rsCls}">${nf(p.Rs, 2)}</span>`}</td></tr>`;
+  });
+  R.peaks.filter(p => !p.eluted).forEach(p => rows.push(
+    `<tr><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td><td colspan="6" style="text-align:left;color:var(--bad)">nie eluuje w rozsądnym czasie – zwiększ %B</td></tr>`));
+  document.getElementById("tbody").innerHTML = rows.join("");
+  document.getElementById("tableHint").innerHTML = R.iso
+    ? "R<sub>s</sub> liczone do poprzedniego piku; podświetlona para krytyczna. N<sub>obs</sub> uwzględnia dyspersję pozakolumnową."
+    : "W gradiencie k<sub>e</sub> to współczynnik retencji w chwili elucji. α i N<sub>obs</sub> nie są podawane, bo w gradiencie tracą sens; n<sub>c</sub> to pojemność pików między pierwszym a ostatnim pikiem.";
+  document.getElementById("vdHint").innerHTML =
+    `Optimum: u<sub>opt</sub> = ${nf(R.uOpt, 2)} mm/s, co odpowiada F ≈ ${nf(R.Fopt, 2)} mL/min (H<sub>min</sub> = ${nf(R.s.dp * (R.P.A + 2 * Math.sqrt(R.P.B * R.P.C)), 1)} µm). ` +
+    `Linie przerywane to składowe A, B/u i C·u.`;
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+// ---------- Formularz ----------
+const $ = id => document.getElementById(id);
+const NUM = {
+  F: [0.01, 5], phiIso: [0, 100], phi0: [0, 100], phi1: [0, 100], tG: [0.5, 120], hold: [0, 60], VD: [0, 5], sigEC: [0, 100], Dm: [0.05, 5]
+};
+
+function readNum(id) {
+  const el = $(id), [lo, hi] = NUM[id];
+  const v = Number(String(el.value).replace(",", "."));
+  const ok = el.value !== "" && isFinite(v) && v >= lo && v <= hi;
+  el.classList.toggle("invalid", !ok);
+  return ok ? v : null;
+}
+
+function writeForm() {
+  ["L", "ID", "dp"].forEach(id => { $(id).value = String(state[id]); if ($(id).value === "") $(id).value = $(id).options[0].value; });
+  $("ID").value = Number(state.ID).toFixed(1);
+  $("ptype").value = state.ptype; $("mod").value = state.mod;
+  Object.keys(NUM).forEach(id => { $(id).value = state[id]; $(id).classList.remove("invalid"); });
+  $("Fr").value = state.F; $("phiIsoR").value = state.phiIso;
+  document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
+  $("isoBox").classList.toggle("hidden", state.mode !== "iso");
+  $("gradBox").classList.toggle("hidden", state.mode !== "grad");
+  renderAnalytes();
+}
+
+function renderAnalytes() {
+  const list = $("anList");
+  list.innerHTML = `<div class="an-head"><span></span><span>nazwa</span><span>log k<sub>w</sub></span><span>S</span><span>ilość</span><span></span></div>` +
+    state.analytes.map((a, i) => `<div class="an-row" data-i="${i}">
+      <span class="dot" style="background:${PALETTE[i % PALETTE.length]};margin:0"></span>
+      <input type="text" data-k="name" value="${escapeHtml(a.name)}" aria-label="Nazwa analitu ${i + 1}">
+      <input type="number" data-k="logkw" step="0.05" value="${a.logkw}" aria-label="log kw">
+      <input type="number" data-k="S" step="0.1" value="${a.S}" aria-label="S">
+      <input type="number" data-k="amt" step="0.1" min="0" value="${a.amt}" aria-label="ilość">
+      <button class="del" title="Usuń" aria-label="Usuń analit ${i + 1}">×</button></div>`).join("");
+  $("addAn").disabled = state.analytes.length >= MAX_ANALYTES;
+}
+
+const AN_LIM = { logkw: [-2, 8], S: [0, 15], amt: [0, 100] };
+
+function readForm() {
+  let ok = true;
+  ["L", "ID", "dp"].forEach(id => { state[id] = Number($(id).value); });
+  state.ptype = $("ptype").value; state.mod = $("mod").value;
+  Object.keys(NUM).forEach(id => { const v = readNum(id); if (v == null) ok = false; else state[id] = v; });
+  document.querySelectorAll(".an-row").forEach(row => {
+    const a = state.analytes[+row.dataset.i];
+    row.querySelectorAll("input").forEach(inp => {
+      const k = inp.dataset.k;
+      if (k === "name") { a.name = inp.value; return; }
+      const v = Number(String(inp.value).replace(",", ".")), [lo, hi] = AN_LIM[k];
+      const good = inp.value !== "" && isFinite(v) && v >= lo && v <= hi;
+      inp.classList.toggle("invalid", !good);
+      if (good) a[k] = v; else ok = false;
+    });
+  });
+  return ok;
+}
+
+let pending = false;
+function update() {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => {
+    pending = false;
+    readForm();
+    result = compute(state);
+    stopPlay(); animT = null;
+    renderStats(); redraw();
+  });
+}
+
+function redraw() {
+  if (!result) return;
+  drawChrom(animT); drawColumn(animT); drawVD();
+  const T = animT == null ? result.tEnd : animT;
+  $("scrub").value = Math.round(T / result.tEnd * 1000);
+  $("tLabel").textContent = "t = " + nf(T, 2) + " min";
+}
+
+// ---------- Animacja ----------
+let lastFrame = 0;
+function frame(ts) {
+  if (!playing) return;
+  const dtReal = lastFrame ? (ts - lastFrame) / 1000 : 0; lastFrame = ts;
+  animT = (animT == null ? 0 : animT) + dtReal * result.tEnd / 14;   // cały przebieg w ~14 s
+  if (animT >= result.tEnd) { animT = null; stopPlay(); }
+  redraw();
+  if (playing) requestAnimationFrame(frame);
+}
+function startPlay() {
+  if (animT == null || animT >= result.tEnd) animT = 0;
+  playing = true; lastFrame = 0; $("play").textContent = "❚❚ Pauza"; requestAnimationFrame(frame);
+}
+function stopPlay() { playing = false; $("play").textContent = "▶ Odtwórz"; }
+
+// ---------- Zdarzenia ----------
+document.querySelector("aside").addEventListener("input", e => {
+  if (e.target.id === "Fr") $("F").value = e.target.value;
+  if (e.target.id === "F" && readNum("F") != null) $("Fr").value = $("F").value;
+  if (e.target.id === "phiIsoR") $("phiIso").value = e.target.value;
+  if (e.target.id === "phiIso" && readNum("phiIso") != null) $("phiIsoR").value = $("phiIso").value;
+  if (e.target.id !== "preset") update();
+});
+document.querySelector("aside").addEventListener("change", e => { if (e.target.tagName === "SELECT" && e.target.id !== "preset") update(); });
+
+$("modeSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.mode = b.dataset.mode; writeForm(); update();
+});
+$("anList").addEventListener("click", e => {
+  if (!e.target.classList.contains("del")) return;
+  readForm();
+  state.analytes.splice(+e.target.closest(".an-row").dataset.i, 1);
+  renderAnalytes(); update();
+});
+$("addAn").addEventListener("click", () => {
+  if (state.analytes.length >= MAX_ANALYTES) return;
+  readForm();
+  const last = state.analytes[state.analytes.length - 1] || { logkw: 1.5, S: 3.5 };
+  state.analytes.push({ name: "Analit " + (state.analytes.length + 1), logkw: +(last.logkw + 0.3).toFixed(2), S: last.S, amt: 1 });
+  renderAnalytes(); update();
+});
+$("preset").addEventListener("change", e => {
+  const p = PRESETS[e.target.value];
+  $("presetHint").textContent = p ? p.hint : "";
+  if (!p) return;
+  readForm();
+  Object.assign(state, p.s, { analytes: DEFAULT_ANALYTES.map(a => Object.assign({}, a)) });
+  writeForm(); update();
+});
+
+$("play").addEventListener("click", () => playing ? stopPlay() : startPlay());
+$("scrub").addEventListener("input", e => {
+  stopPlay();
+  const v = +e.target.value;
+  animT = v >= 1000 ? null : v / 1000 * result.tEnd;
+  redraw();
+});
+
+$("chrom").addEventListener("mousemove", e => {
+  if (!chromGeom || !result) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const t = (e.clientX - rect.left - chromGeom.m.l) / chromGeom.pw * chromGeom.tEnd;
+  if (t < 0 || t > chromGeom.tEnd) { $("readout").textContent = ""; return; }
+  let txt = "t = " + nf(t, 2) + " min";
+  if (!result.iso) txt += " · B = " + nf(result.phiProg(t - result.tD - result.t0) * 100, 0) + "%";
+  const near = result.el.reduce((b, p) => Math.abs(p.tR - t) < 2 * p.sigma && (!b || Math.abs(p.tR - t) < Math.abs(b.tR - t)) ? p : b, null);
+  if (near) txt += " · " + near.name + " (t_R " + nf(near.tR, 2) + ")";
+  $("readout").textContent = txt;
+});
+$("chrom").addEventListener("mouseleave", () => { $("readout").textContent = ""; });
+
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
+
+$("btnShare").addEventListener("click", async () => {
+  readForm();
+  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const url = location.href.split("#")[0] + "#s=" + enc;
+  try { history.replaceState(null, "", "#s=" + enc); } catch (_) {}
+  try { await navigator.clipboard.writeText(url); toast("Link skopiowany do schowka"); }
+  catch (_) { toast("Link zapisany w pasku adresu"); }
+});
+
+$("btnPng").addEventListener("click", () => {
+  const src = $("chrom"), c = document.createElement("canvas");
+  c.width = src.width; c.height = src.height;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = cssVar("--panel"); ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(src, 0, 0);
+  const a = document.createElement("a"); a.download = "chromatogram.png"; a.href = c.toDataURL("image/png"); a.click();
+});
+
+new ResizeObserver(() => redraw()).observe(document.querySelector(".content"));
+try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw); } catch (_) {}
+
+// ---------- Start ----------
+(function init() {
+  const m = location.hash.match(/^#s=(.+)$/);
+  if (m) {
+    try {
+      const s = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+      if (s && Array.isArray(s.analytes)) state = Object.assign(state, s);
+    } catch (_) {}
+  }
+  else { $("preset").value = "uhplc"; $("presetHint").textContent = PRESETS.uhplc.hint; }
+  writeForm();
+  update();
+})();
+</script>
+</body>
 </html>
