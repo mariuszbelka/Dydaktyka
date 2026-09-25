@@ -74,15 +74,15 @@
     font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
   header {
-    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
     padding: 18px 20px 6px; max-width: 1480px; margin: 0 auto;
   }
   header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
   header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   main {
-    display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px;
+    display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px;
     padding: 12px 20px 28px; max-width: 1480px; margin: 0 auto;
   }
   @media (max-width: 960px) {
@@ -110,6 +110,7 @@
   .field .range { grid-column: 1 / -1; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
   .row2 .field { grid-template-columns: 1fr; margin: 4px 0; }
+  .row2 .field.span2 { grid-column: 1 / -1; }
 
   input[type="number"], input[type="text"], select {
     font: inherit; font-size: 13px; color: var(--text); background: var(--bg);
@@ -119,6 +120,7 @@
   input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   input.invalid { border-color: var(--bad); background: var(--bad-bg); }
   input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+  input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; padding: 2px; background: var(--bg); }
   .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; border-radius: 6px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -129,6 +131,7 @@
     padding: 6px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;
   }
   .btn:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.45; cursor: default; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   :root[data-theme="dark"] .btn.primary { color: #0f1216; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0f1216; } }
@@ -152,31 +155,63 @@
   #column { height: 132px; }
   #vd { height: 240px; }
   @media (max-width: 560px) { #chrom { height: 260px; } }
-  .readout { position: absolute; top: 4px; right: 8px; font-size: 12px; color: var(--muted); pointer-events: none; font-variant-numeric: tabular-nums; }
+  .readout { position: absolute; top: 2px; left: 50px; font-size: 12px; color: var(--muted); pointer-events: none; font-variant-numeric: tabular-nums; }
+  .inline-sel { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .inline-sel select { width: auto; padding: 3px 6px; font-size: 12px; }
 
   .transport { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
   .transport input[type="range"] { flex: 1; }
   .transport .t { font-size: 12px; color: var(--muted); min-width: 92px; text-align: right; font-variant-numeric: tabular-nums; }
 
-  .grid2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; }
   @media (max-width: 1180px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
 
   .table-wrap { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
-  th, td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th, td { padding: 6px 7px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
   th { font-size: 12px; font-weight: 600; color: var(--muted); }
   th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
   tr.critical td { background: var(--accent-soft); }
-  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+  td.hid { color: var(--muted); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; flex: none; }
+  .report-note { display: none; font-size: 12px; margin: 0 0 8px; padding: 6px 10px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); }
+  .report .report-note { display: block; }
 
   .analytes { display: flex; flex-direction: column; gap: 6px; }
-  .an-head, .an-row { display: grid; grid-template-columns: 14px minmax(0, 1fr) 56px 50px 50px 26px; gap: 6px; align-items: center; }
+  .an-head, .an-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) 50px 44px 50px 20px 20px; gap: 5px; align-items: center; }
   .an-head { font-size: 11px; color: var(--muted); }
-  .an-row input { padding: 4px 6px; font-size: 12px; }
+  .an-row input { padding: 4px 5px; font-size: 12px; }
   .an-row input[type="number"] { text-align: right; }
   .an-row .del { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0; }
   .an-row .del:hover { color: var(--bad); }
   .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+
+  /* Zajęcia */
+  .lesson { border-color: var(--accent); }
+  .lesson select { margin-bottom: 8px; }
+  .dots { display: flex; gap: 5px; flex-wrap: wrap; margin: 2px 0 10px; }
+  .dots button { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--muted); font-size: 11px; cursor: pointer; padding: 0; }
+  .dots button.done { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+  .dots button.cur { border-color: var(--accent); color: var(--text); font-weight: 700; box-shadow: 0 0 0 2px var(--accent-soft); }
+  .lesson h3 { margin: 0 0 6px; font-size: 15px; }
+  .lesson-text { font-size: 13px; }
+  .lesson-text p { margin: 0 0 8px; }
+  .lesson-text .ref { color: var(--muted); font-size: 12px; }
+  .lesson-text code, .task code { white-space: nowrap; }
+  .task { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 13px; }
+  .task .q { font-weight: 600; margin-bottom: 8px; }
+  .task .ansrow { display: flex; gap: 8px; align-items: center; }
+  .task .ansrow input { width: 120px; }
+  .task label.opt { display: flex; gap: 8px; align-items: flex-start; margin: 5px 0; cursor: pointer; }
+  .task label.opt input { margin-top: 3px; }
+  .feedback { margin-top: 8px; font-size: 13px; padding: 8px 10px; border-radius: 8px; display: none; }
+  .feedback.ok { display: block; background: var(--good-bg); color: var(--text); border-left: 3px solid var(--good); }
+  .feedback.bad { display: block; background: var(--bad-bg); color: var(--text); border-left: 3px solid var(--bad); }
+  .feedback.near { display: block; background: var(--warn-bg); color: var(--text); border-left: 3px solid var(--warn); }
+  .teacher { margin-top: 8px; font-size: 12px; color: var(--warn); }
+  details.hintbox { margin-top: 8px; font-size: 13px; }
+  details.hintbox summary { cursor: pointer; color: var(--accent); }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 
   details.model summary { cursor: pointer; font-weight: 600; }
   details.model { font-size: 13px; }
@@ -193,17 +228,32 @@
 <header>
   <div>
     <h1>Symulator HPLC</h1>
-    <p>Retencja (model LSS), sprawność (van Deemter), rozdzielczość i ciśnienie w elucji izokratycznej i gradientowej</p>
+    <p>Retencja, sprawność, rozdzielczość i przydatność układu chromatograficznego (wg Ph. Eur. 2.2.46)</p>
   </div>
   <div class="header-actions">
-    <button class="btn" id="btnShare" title="Kopiuje link z zapisanymi ustawieniami">Kopiuj link do ustawień</button>
-    <button class="btn" id="btnPng">Pobierz chromatogram (PNG)</button>
+    <div class="seg" id="appMode"><button data-app="sim" class="on">Symulator</button><button data-app="lesson">Zajęcia</button></div>
+    <button class="btn" id="btnShare" title="Kopiuje link z zapisanymi ustawieniami">Kopiuj link</button>
+    <button class="btn" id="btnPng">Pobierz PNG</button>
   </div>
 </header>
 
 <main>
   <aside>
-    <section class="card">
+    <section class="card lesson hidden" id="lessonCard">
+      <div class="card-head"><h2>Zajęcia</h2><span class="hint" id="lessonProgress" style="margin:0"></span></div>
+      <select id="lessonSel" aria-label="Lekcja"></select>
+      <div class="dots" id="dots"></div>
+      <h3 id="stepTitle"></h3>
+      <div class="lesson-text" id="stepText"></div>
+      <div class="task" id="task"></div>
+      <div class="lesson-nav">
+        <button class="btn" id="prevStep">← Wstecz</button>
+        <button class="btn" id="resetStep" title="Przywraca warunki początkowe tego kroku">Przywróć warunki</button>
+        <button class="btn primary" id="nextStep">Dalej →</button>
+      </div>
+    </section>
+
+    <section class="card" id="presetCard">
       <h2>Scenariusz</h2>
       <select id="preset" aria-label="Scenariusz">
         <option value="">— wybierz, aby wczytać —</option>
@@ -216,7 +266,7 @@
       <p class="hint" id="presetHint"></p>
     </section>
 
-    <section class="card">
+    <section class="card" id="controls">
       <h2>Kolumna</h2>
       <div class="row2">
         <div class="field"><label for="L">Długość <small>[mm]</small></label>
@@ -224,43 +274,46 @@
         <div class="field"><label for="ID">Średnica wewn. <small>[mm]</small></label>
           <select id="ID"><option>1.0</option><option>2.1</option><option>3.0</option><option>4.6</option></select></div>
         <div class="field"><label for="dp">Ziarno <small>[µm]</small></label>
-          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3.5</option><option>5</option></select></div>
+          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3</option><option>3.5</option><option>5</option></select></div>
         <div class="field"><label for="ptype">Typ cząstek</label>
-          <select id="ptype"><option value="porous">porowate</option><option value="coreshell">core-shell</option></select></div>
+          <select id="ptype"><option value="porous">całk. porowate</option><option value="coreshell">core-shell</option></select></div>
+        <div class="field span2"><label for="endcap">Faza stacjonarna</label>
+          <select id="endcap"><option value="1">C18 z end-cappingiem</option><option value="0">C18 bez end-cappingu (wolne silanole)</option></select></div>
       </div>
-    </section>
 
-    <section class="card">
-      <h2>Faza ruchoma</h2>
+      <h2 style="margin-top:16px">Faza ruchoma</h2>
       <div class="field"><label for="F">Przepływ <small>[mL/min]</small></label>
-        <input type="number" id="F" step="0.05" min="0.01" max="5">
+        <input type="number" id="F" step="0.01" min="0.01" max="5">
         <input type="range" class="range" id="Fr" min="0.05" max="3" step="0.01"></div>
-      <div class="field"><label for="mod">Modyfikator organiczny (B)</label>
+      <div class="field"><label for="mod">Modyfikator (B)</label>
         <select id="mod" style="width:auto"><option value="ACN">acetonitryl</option><option value="MeOH">metanol</option></select></div>
       <div class="field" style="margin-top:12px"><label>Tryb elucji</label>
         <div class="seg" id="modeSeg"><button data-mode="iso">izokratyczny</button><button data-mode="grad">gradient</button></div></div>
 
       <div id="isoBox">
         <div class="field"><label for="phiIso">Udział B <small>[%]</small></label>
-          <input type="number" id="phiIso" step="1" min="0" max="100">
-          <input type="range" class="range" id="phiIsoR" min="0" max="100" step="1"></div>
+          <input type="number" id="phiIso" step="0.5" min="0" max="100">
+          <input type="range" class="range" id="phiIsoR" min="0" max="100" step="0.5"></div>
       </div>
       <div id="gradBox">
         <div class="row2">
           <div class="field"><label for="phi0">B start <small>[%]</small></label><input type="number" id="phi0" step="1" min="0" max="100"></div>
           <div class="field"><label for="phi1">B koniec <small>[%]</small></label><input type="number" id="phi1" step="1" min="0" max="100"></div>
+          <div class="field"><label for="tIso0">Izokrata początk. <small>[min]</small></label><input type="number" id="tIso0" step="0.05" min="0" max="60"></div>
           <div class="field"><label for="tG">Czas gradientu <small>[min]</small></label><input type="number" id="tG" step="0.5" min="0.5" max="120"></div>
-          <div class="field"><label for="hold">Izokrata końcowa <small>[min]</small></label><input type="number" id="hold" step="0.5" min="0" max="60"></div>
-          <div class="field"><label for="VD">Objętość opóźnienia <small>[mL]</small></label><input type="number" id="VD" step="0.05" min="0" max="5"></div>
+          <div class="field"><label for="hold">Izokrata końc. <small>[min]</small></label><input type="number" id="hold" step="0.5" min="0" max="60"></div>
+          <div class="field"><label for="VD">Obj. opóźnienia D <small>[mL]</small></label><input type="number" id="VD" step="0.05" min="0" max="5"></div>
         </div>
       </div>
-    </section>
 
-    <section class="card">
-      <h2>Sprawność i system</h2>
+      <h2 style="margin-top:16px">Aparatura i detekcja</h2>
       <div class="field"><label for="sigEC">Dyspersja pozakolumnowa σ<sub>V</sub> <small>[µL]</small></label>
         <input type="number" id="sigEC" step="0.5" min="0" max="100"></div>
-      <div class="field"><label for="Dm">Współcz. dyfuzji D<sub>m</sub> <small>[10⁻⁵ cm²/s]</small></label>
+      <div class="field"><label for="Vinj">Objętość nastrzyku <small>[µL]</small></label>
+        <input type="number" id="Vinj" step="1" min="0.1" max="100"></div>
+      <div class="field"><label for="noise">Szum detektora σ <small>[mAU]</small></label>
+        <input type="number" id="noise" step="0.001" min="0" max="5"></div>
+      <div class="field"><label for="Dm">D<sub>m</sub> <small>[10⁻⁵ cm²/s]</small></label>
         <input type="number" id="Dm" step="0.1" min="0.05" max="5"></div>
       <p class="hint">Typowo σ<sub>V</sub>: 10–15 µL dla HPLC, 2–5 µL dla UHPLC. D<sub>m</sub> ≈ 1 dla małych cząsteczek, ≈ 0,1 dla peptydów.</p>
     </section>
@@ -268,13 +321,13 @@
     <section class="card">
       <div class="card-head"><h2>Anality</h2><button class="btn icon" id="addAn" title="Dodaj analit">+ dodaj</button></div>
       <div class="analytes" id="anList"></div>
-      <p class="hint">log k = log k<sub>w</sub> − S·φ; ilość to względne pole piku.</p>
+      <p class="hint">log k = log k<sub>w</sub> − S·φ; „ilość” – stężenie względne; „zas.” – związek zasadowy (ogonuje na wolnych silanolach).</p>
     </section>
   </aside>
 
   <div class="content">
     <div class="kpis">
-      <div class="card kpi"><div class="lab">Czas martwy t₀</div><div class="val" id="k_t0">–</div><div class="sub" id="k_t0s"></div></div>
+      <div class="card kpi"><div class="lab">Czas martwy t<sub>M</sub></div><div class="val" id="k_t0">–</div><div class="sub" id="k_t0s"></div></div>
       <div class="card kpi"><div class="lab">Sprawność kolumny N</div><div class="val" id="k_N">–</div><div class="sub" id="k_Ns"></div></div>
       <div class="card kpi"><div class="lab">Ciśnienie ΔP</div><div class="val" id="k_P">–</div><div class="sub" id="k_Ps"></div></div>
       <div class="card kpi"><div class="lab">Para krytyczna R<sub>s</sub></div><div class="val" id="k_Rs">–</div><div class="sub" id="k_Rss"></div></div>
@@ -283,7 +336,9 @@
     </div>
 
     <section class="card">
-      <div class="card-head"><h2>Chromatogram</h2></div>
+      <div class="card-head"><h2>Chromatogram</h2>
+        <label class="inline-sel">Skala Y
+          <select id="yzoom"><option value="1">auto</option><option value="10">×10</option><option value="100">×100</option><option value="1000">×1000</option><option value="10000">×10 000</option></select></label></div>
       <div class="canvas-wrap"><canvas id="chrom" aria-label="Chromatogram"></canvas><div class="readout" id="readout"></div></div>
     </section>
 
@@ -298,11 +353,12 @@
     </section>
 
     <div class="grid2">
-      <section class="card">
+      <section class="card" id="resultsCard">
         <h2>Wyniki</h2>
+        <p class="report-note">Tryb raportu: widoczne są tylko dane z integracji (t<sub>R</sub>, w<sub>h</sub>, H, h). Parametry oblicz samodzielnie ze wzorów Ph. Eur. 2.2.46.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Analit</th><th>t<sub>R</sub> [min]</th><th id="thK">k</th><th>α</th><th>w<sub>½</sub> [s]</th><th>N<sub>obs</sub></th><th>R<sub>s</sub></th></tr></thead>
+            <thead><tr><th>#</th><th>Analit</th><th>t<sub>R</sub> [min]</th><th>w<sub>h</sub> [min]</th><th>H [mAU]</th><th id="thK">k</th><th>α</th><th>N</th><th>A<sub>s</sub></th><th>R<sub>s</sub></th><th id="thSN">S/N</th></tr></thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
@@ -319,15 +375,15 @@
       <details class="model">
         <summary>Model i założenia</summary>
         <ul>
-          <li><b>Retencja:</b> model LSS, <code>log k = log k_w − S·φ</code>. Parametry k<sub>w</sub> i S odnoszą się do wybranego modyfikatora; zmiana ACN/MeOH wpływa tu tylko na lepkość.</li>
-          <li><b>Migracja:</b> prędkość pasma <code>dx/dt = u/(1+k(φ(x,t)))</code> całkowana numerycznie. W gradiencie skład w punkcie x w chwili t to <code>φ(t − t_D − x/u)</code>, gdzie t<sub>D</sub> = V<sub>D</sub>/F. Ta sama procedura daje t<sub>R</sub> w obu trybach.</li>
-          <li><b>Czas martwy:</b> <code>V_M = ε_T·πr²L</code>, ε<sub>T</sub> = 0,65 (porowate) lub 0,50 (core-shell); <code>t₀ = V_M/F</code>.</li>
-          <li><b>Sprawność:</b> zredukowane równanie van Deemtera <code>h = A + B/ν + C·ν</code>, <code>ν = u·d_p/D_m</code>, <code>H = h·d_p</code>, <code>N = L/H</code>. Porowate: A = 1,2, B = 2,0, C = 0,08; core-shell: A = 0,7, B = 1,6, C = 0,06.</li>
-          <li><b>Szerokość piku:</b> <code>σ_t = t₀(1 + k_e)/√N</code>, gdzie k<sub>e</sub> to k w chwili elucji (w izokracji k<sub>e</sub> = k). Dodatkowo wariancja pozakolumnowa <code>(σ_V/F)²</code>. Kompresja pasma w gradiencie jest pominięta, więc piki gradientowe są nieco zawyżone.</li>
-          <li><b>Pojemność pików (gradient):</b> <code>n_c = 1 + (t_R,ost − t_R,pierw)/(4σ̄)</code>.</li>
-          <li><b>Rozdzielczość:</b> <code>R_s = (t_R2 − t_R1) / (2(σ₁ + σ₂))</code>; N<sub>obs</sub> = (t<sub>R</sub>/σ)². Piki są gaussowskie (bez ogonowania).</li>
-          <li><b>Ciśnienie:</b> prawo Darcy'ego <code>ΔP = Φ·η·L·u_s/d_p²</code>, Φ = 1500, u<sub>s</sub> – prędkość pozorna. Lepkość mieszanin woda–ACN i woda–MeOH w 25 °C z przybliżenia empirycznego; w gradiencie podawane jest maksimum.</li>
-          <li>Wartości są orientacyjne: model służy do nauki zależności (φ, F, L, d<sub>p</sub>, V<sub>D</sub>, σ<sub>V</sub>), a nie do przewidywania konkretnej metody.</li>
+          <li><b>Parametry w tabeli</b> są mierzone na symulowanych pikach wzorami Ph. Eur. 2.2.46: <code>k = (t_R − t_M)/t_M</code>, <code>α = k₂/k₁</code>, <code>N = 5,54·(t_R/w_h)²</code>, <code>R_s = 1,18·(t_R2 − t_R1)/(w_h1 + w_h2)</code>, <code>A_s = w_0,05/(2d)</code>, <code>S/N = 2H/h</code>. t<sub>R</sub> to maksimum piku.</li>
+          <li><b>Retencja:</b> model LSS, <code>log k = log k_w − S·φ</code>; parametry k<sub>w</sub> i S odnoszą się do wybranego modyfikatora (zmiana ACN/MeOH wpływa tu tylko na lepkość).</li>
+          <li><b>Migracja:</b> <code>dx/dt = u/(1+k(φ(x,t)))</code> całkowane numerycznie; w gradiencie skład w punkcie x to <code>φ(t − t_D − x/u)</code>, t<sub>D</sub> = D/F, program: izokrata początkowa → liniowy gradient → izokrata końcowa.</li>
+          <li><b>Czas martwy:</b> <code>V_M = ε_T·πr²L</code>, ε<sub>T</sub> = 0,65 (porowate) lub 0,50 (core-shell); <code>t_M = V_M/F</code>.</li>
+          <li><b>Sprawność:</b> <code>h = A + B/ν + C·ν</code>, <code>ν = u·d_p/D_m</code>, <code>N_kol = L/(h·d_p)</code>. Porowate: A = 1,2, B = 2,0, C = 0,08; core-shell: A = 0,7, B = 1,6, C = 0,06.</li>
+          <li><b>Kształt piku:</b> gauss o <code>σ_t² = [t_M(1+k_e)]²/N_kol + (σ_V² + V_inj²/12)/F²</code> splecony z wykładniczym ogonem (EMG). Ogonowanie rośnie dla związków zasadowych, zwłaszcza na fazie bez end-cappingu. Nastrzyk traktowany jako prostokątny, bez ogniskowania na kolumnie; kompresja pasma w gradiencie pominięta.</li>
+          <li><b>Sygnał:</b> detektor stężeniowy (UV), pole piku ∝ ilość·V<sub>inj</sub>/F. Szum biały o odchyleniu σ; h to rozstęp szumu ślepej próby w oknie 5·w<sub>h</sub> (próbkowanie 10 Hz).</li>
+          <li><b>Ciśnienie:</b> <code>ΔP = Φ·η·L·u_s/d_p²</code>, Φ = 1500; lepkość woda–ACN i woda–MeOH w 25 °C z przybliżenia empirycznego; w gradiencie podawane maksimum.</li>
+          <li>Wartości są orientacyjne – model służy do nauki zależności, a nie do przewidywania konkretnej metody.</li>
         </ul>
       </details>
     </section>
@@ -339,7 +395,9 @@
 <script>
 "use strict";
 
-// ---------- Stałe modelu ----------
+// =====================================================================
+// Stałe modelu
+// =====================================================================
 const PALETTE = ["#2563eb", "#dc2626", "#059669", "#d97706", "#7c3aed", "#db2777", "#0891b2", "#65a30d"];
 const PARTICLES = {
   porous:    { A: 1.2, B: 2.0, C: 0.08, eps: 0.65 },
@@ -347,81 +405,148 @@ const PARTICLES = {
 };
 const FLOW_RESISTANCE = 1500;   // Φ w prawie Darcy'ego
 const MAX_ANALYTES = 8;
+const AREA_SCALE = 1000;        // pole [mAU·s] dla ilości 1, V_inj 10 µL, F 1 mL/min
+const GRID = 5000;              // punkty chromatogramu
 
 function viscosity(phi, mod) {  // cP, 25 °C, przybliżenie empiryczne
   return mod === "MeOH"
     ? 0.89 * (1 - phi) + 0.54 * phi + 3.0 * phi * (1 - phi)
     : 0.89 * (1 - phi) + 0.34 * phi + 0.9 * phi * (1 - phi);
 }
+function tailFactor(a, s) {     // τ/σ_kol
+  if (!a.basic) return 0.12;
+  return s.endcap ? 0.5 : 3.2;
+}
 
 const DEFAULT_ANALYTES = [
-  { name: "Analit 1", logkw: 1.00, S: 2.5, amt: 1.0 },
-  { name: "Analit 2", logkw: 1.80, S: 3.5, amt: 0.8 },
-  { name: "Analit 3", logkw: 2.40, S: 4.0, amt: 1.0 },
-  { name: "Analit 4", logkw: 2.55, S: 4.3, amt: 0.7 },
-  { name: "Analit 5", logkw: 3.10, S: 4.6, amt: 1.2 }
+  { name: "Analit 1", logkw: 1.00, S: 2.5, amt: 1.0, basic: false },
+  { name: "Analit 2", logkw: 1.80, S: 3.5, amt: 0.8, basic: false },
+  { name: "Analit 3", logkw: 2.40, S: 4.0, amt: 1.0, basic: false },
+  { name: "Analit 4", logkw: 2.55, S: 4.3, amt: 0.7, basic: false },
+  { name: "Analit 5", logkw: 3.10, S: 4.6, amt: 1.2, basic: false }
 ];
+
+const BASE = { L: 150, ID: 4.6, dp: 5, ptype: "porous", endcap: true, F: 1.0, mod: "ACN", mode: "iso", phiIso: 40,
+               phi0: 10, phi1: 90, tIso0: 0, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Vinj: 10, noise: 0.005, Dm: 1.0 };
 
 const PRESETS = {
   uhplc: {
     hint: "Typowy układ LC-MS: krótka kolumna, małe ziarno, gradient 5→95% B.",
-    s: { L: 100, ID: 2.1, dp: 1.7, ptype: "porous", F: 0.4, mod: "ACN", mode: "grad", phiIso: 40,
-         phi0: 5, phi1: 95, tG: 10, hold: 2, VD: 0.35, sigEC: 4, Dm: 1.0 }
+    s: Object.assign({}, BASE, { L: 100, ID: 2.1, dp: 1.7, F: 0.4, mode: "grad", phi0: 5, phi1: 95, tG: 10, hold: 2, VD: 0.35, sigEC: 4, Vinj: 2 })
   },
   hplc: {
-    hint: "Klasyczna kolumna analityczna. Sprawdź, jak zmiana %B o kilka punktów zmienia R_s pary 3/4.",
-    s: { L: 150, ID: 4.6, dp: 5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 40,
-         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+    hint: "Klasyczna kolumna analityczna. Sprawdź, jak zmiana %B o kilka punktów zmienia Rs pary 3/4.",
+    s: Object.assign({}, BASE)
   },
   crit: {
     hint: "Anality 3 i 4 mają różne S: przy ~50% B koeluują, powyżej zmieniają kolejność elucji. Przesuwaj suwak %B.",
-    s: { L: 150, ID: 4.6, dp: 3.5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 46,
-         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+    s: Object.assign({}, BASE, { dp: 3.5, phiIso: 46 })
   },
   gep: {
     hint: "Przy stałym %B wczesne piki są słabo rozdzielone, a późne szerokie i niskie. Przełącz na gradient.",
-    s: { L: 150, ID: 4.6, dp: 5, ptype: "porous", F: 1.0, mod: "ACN", mode: "iso", phiIso: 30,
-         phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0, sigEC: 12, Dm: 1.0 }
+    s: Object.assign({}, BASE, { phiIso: 30 })
   },
   ecv: {
-    hint: "Kolumna 50×2,1 mm ma V_M ≈ 0,1 mL; σ_V = 10 µL niszczy sprawność wczesnych pików. Porównaj N_obs z N kolumny i zmniejsz σ_V.",
-    s: { L: 50, ID: 2.1, dp: 1.7, ptype: "coreshell", F: 0.5, mod: "ACN", mode: "iso", phiIso: 45,
-         phi0: 5, phi1: 95, tG: 5, hold: 1, VD: 0.35, sigEC: 10, Dm: 1.0 }
+    hint: "Kolumna 50×2,1 mm ma V_M ≈ 90 µL; σ_V = 10 µL niszczy sprawność wczesnych pików. Porównaj N pików z N kolumny i zmniejsz σ_V.",
+    s: Object.assign({}, BASE, { L: 50, ID: 2.1, dp: 1.7, ptype: "coreshell", F: 0.5, phiIso: 45, VD: 0.35, sigEC: 10, Vinj: 1 })
   }
 };
 
-let state = Object.assign({}, PRESETS.uhplc.s, { analytes: DEFAULT_ANALYTES.map(a => Object.assign({}, a)) });
+const cloneAn = arr => arr.map(a => Object.assign({}, a));
+let state = Object.assign({}, PRESETS.uhplc.s, { analytes: cloneAn(DEFAULT_ANALYTES) });
 let result = null;
 let animT = null;      // null = pełny chromatogram
 let playing = false;
+let reportMode = false;
+let hideVdHint = false;
 
-// ---------- Obliczenia ----------
+// =====================================================================
+// Pomocnicze
+// =====================================================================
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function gaussRand(rng) {
+  let u = 0; while (u === 0) u = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+}
+
+// Kształt piku: gauss (μ, σ) splecony z wykładniczym ogonem τ; pole = area [mAU·min]
+function peakShape(mu, sigma, tau, area) {
+  const t0 = mu - 6 * sigma, t1 = mu + 7 * sigma + 12 * tau;
+  const M = 1600, dt = (t1 - t0) / (M - 1);
+  const y = new Float64Array(M);
+  const c = area / (sigma * Math.sqrt(2 * Math.PI));
+  for (let i = 0; i < M; i++) { const z = (t0 + i * dt - mu) / sigma; y[i] = c * Math.exp(-0.5 * z * z); }
+  if (tau > 0.2 * dt) {
+    const a = Math.exp(-dt / tau);
+    let prev = 0;
+    for (let i = 0; i < M; i++) { prev = a * prev + (1 - a) * y[i]; y[i] = prev; }
+  }
+  return { t0, dt, y, M };
+}
+function shapeAt(sh, t) {
+  const f = (t - sh.t0) / sh.dt;
+  if (f < 0 || f >= sh.M - 1) return 0;
+  const i = Math.floor(f), r = f - i;
+  return sh.y[i] * (1 - r) + sh.y[i + 1] * r;
+}
+// Pomiar piku wg Ph. Eur. 2.2.46: t_R (maksimum), H, w_h, w_0,05, d, A_s
+function measurePeak(sh) {
+  const { y, dt, t0, M } = sh;
+  let im = 0;
+  for (let i = 1; i < M; i++) if (y[i] > y[im]) im = i;
+  let tA = t0 + im * dt, H = y[im];
+  if (im > 0 && im < M - 1) {
+    const y0 = y[im - 1], y1 = y[im], y2 = y[im + 1], den = y0 - 2 * y1 + y2;
+    if (den !== 0) { const d = 0.5 * (y0 - y2) / den; tA += d * dt; H = y1 - 0.25 * (y0 - y2) * d; }
+  }
+  const cross = (lev, dir) => {
+    let i = im;
+    while (i + dir >= 0 && i + dir < M && y[i + dir] >= lev) i += dir;
+    const j = i + dir;
+    if (j < 0 || j >= M) return t0 + i * dt;
+    const f = (y[i] - lev) / (y[i] - y[j]);
+    return t0 + (i + dir * f) * dt;
+  };
+  const hl = cross(H / 2, -1), hr = cross(H / 2, 1);
+  const l5 = cross(0.05 * H, -1), r5 = cross(0.05 * H, 1);
+  return { tR: tA, H, wh: hr - hl, w05: r5 - l5, d: tA - l5, As: (r5 - l5) / (2 * (tA - l5)) };
+}
+
+// =====================================================================
+// Obliczenia
+// =====================================================================
 function compute(s) {
   const P = PARTICLES[s.ptype];
-  const L = s.L;                                   // mm
-  const r = s.ID / 2;                              // mm
-  const dpmm = s.dp / 1000;                        // mm
+  const L = s.L, r = s.ID / 2, dpmm = s.dp / 1000;
   const Vm = P.eps * Math.PI * r * r * L / 1000;   // mL
   const t0 = Vm / s.F;                             // min
-  const uMin = L / t0;                             // mm/min
-  const u = uMin / 60;                             // mm/s
+  const uMin = L / t0, u = uMin / 60;              // mm/min, mm/s
   const Dmm = s.Dm * 1e-5 * 100;                   // mm²/s
   const nu = u * dpmm / Dmm;
   const h = P.A + P.B / nu + P.C * nu;
   const H = h * dpmm;                              // mm
   const N = L / H;
-  const sigEC = (s.sigEC / 1000) / s.F;            // min
+  const sigVtot = Math.sqrt(s.sigEC * s.sigEC + s.Vinj * s.Vinj / 12);   // µL
+  const sigEC = (sigVtot / 1000) / s.F;            // min
   const iso = s.mode === "iso";
   const tD = iso ? 0 : s.VD / s.F;
   const p0 = s.phi0 / 100, p1 = s.phi1 / 100, pIso = s.phiIso / 100;
+  const tI = iso ? 0 : s.tIso0;
 
   const phiProg = iso
     ? () => pIso
-    : (tau) => tau <= 0 ? p0 : (tau >= s.tG ? p1 : p0 + (p1 - p0) * tau / s.tG);
+    : (tau) => tau <= tI ? p0 : (tau >= tI + s.tG ? p1 : p0 + (p1 - p0) * (tau - tI) / s.tG);
   const phiAt = (x, t) => phiProg(t - tD - (x / L) * t0);
   const kOf = (a, phi) => Math.pow(10, a.logkw - a.S * phi);
 
-  const progEnd = iso ? 0 : tD + t0 + s.tG + s.hold;
+  const progEnd = iso ? 0 : tD + t0 + tI + s.tG + s.hold;
   const tMax = progEnd + 150 * t0;
   const dt = t0 / 400;
 
@@ -437,15 +562,28 @@ function compute(s) {
       else { x = xn; t += dt; }
       if (++step % 4 === 0 || x >= L) { tr.push(t); xr.push(x); }
     }
-    const eluted = x >= L;
-    const tR = eluted ? t : null;
-    const kE = eluted ? kOf(a, phiAt(L, tR)) : null;
-    const sigCol = eluted ? t0 * (1 + kE) / Math.sqrt(N) : null;
-    const sigma = eluted ? Math.sqrt(sigCol * sigCol + sigEC * sigEC) : null;
-    return {
-      i, name: a.name || "Analit " + (i + 1), color: PALETTE[i % PALETTE.length], amt: a.amt,
-      eluted, tR, kE, sigma, Nobs: eluted ? Math.pow(tR / sigma, 2) : null, traj: { t: tr, x: xr }
-    };
+    const p = { i, name: a.name || "Analit " + (i + 1), color: PALETTE[i % PALETTE.length], amt: a.amt,
+                eluted: x >= L, traj: { t: tr, x: xr } };
+    if (!p.eluted) return p;
+    p.mu = t;
+    p.kE = kOf(a, phiAt(L, t));
+    const sigCol = t0 * (1 + p.kE) / Math.sqrt(N);
+    p.sigma = Math.sqrt(sigCol * sigCol + sigEC * sigEC);
+    p.tau = tailFactor(a, s) * sigCol;
+    const area = AREA_SCALE * a.amt * (s.Vinj / 10) / s.F / 60;   // mAU·min
+    p.shape = peakShape(p.mu, p.sigma, p.tau, area);
+    Object.assign(p, measurePeak(p.shape));
+    p.k = (p.tR - t0) / t0;
+    p.N = 5.54 * Math.pow(p.tR / p.wh, 2);
+    // S/N = 2H/h, h – rozstęp szumu ślepej próby w oknie 5·w_h (10 Hz)
+    if (s.noise > 0) {
+      const n = Math.max(20, Math.round(5 * p.wh * 60 * 10));
+      const rng = mulberry32(1000 + i * 7919);
+      let mn = Infinity, mx = -Infinity;
+      for (let j = 0; j < n; j++) { const v = s.noise * gaussRand(rng); if (v < mn) mn = v; if (v > mx) mx = v; }
+      p.hNoise = mx - mn; p.SN = 2 * p.H / p.hNoise;
+    } else { p.hNoise = 0; p.SN = null; }
+    return p;
   });
 
   const el = peaks.filter(p => p.eluted).sort((a, b) => a.tR - b.tR);
@@ -454,8 +592,8 @@ function compute(s) {
     p.Rs = null; p.alpha = null;
     if (j > 0) {
       const q = el[j - 1];
-      p.Rs = (p.tR - q.tR) / (2 * (p.sigma + q.sigma));
-      if (iso) p.alpha = p.kE / q.kE;
+      p.Rs = 1.18 * (p.tR - q.tR) / (p.wh + q.wh);
+      if (iso && q.k > 0) p.alpha = p.k / q.k;
       if (!crit || p.Rs < crit.Rs) crit = { Rs: p.Rs, a: q, b: p };
     }
   });
@@ -466,32 +604,56 @@ function compute(s) {
   const etaMax = Math.max(...phis.map(p => viscosity(p, s.mod)));
   const dP = FLOW_RESISTANCE * etaMax * 1e-3 * (L / 1000) * us / Math.pow(dpmm / 1000, 2) / 1e5;  // bar
 
-  const lastPeak = el.length ? Math.max(...el.map(p => p.tR + 4 * p.sigma)) : 2 * t0;
+  const lastPeak = el.length ? Math.max(...el.map(p => p.mu + 5 * p.sigma + 6 * p.tau)) : 2 * t0;
   const tEnd = Math.max(lastPeak, progEnd, 1.5 * t0) * 1.02;
 
-  // Optimum van Deemtera
-  const nuOpt = Math.sqrt(P.B / P.C);
-  const uOpt = nuOpt * Dmm / dpmm;                 // mm/s
-  const Fopt = s.F * uOpt / u;
+  // Sygnał na siatce wyświetlania
+  const ts = new Float64Array(GRID + 1), tot = new Float64Array(GRID + 1), noise = new Float64Array(GRID + 1);
+  for (let j = 0; j <= GRID; j++) ts[j] = j / GRID * tEnd;
+  el.forEach(p => {
+    p.sig = new Float64Array(GRID + 1);
+    const j0 = Math.max(0, Math.floor(p.shape.t0 / tEnd * GRID)), j1 = Math.min(GRID, Math.ceil((p.shape.t0 + p.shape.dt * p.shape.M) / tEnd * GRID));
+    for (let j = j0; j <= j1; j++) { const v = shapeAt(p.shape, ts[j]); p.sig[j] = v; tot[j] += v; }
+  });
+  const rng = mulberry32(12345);
+  for (let j = 0; j <= GRID; j++) noise[j] = s.noise * gaussRand(rng);
 
-  return { s, P, t0, u, nu, h, H, N, sigEC, tD, iso, phiProg, phiAt, peaks, el, crit, dP, tEnd,
-           runTime: el.length ? Math.max(lastPeak, progEnd) : progEnd, uOpt, Fopt, Dmm, dpmm, Vm };
+  const nuOpt = Math.sqrt(P.B / P.C);
+  const uOpt = nuOpt * Dmm / dpmm;
+  const Fopt = s.F * uOpt / u;
+  const Hmin = dpmm * (P.A + 2 * Math.sqrt(P.B * P.C));   // mm
+
+  const runEnd = el.length ? Math.max(...el.map(p => p.mu + 4 * p.sigma + 4 * p.tau)) : 0;
+  return { s, P, t0, u, nu, h, H, N, sigEC, sigVtot, tD, iso, phiProg, phiAt, peaks, el, crit, dP, tEnd,
+           runTime: Math.max(runEnd, progEnd), uOpt, Fopt, Hmin, Dmm, dpmm, Vm, ts, tot, noise };
 }
 
-// ---------- Formatowanie ----------
+// =====================================================================
+// Formatowanie
+// =====================================================================
 const nf = (v, d) => v.toLocaleString("pl-PL", { minimumFractionDigits: d, maximumFractionDigits: d });
 const nInt = v => Math.round(v).toLocaleString("pl-PL");
+function sig3(v) {   // 3 cyfry znaczące
+  if (!isFinite(v)) return "–";
+  const a = Math.abs(v);
+  const d = a >= 100 ? 0 : a >= 10 ? 1 : a >= 1 ? 2 : a >= 0.1 ? 3 : a >= 0.01 ? 4 : 5;
+  return nf(v, d);
+}
 function niceStep(range, target) {
   const raw = range / target, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
   return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
 }
+const stepDecimals = st => Math.max(0, -Math.floor(Math.log10(st) + 1e-9));
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 function hexA(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
 }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-// ---------- Canvas ----------
+// =====================================================================
+// Rysowanie
+// =====================================================================
 function prep(canvas) {
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -505,84 +667,87 @@ function prep(canvas) {
   return { ctx, w, h };
 }
 
-function gauss(t, p) { const z = (t - p.tR) / p.sigma; return Math.exp(-0.5 * z * z) / (p.sigma * 2.5066283); }
-
 let chromGeom = null;
 function drawChrom(T) {
   const R = result, canvas = document.getElementById("chrom");
   const { ctx, w, h } = prep(canvas);
   const C = { text: cssVar("--text"), muted: cssVar("--muted"), grid: cssVar("--grid"), border: cssVar("--border"), accent: cssVar("--accent") };
-  const m = { l: 44, r: R.iso ? 14 : 40, t: 22, b: 34 };
+  const m = { l: 56, r: R.iso ? 14 : 40, t: 22, b: 34 };
   const pw = w - m.l - m.r, ph = h - m.t - m.b;
   const tEnd = R.tEnd, tShow = T == null ? tEnd : T;
   const X = t => m.l + t / tEnd * pw;
-
-  const n = Math.max(200, Math.round(pw));
-  const ts = Array.from({ length: n + 1 }, (_, j) => j / n * tEnd);
-  const ind = R.el.map(p => ts.map(t => p.amt * gauss(t, p)));
-  const tot = ts.map((_, j) => ind.reduce((s, a) => s + a[j], 0));
-  const ymax = Math.max(1e-9, ...tot) * 1.12;
-  const Y = v => m.t + ph - v / ymax * ph;
+  const zoom = Number(document.getElementById("yzoom").value) || 1;
+  let peakMax = 0;
+  for (let j = 0; j <= GRID; j++) if (R.tot[j] > peakMax) peakMax = R.tot[j];
+  const yTop = Math.max(peakMax * 1.12 / zoom, 8 * (R.s.noise || 0.001));
+  const yBot = -0.06 * yTop;
+  const Y = v => m.t + ph - (v - yBot) / (yTop - yBot) * ph;
   chromGeom = { m, pw, tEnd };
 
-  // siatka i oś czasu
+  // siatka i osie
   ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
   const st = niceStep(tEnd, Math.max(4, Math.floor(pw / 80)));
   for (let t = 0; t <= tEnd + 1e-9; t += st) {
     const x = Math.round(X(t)) + 0.5;
     ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); ctx.stroke();
-    ctx.fillText(nf(t, st < 1 ? 1 : 0), x, m.t + ph + 6);
+    ctx.fillText(nf(t, stepDecimals(st)), x, m.t + ph + 6);
   }
   ctx.fillText("czas [min]", m.l + pw / 2, m.t + ph + 20);
-  for (let j = 0; j <= 4; j++) {
-    const y = Math.round(m.t + ph * j / 4) + 0.5;
+  const sy = niceStep(yTop - yBot, 5);
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let v = Math.ceil(yBot / sy) * sy; v <= yTop + 1e-12; v += sy) {
+    const y = Math.round(Y(v)) + 0.5;
     ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); ctx.stroke();
+    ctx.fillText(nf(v, stepDecimals(sy)), m.l - 6, y);
   }
-  ctx.save(); ctx.translate(12, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = "middle";
-  ctx.fillText("sygnał [j.u.]", 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(11, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center";
+  ctx.fillText("sygnał [mAU]", 0, 0); ctx.restore();
+
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
 
   // program gradientu na detektorze
   if (!R.iso) {
     ctx.strokeStyle = C.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.25; ctx.beginPath();
-    ts.forEach((t, j) => { const y = m.t + ph - R.phiProg(t - R.tD - R.t0) * ph; j ? ctx.lineTo(X(t), y) : ctx.moveTo(X(t), y); });
+    for (let j = 0; j <= 400; j++) { const t = j / 400 * tEnd, y = m.t + ph - R.phiProg(t - R.tD - R.t0) * ph; j ? ctx.lineTo(X(t), y) : ctx.moveTo(X(t), y); }
     ctx.stroke(); ctx.setLineDash([]);
+  }
+  // t_M
+  ctx.strokeStyle = C.muted; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+  const x0 = Math.round(X(R.t0)) + 0.5;
+  ctx.beginPath(); ctx.moveTo(x0, m.t); ctx.lineTo(x0, m.t + ph); ctx.stroke(); ctx.setLineDash([]);
+
+  // piki (wypełnienie) i sygnał, do chwili tShow
+  const jMax = Math.min(GRID, Math.floor(tShow / tEnd * GRID));
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l, 0, X(tShow) - m.l + 0.5, h); ctx.clip();
+  R.el.forEach(p => {
+    ctx.fillStyle = hexA(p.color, 0.2);
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0));
+    for (let j = 0; j <= GRID; j += 1) ctx.lineTo(X(R.ts[j]), Y(p.sig[j]));
+    ctx.lineTo(X(tEnd), Y(0)); ctx.closePath(); ctx.fill();
+  });
+  ctx.restore();
+  ctx.strokeStyle = C.text; ctx.lineWidth = zoom > 1 ? 0.8 : 1.3; ctx.lineJoin = "round"; ctx.beginPath();
+  for (let j = 0; j <= jMax; j++) { const px = X(R.ts[j]), py = Y(R.tot[j] + R.noise[j]); j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  ctx.stroke();
+  ctx.restore();
+
+  // etykiety
+  ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.fillText("t_M", x0, m.t - 4);
+  if (!R.iso) {
     ctx.fillStyle = C.accent; ctx.textAlign = "left"; ctx.textBaseline = "middle";
     [0, 50, 100].forEach(v => ctx.fillText(v + "%", m.l + pw + 6, m.t + ph - v / 100 * ph));
     ctx.textAlign = "right"; ctx.textBaseline = "bottom"; ctx.fillText("%B na detektorze", m.l + pw, m.t - 4);
   }
-
-  // t0
-  ctx.strokeStyle = C.muted; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
-  const x0 = Math.round(X(R.t0)) + 0.5;
-  ctx.beginPath(); ctx.moveTo(x0, m.t); ctx.lineTo(x0, m.t + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = C.muted; ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.fillText("t₀", x0, m.t - 4);
-
-  // piki (wypełnienie) + sygnał sumaryczny, do chwili tShow
-  const jMax = Math.min(n, Math.floor(tShow / tEnd * n));
-  ctx.save(); ctx.beginPath(); ctx.rect(m.l, 0, X(tShow) - m.l + 0.5, h); ctx.clip();
-  R.el.forEach((p, k) => {
-    ctx.fillStyle = hexA(p.color, 0.18); ctx.strokeStyle = p.color; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(X(0), Y(0));
-    ts.forEach((t, j) => ctx.lineTo(X(t), Y(ind[k][j])));
-    ctx.lineTo(X(tEnd), Y(0)); ctx.closePath(); ctx.fill();
-  });
-  ctx.restore();
-  ctx.strokeStyle = C.text; ctx.lineWidth = 1.6; ctx.lineJoin = "round"; ctx.beginPath();
-  for (let j = 0; j <= jMax; j++) { const px = X(ts[j]), py = Y(tot[j]); j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
-  ctx.stroke();
-
-  // etykiety pików
   let lastX = -1e9, lvl = 0;
   ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.font = "600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
   R.el.forEach(p => {
     if (p.tR > tShow) return;
-    const x = X(p.tR), top = Y(p.amt * gauss(p.tR, p));
+    const x = X(p.tR), top = Math.max(m.t + 12, Y(p.H) - 4);
     lvl = x - lastX < 18 ? lvl + 1 : 0; lastX = x;
     ctx.fillStyle = p.color;
-    ctx.fillText(String(p.i + 1), x, Math.max(m.t + 10, top - 4 - lvl * 12));
+    ctx.fillText(String(p.i + 1), x, top - lvl * 12);
   });
 
-  // znacznik bieżącego czasu
   if (T != null && T < tEnd) {
     ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(X(T), m.t); ctx.lineTo(X(T), m.t + ph); ctx.stroke();
@@ -601,14 +766,13 @@ function interpX(traj, T) {
 
 function drawColumn(T) {
   const R = result, canvas = document.getElementById("column");
-  const { ctx, w, h } = prep(canvas);
-  const C = { text: cssVar("--text"), muted: cssVar("--muted"), border: cssVar("--border"), column: cssVar("--column"), mp: cssVar("--mp-rgb") };
+  const { ctx, w } = prep(canvas);
+  const C = { muted: cssVar("--muted"), border: cssVar("--border"), column: cssVar("--column"), mp: cssVar("--mp-rgb") };
   const m = { l: 56, r: 64 };
   const cw = w - m.l - m.r, cy = 44, ch = 40;
   const L = R.s.L, tNow = T == null ? R.tEnd : T;
   const X = x => m.l + x / L * cw;
 
-  // kolumna z tłem odpowiadającym składowi fazy ruchomej
   ctx.fillStyle = C.column; ctx.fillRect(m.l, cy - ch / 2, cw, ch);
   for (let px = 0; px < cw; px += 2) {
     const phi = R.phiAt(px / cw * L, tNow);
@@ -616,14 +780,14 @@ function drawColumn(T) {
     ctx.fillRect(m.l + px, cy - ch / 2, 2, ch);
   }
 
-  // pasma
   const sInj = 0.004 * L;
+  const amax = Math.max(...R.s.analytes.map(a => a.amt), 1e-9);
   R.peaks.forEach(p => {
-    if (p.eluted && tNow >= p.tR) return;
+    if (p.eluted && tNow >= p.mu) return;
     const xc = interpX(p.traj, tNow);
     const sx = Math.sqrt(R.H * xc + sInj * sInj);
     const pxS = Math.max(1.2, sx / L * cw);
-    const a0 = Math.min(0.95, 0.35 + 0.6 * p.amt / Math.max(...R.s.analytes.map(a => a.amt), 1e-9));
+    const a0 = Math.min(0.95, 0.35 + 0.6 * p.amt / amax);
     for (let d = -3.2 * pxS; d <= 3.2 * pxS; d += 1) {
       const px = X(xc) + d;
       if (px < m.l || px > m.l + cw) continue;
@@ -646,7 +810,7 @@ function drawColumn(T) {
   ctx.textAlign = "right"; ctx.fillText(L + " mm", m.l + cw, cy + ch / 2 + 6);
   ctx.textAlign = "center";
   const phiIn = R.phiAt(0, tNow), phiOut = R.phiAt(L, tNow);
-  ctx.fillText(R.iso ? `faza ruchoma: ${nf(phiIn * 100, 0)}% B`
+  ctx.fillText(R.iso ? `faza ruchoma: ${nf(phiIn * 100, 1)}% B`
                      : `%B: wlot ${nf(phiIn * 100, 0)}% → wylot ${nf(phiOut * 100, 0)}%` + (cw > 420 ? "  (odcień tła = %B)" : ""),
                m.l + cw / 2, cy + ch / 2 + 24);
 }
@@ -658,7 +822,8 @@ function drawVD() {
   const m = { l: 44, r: 12, t: 12, b: 34 };
   const pw = w - m.l - m.r, ph = h - m.t - m.b;
   const P = R.P, dpUm = R.s.dp;
-  const Hof = u => dpUm * (P.A + P.B / (u * R.dpmm / R.Dmm) + P.C * (u * R.dpmm / R.Dmm));  // µm
+  const nuOf = u => u * R.dpmm / R.Dmm;
+  const Hof = u => dpUm * (P.A + P.B / nuOf(u) + P.C * nuOf(u));  // µm
   const uMax = Math.max(3 * R.uOpt, 1.3 * R.u);
   const uMin = uMax / 200;
   const Hmin = Hof(R.uOpt);
@@ -667,11 +832,11 @@ function drawVD() {
 
   ctx.strokeStyle = C.grid; ctx.fillStyle = C.muted; ctx.lineWidth = 1; ctx.textAlign = "center"; ctx.textBaseline = "top";
   const sx = niceStep(uMax, 5);
-  for (let u = 0; u <= uMax + 1e-9; u += sx) { const x = Math.round(X(u)) + 0.5; ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); ctx.stroke(); ctx.fillText(nf(u, sx < 1 ? 1 : 0), x, m.t + ph + 6); }
+  for (let u = 0; u <= uMax + 1e-9; u += sx) { const x = Math.round(X(u)) + 0.5; ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + ph); ctx.stroke(); ctx.fillText(nf(u, stepDecimals(sx)), x, m.t + ph + 6); }
   ctx.fillText("prędkość liniowa u [mm/s]", m.l + pw / 2, m.t + ph + 20);
   const sy = niceStep(yMax, 4);
   ctx.textAlign = "right"; ctx.textBaseline = "middle";
-  for (let v = 0; v <= yMax + 1e-9; v += sy) { const y = Math.round(Y(v)) + 0.5; ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); ctx.stroke(); ctx.fillText(nf(v, sy < 1 ? 1 : 0), m.l - 6, y); }
+  for (let v = 0; v <= yMax + 1e-9; v += sy) { const y = Math.round(Y(v)) + 0.5; ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + pw, y); ctx.stroke(); ctx.fillText(nf(v, stepDecimals(sy)), m.l - 6, y); }
   ctx.save(); ctx.translate(11, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("H [µm]", 0, 0); ctx.restore();
 
   const curve = (f, color, dash, lw) => {
@@ -681,12 +846,11 @@ function drawVD() {
   };
   ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
   curve(() => dpUm * P.A, C.muted, [3, 3], 1);
-  curve(u => dpUm * P.B / (u * R.dpmm / R.Dmm), C.muted, [3, 3], 1);
-  curve(u => dpUm * P.C * (u * R.dpmm / R.Dmm), C.muted, [3, 3], 1);
+  curve(u => dpUm * P.B / nuOf(u), C.muted, [3, 3], 1);
+  curve(u => dpUm * P.C * nuOf(u), C.muted, [3, 3], 1);
   curve(Hof, C.text, [], 2);
   ctx.restore();
 
-  // optimum i punkt pracy
   ctx.fillStyle = C.muted; ctx.beginPath(); ctx.arc(X(R.uOpt), Y(Hmin), 3.5, 0, 7); ctx.fill();
   ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(X(R.u), Y(R.H * 1000), 5.5, 0, 7); ctx.fill();
   ctx.textAlign = X(R.u) > m.l + pw - 90 ? "right" : "left"; ctx.textBaseline = "bottom";
@@ -696,60 +860,75 @@ function drawVD() {
   ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.strokeRect(m.l + 0.5, m.t + 0.5, pw, ph);
 }
 
-// ---------- Panele liczbowe ----------
+// =====================================================================
+// Panele liczbowe
+// =====================================================================
 function renderStats() {
   const R = result, s = R.s;
   const set = (id, v) => { document.getElementById(id).innerHTML = v; };
-  set("k_t0", nf(R.t0, 2) + " min");
-  set("k_t0s", `V<sub>M</sub> = ${nf(R.Vm * 1000, 0)} µL · u = ${nf(R.u, 2)} mm/s`);
-  set("k_N", nInt(R.N));
+  const hid = '<span style="color:var(--muted)">?</span>';
+  set("k_t0", nf(R.t0, 3) + " min");
+  set("k_t0s", `V<sub>M</sub> = ${nInt(R.Vm * 1000)} µL · u = ${nf(R.u, 2)} mm/s`);
   let ncTxt = "";
   if (!R.iso && R.el.length > 1) {
-    const sAvg = R.el.reduce((a, p) => a + p.sigma, 0) / R.el.length;
-    ncTxt = ` · n<sub>c</sub> ≈ ${nInt(1 + (R.el[R.el.length - 1].tR - R.el[0].tR) / (4 * sAvg))}`;
+    const wAvg = R.el.reduce((a, p) => a + p.wh, 0) / R.el.length;
+    ncTxt = ` · n<sub>c</sub> ≈ ${nInt(1 + (R.el[R.el.length - 1].tR - R.el[0].tR) / (1.7 * wAvg))}`;
   }
-  set("k_Ns", `H = ${nf(R.H * 1000, 1)} µm · h = ${nf(R.h, 2)}${ncTxt}`);
+  set("k_N", reportMode ? hid : nInt(R.N));
+  set("k_Ns", reportMode ? "oblicz z raportu" : `H = ${nf(R.H * 1000, 1)} µm · h = ${nf(R.h, 2)}${ncTxt}`);
   const pBadge = R.dP > 1300 ? '<span class="badge bad">powyżej UHPLC</span>' : R.dP > 400 ? '<span class="badge warn">wymaga UHPLC</span>' : '<span class="badge good">HPLC ok</span>';
   set("k_P", nInt(R.dP) + " bar");
   set("k_Ps", (R.iso ? "" : "maks. w gradiencie · ") + pBadge);
-  if (R.crit) {
+  if (R.crit && !reportMode) {
     const cls = R.crit.Rs >= 1.5 ? "good" : R.crit.Rs >= 1.0 ? "warn" : "bad";
     set("k_Rs", nf(R.crit.Rs, 2));
     set("k_Rss", `<span class="badge ${cls}">${R.crit.Rs >= 1.5 ? "rozdzielone" : R.crit.Rs >= 1 ? "częściowo" : "koelucja"}</span> ${R.crit.a.i + 1} / ${R.crit.b.i + 1}`);
-  } else { set("k_Rs", "–"); set("k_Rss", ""); }
+  } else { set("k_Rs", R.crit ? hid : "–"); set("k_Rss", ""); }
   set("k_T", nf(R.runTime, 1) + " min");
   const notEl = R.peaks.filter(p => !p.eluted).length;
   set("k_Ts", notEl ? `<span class="badge bad">${notEl} nie eluuje</span>` : (R.iso ? "do końca ostatniego piku" : `t<sub>D</sub> = ${nf(R.tD, 2)} min`));
   set("k_V", nf(s.F * R.runTime, 1) + " mL");
   set("k_Vs", `przy ${nf(s.F, 2)} mL/min`);
 
+  document.getElementById("resultsCard").classList.toggle("report", reportMode);
   document.getElementById("thK").innerHTML = R.iso ? "k" : "k<sub>e</sub>";
+  document.getElementById("thSN").innerHTML = reportMode ? "h [mAU]" : "S/N";
+  const q = '<td class="hid">?</td>';
   const rows = R.el.map(p => {
     const rsCls = p.Rs == null ? "" : p.Rs >= 1.5 ? "good" : p.Rs >= 1 ? "warn" : "bad";
-    const crit = R.crit && (R.crit.a === p || R.crit.b === p) ? ' class="critical"' : "";
+    const asCls = p.As >= 0.8 && p.As <= 1.8 ? "good" : "bad";
+    const crit = !reportMode && R.crit && (R.crit.a === p || R.crit.b === p) ? ' class="critical"' : "";
+    const snCell = reportMode ? `<td>${R.s.noise > 0 ? sig3(p.hNoise) : "0"}</td>`
+      : `<td>${p.SN == null ? "∞" : `<span class="badge ${p.SN >= 10 ? "good" : "bad"}">${p.SN >= 100 ? nInt(p.SN) : nf(p.SN, 1)}</span>`}</td>`;
     return `<tr${crit}><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td>
-      <td>${nf(p.tR, 2)}</td><td>${nf(p.kE, 2)}</td><td>${p.alpha == null ? "–" : nf(p.alpha, 3)}</td>
-      <td>${nf(2.3548 * p.sigma * 60, 1)}</td><td>${R.iso ? nInt(p.Nobs) : "–"}</td>
-      <td>${p.Rs == null ? "–" : `<span class="badge ${rsCls}">${nf(p.Rs, 2)}</span>`}</td></tr>`;
+      <td>${nf(p.tR, 3)}</td><td>${nf(p.wh, 4)}</td><td>${sig3(p.H)}</td>
+      ${reportMode ? q + q + q : `<td>${nf(R.iso ? p.k : p.kE, 2)}</td><td>${p.alpha == null ? "–" : nf(p.alpha, 3)}</td><td>${R.iso ? nInt(p.N) : "–"}</td>`}
+      <td><span class="badge ${asCls}">${nf(p.As, 2)}</span></td>
+      ${reportMode ? q : `<td>${p.Rs == null ? "–" : `<span class="badge ${rsCls}">${nf(p.Rs, 2)}</span>`}</td>`}
+      ${snCell}</tr>`;
   });
   R.peaks.filter(p => !p.eluted).forEach(p => rows.push(
-    `<tr><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td><td colspan="6" style="text-align:left;color:var(--bad)">nie eluuje w rozsądnym czasie – zwiększ %B</td></tr>`));
+    `<tr><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td><td colspan="9" style="text-align:left;color:var(--bad)">nie eluuje w rozsądnym czasie – zwiększ %B</td></tr>`));
   document.getElementById("tbody").innerHTML = rows.join("");
-  document.getElementById("tableHint").innerHTML = R.iso
-    ? "R<sub>s</sub> liczone do poprzedniego piku; podświetlona para krytyczna. N<sub>obs</sub> uwzględnia dyspersję pozakolumnową."
-    : "W gradiencie k<sub>e</sub> to współczynnik retencji w chwili elucji. α i N<sub>obs</sub> nie są podawane, bo w gradiencie tracą sens; n<sub>c</sub> to pojemność pików między pierwszym a ostatnim pikiem.";
-  document.getElementById("vdHint").innerHTML =
-    `Optimum: u<sub>opt</sub> = ${nf(R.uOpt, 2)} mm/s, co odpowiada F ≈ ${nf(R.Fopt, 2)} mL/min (H<sub>min</sub> = ${nf(R.s.dp * (R.P.A + 2 * Math.sqrt(R.P.B * R.P.C)), 1)} µm). ` +
-    `Linie przerywane to składowe A, B/u i C·u.`;
+  document.getElementById("tableHint").innerHTML = reportMode
+    ? `t<sub>M</sub> = ${nf(R.t0, 3)} min, F = ${nf(s.F, 2)} mL/min. h – rozstęp szumu ślepej próby w oknie 5·w<sub>h</sub>.`
+    : (R.iso
+      ? "Parametry liczone wzorami Ph. Eur. 2.2.46 z pomiaru pików. R<sub>s</sub> do poprzedniego piku; podświetlona para krytyczna. A<sub>s</sub> wymagane 0,8–1,8, S/N ≥ 10 dla LOQ."
+      : "W gradiencie k<sub>e</sub> to współczynnik retencji w chwili elucji; α i N (liczone tylko w izokracji wg 2.2.46) nie są podawane; n<sub>c</sub> – pojemność pików.");
+  document.getElementById("vdHint").innerHTML = hideVdHint
+    ? "Linie przerywane to składowe A, B/u i C·u. Odczytaj optimum z wykresu."
+    : `Optimum: u<sub>opt</sub> = ${nf(R.uOpt, 2)} mm/s, co odpowiada F ≈ ${nf(R.Fopt, 2)} mL/min (H<sub>min</sub> = ${nf(R.Hmin * 1000, 1)} µm). Linie przerywane to składowe A, B/u i C·u.`;
 }
 
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-
-// ---------- Formularz ----------
+// =====================================================================
+// Formularz
+// =====================================================================
 const $ = id => document.getElementById(id);
 const NUM = {
-  F: [0.01, 5], phiIso: [0, 100], phi0: [0, 100], phi1: [0, 100], tG: [0.5, 120], hold: [0, 60], VD: [0, 5], sigEC: [0, 100], Dm: [0.05, 5]
+  F: [0.01, 5], phiIso: [0, 100], phi0: [0, 100], phi1: [0, 100], tIso0: [0, 60], tG: [0.5, 120], hold: [0, 60],
+  VD: [0, 5], sigEC: [0, 100], Vinj: [0.1, 100], noise: [0, 5], Dm: [0.05, 5]
 };
+const AN_LIM = { logkw: [-2, 8], S: [0, 15], amt: [0, 100] };
 
 function readNum(id) {
   const el = $(id), [lo, hi] = NUM[id];
@@ -759,10 +938,15 @@ function readNum(id) {
   return ok ? v : null;
 }
 
+function setSelect(id, val) {
+  const el = $(id); const str = String(val);
+  const opt = [...el.options].find(o => Number(o.value) === Number(val) || o.value === str);
+  el.value = opt ? opt.value : el.options[0].value;
+}
+
 function writeForm() {
-  ["L", "ID", "dp"].forEach(id => { $(id).value = String(state[id]); if ($(id).value === "") $(id).value = $(id).options[0].value; });
-  $("ID").value = Number(state.ID).toFixed(1);
-  $("ptype").value = state.ptype; $("mod").value = state.mod;
+  setSelect("L", state.L); setSelect("ID", state.ID); setSelect("dp", state.dp);
+  $("ptype").value = state.ptype; $("mod").value = state.mod; $("endcap").value = state.endcap ? "1" : "0";
   Object.keys(NUM).forEach(id => { $(id).value = state[id]; $(id).classList.remove("invalid"); });
   $("Fr").value = state.F; $("phiIsoR").value = state.phiIso;
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
@@ -772,30 +956,29 @@ function writeForm() {
 }
 
 function renderAnalytes() {
-  const list = $("anList");
-  list.innerHTML = `<div class="an-head"><span></span><span>nazwa</span><span>log k<sub>w</sub></span><span>S</span><span>ilość</span><span></span></div>` +
+  $("anList").innerHTML = `<div class="an-head"><span></span><span>nazwa</span><span>log k<sub>w</sub></span><span>S</span><span>ilość</span><span title="związek zasadowy">zas.</span><span></span></div>` +
     state.analytes.map((a, i) => `<div class="an-row" data-i="${i}">
       <span class="dot" style="background:${PALETTE[i % PALETTE.length]};margin:0"></span>
       <input type="text" data-k="name" value="${escapeHtml(a.name)}" aria-label="Nazwa analitu ${i + 1}">
       <input type="number" data-k="logkw" step="0.05" value="${a.logkw}" aria-label="log kw">
       <input type="number" data-k="S" step="0.1" value="${a.S}" aria-label="S">
-      <input type="number" data-k="amt" step="0.1" min="0" value="${a.amt}" aria-label="ilość">
+      <input type="number" data-k="amt" step="any" min="0" value="${a.amt}" aria-label="ilość">
+      <input type="checkbox" data-k="basic" ${a.basic ? "checked" : ""} aria-label="związek zasadowy">
       <button class="del" title="Usuń" aria-label="Usuń analit ${i + 1}">×</button></div>`).join("");
   $("addAn").disabled = state.analytes.length >= MAX_ANALYTES;
 }
 
-const AN_LIM = { logkw: [-2, 8], S: [0, 15], amt: [0, 100] };
-
 function readForm() {
   let ok = true;
   ["L", "ID", "dp"].forEach(id => { state[id] = Number($(id).value); });
-  state.ptype = $("ptype").value; state.mod = $("mod").value;
+  state.ptype = $("ptype").value; state.mod = $("mod").value; state.endcap = $("endcap").value === "1";
   Object.keys(NUM).forEach(id => { const v = readNum(id); if (v == null) ok = false; else state[id] = v; });
   document.querySelectorAll(".an-row").forEach(row => {
     const a = state.analytes[+row.dataset.i];
     row.querySelectorAll("input").forEach(inp => {
       const k = inp.dataset.k;
       if (k === "name") { a.name = inp.value; return; }
+      if (k === "basic") { a.basic = inp.checked; return; }
       const v = Number(String(inp.value).replace(",", ".")), [lo, hi] = AN_LIM[k];
       const good = inp.value !== "" && isFinite(v) && v >= lo && v <= hi;
       inp.classList.toggle("invalid", !good);
@@ -817,6 +1000,13 @@ function update() {
     renderStats(); redraw();
   });
 }
+function applyState(s) {           // natychmiastowe przeliczenie (zajęcia)
+  state = JSON.parse(JSON.stringify(s));
+  writeForm();
+  result = compute(state);
+  stopPlay(); animT = null;
+  renderStats(); redraw();
+}
 
 function redraw() {
   if (!result) return;
@@ -826,12 +1016,14 @@ function redraw() {
   $("tLabel").textContent = "t = " + nf(T, 2) + " min";
 }
 
-// ---------- Animacja ----------
+// =====================================================================
+// Animacja
+// =====================================================================
 let lastFrame = 0;
 function frame(ts) {
   if (!playing) return;
   const dtReal = lastFrame ? (ts - lastFrame) / 1000 : 0; lastFrame = ts;
-  animT = (animT == null ? 0 : animT) + dtReal * result.tEnd / 14;   // cały przebieg w ~14 s
+  animT = (animT == null ? 0 : animT) + dtReal * result.tEnd / 14;
   if (animT >= result.tEnd) { animT = null; stopPlay(); }
   redraw();
   if (playing) requestAnimationFrame(frame);
@@ -842,19 +1034,543 @@ function startPlay() {
 }
 function stopPlay() { playing = false; $("play").textContent = "▶ Odtwórz"; }
 
-// ---------- Zdarzenia ----------
+// =====================================================================
+// Zajęcia
+// =====================================================================
+const MIX3 = () => [
+  { name: "Zanieczyszczenie A", logkw: 1.80, S: 3.5, amt: 0.5, basic: false },
+  { name: "Substancja czynna", logkw: 2.40, S: 4.0, amt: 1.0, basic: false },
+  { name: "Zanieczyszczenie B", logkw: 2.55, S: 4.3, amt: 0.5, basic: false }
+];
+const MIX4 = () => MIX3().concat([{ name: "Zanieczyszczenie C", logkw: 3.10, S: 4.6, amt: 0.5, basic: false }]);
+const LS = (over, analytes) => Object.assign({}, BASE, over || {}, { analytes: analytes || MIX3() });
+const pk = (R, i) => R.peaks[i];
+const pairRs = (R, i, j) => {
+  const a = R.peaks[i], b = R.peaks[j];
+  if (!a.eluted || !b.eluted) return 0;
+  return 1.18 * Math.abs(b.tR - a.tR) / (a.wh + b.wh);
+};
+const sameCol = (S, B) => S.L === B.L && S.ID === B.ID && S.dp === B.dp && S.ptype === B.ptype && S.endcap === B.endcap;
+const fmt = v => nf(v, Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : Math.abs(v) >= 1 ? 2 : 3);
+const REF = t => `<p class="ref">${t}</p>`;
+const RSD_T90 = { 2: 2.920, 3: 2.353, 4: 2.132, 5: 2.015 };
+
+const LESSONS = [
+  {
+    title: "1. Parametry chromatograficzne (Ph. Eur. 2.2.46)",
+    steps: [
+      {
+        title: "Czas martwy i objętość martwa",
+        setup: LS(), report: true,
+        html: `<p>Na chromatogramie widzisz roztwór do sprawdzania przydatności układu: substancję czynną i dwa zanieczyszczenia. Tabela działa w <b>trybie raportu</b> – jak wydruk z oprogramowania: tylko t<sub>R</sub>, szerokość w połowie wysokości w<sub>h</sub> i wysokość H.</p>
+               <p><b>Czas martwy t<sub>M</sub></b> to czas elucji składnika niezatrzymywanego (przerywana linia „t_M”). <b>Objętość martwa</b> to objętość fazy ruchomej potrzebna do jego elucji: <code>V_M = t_M × F</code>.</p>` + REF("Ph. Eur. 2.2.46 – Definitions: hold-up time, hold-up volume"),
+        task: { type: "num", q: "Oblicz V_M (t_M podano pod tabelą wyników).", unit: "mL", answer: R => R.t0 * R.s.F, tol: 0.03,
+                hint: "Pomnóż t_M [min] przez przepływ [mL/min].",
+                explain: R => `V<sub>M</sub> = ${nf(R.t0, 3)} min × ${nf(R.s.F, 2)} mL/min = ${nf(R.t0 * R.s.F, 2)} mL. To objętość fazy ruchomej w kolumnie (i w przewodach między dozownikiem a detektorem).` }
+      },
+      {
+        title: "Współczynnik retencji k",
+        report: true,
+        html: `<p><b>Współczynnik retencji</b> (dawniej współczynnik pojemnościowy k′, w Ph. Eur. też „mass distribution ratio” D<sub>m</sub>) mówi, ile razy dłużej analit przebywa w fazie stacjonarnej niż w ruchomej:</p>
+               <p><code>k = (t_R − t_M) / t_M</code></p>
+               <p>W praktyce dąży się do k ≈ 2–10: przy k &lt; 1 piki są blisko t<sub>M</sub> i ich rozdzielenie jest trudne, przy dużym k analiza się wydłuża.</p>` + REF("Ph. Eur. 2.2.46 – Retention factor (k)"),
+        task: { type: "num", q: "Oblicz k substancji czynnej (pik 2).", unit: "", answer: R => pk(R, 1).k, tol: 0.03,
+                hint: "Odejmij t_M od t_R piku 2 i podziel przez t_M.",
+                explain: R => `k = (${nf(pk(R, 1).tR, 3)} − ${nf(R.t0, 3)}) / ${nf(R.t0, 3)} = ${nf(pk(R, 1).k, 2)}.` }
+      },
+      {
+        title: "Współczynnik rozdzielenia α",
+        report: true,
+        html: `<p><b>Współczynnik rozdzielenia</b> (selektywność) to stosunek współczynników retencji dwóch sąsiednich pików; z definicji α &gt; 1 (późniejszy pik w liczniku):</p>
+               <p><code>α = k₂ / k₁</code></p>
+               <p>Opisuje wyłącznie <i>położenie</i> pików – nie mówi nic o ich szerokości.</p>` + REF("Ph. Eur. 2.2.46 – Separation factor (α)"),
+        task: { type: "num", q: "Oblicz α dla pary: substancja czynna (2) / zanieczyszczenie B (3).", unit: "", answer: R => pk(R, 2).k / pk(R, 1).k, tol: 0.006, abs: true,
+                hint: "Najpierw oblicz k dla piku 3 tak jak dla piku 2, potem podziel k₃ przez k₂.",
+                explain: R => `α = ${nf(pk(R, 2).k, 2)} / ${nf(pk(R, 1).k, 2)} = ${nf(pk(R, 2).k / pk(R, 1).k, 3)}. Selektywność jest niewielka – te piki tworzą parę krytyczną.` }
+      },
+      {
+        title: "Liczba półek teoretycznych N",
+        report: true,
+        html: `<p><b>Liczba półek teoretycznych</b> opisuje sprawność kolumny. Farmakopea liczy ją z szerokości piku w połowie wysokości:</p>
+               <p><code>N = 5,54 · (t_R / w_h)²</code></p>
+               <p>t<sub>R</sub> i w<sub>h</sub> muszą być w tych samych jednostkach. N zależy od analitu, kolumny, temperatury i fazy ruchomej; wg 2.2.46 liczy się je tylko w warunkach izokratycznych.</p>` + REF("Ph. Eur. 2.2.46 – Plate number (N)"),
+        task: { type: "num", q: "Oblicz N dla substancji czynnej (pik 2).", unit: "", answer: R => pk(R, 1).N, tol: 0.04,
+                hint: "Podziel t_R przez w_h (oba w minutach), podnieś do kwadratu i pomnóż przez 5,54.",
+                explain: R => `N = 5,54 × (${nf(pk(R, 1).tR, 3)} / ${nf(pk(R, 1).wh, 4)})² ≈ ${nInt(pk(R, 1).N)}.` }
+      },
+      {
+        title: "Rozdzielczość Rs",
+        report: true,
+        html: `<p><b>Rozdzielczość</b> łączy położenie pików (selektywność) i ich szerokość (sprawność):</p>
+               <p><code>R_s = 1,18 · (t_R2 − t_R1) / (w_h1 + w_h2)</code></p>
+               <p>R<sub>s</sub> = 1,5 odpowiada w praktyce rozdzieleniu do linii podstawowej dla pików gaussowskich o podobnej wysokości. Monografie często wymagają minimalnej R<sub>s</sub> dla pary krytycznej.</p>` + REF("Ph. Eur. 2.2.46 – Resolution (Rs)"),
+        task: { type: "num", q: "Oblicz Rs między substancją czynną (2) a zanieczyszczeniem B (3).", unit: "", answer: R => pairRs(R, 1, 2), tol: 0.04,
+                hint: "Różnicę t_R pomnóż przez 1,18 i podziel przez sumę obu w_h.",
+                explain: R => `R<sub>s</sub> = 1,18 × (${nf(pk(R, 2).tR, 3)} − ${nf(pk(R, 1).tR, 3)}) / (${nf(pk(R, 1).wh, 4)} + ${nf(pk(R, 2).wh, 4)}) = ${nf(pairRs(R, 1, 2), 2)}.` }
+      },
+      {
+        title: "Retencja względna",
+        report: true,
+        html: `<p>Monografie podają położenie zanieczyszczeń jako <b>retencję względną</b> wobec substancji badanej. Jeśli nie zaznaczono inaczej, jest to retencja <b>nieskorygowana</b>:</p>
+               <p><code>r_G = t_Ri / t_Rst</code></p>
+               <p>(wersja skorygowana: <code>r = (t_Ri − t_M)/(t_Rst − t_M)</code>).</p>` + REF("Ph. Eur. 2.2.46 – Relative retention, unadjusted (rG)"),
+        task: { type: "num", q: "Oblicz nieskorygowaną retencję względną zanieczyszczenia A (1) względem substancji czynnej (2).", unit: "", answer: R => pk(R, 0).tR / pk(R, 1).tR, tol: 0.01, abs: true,
+                hint: "Podziel t_R zanieczyszczenia A przez t_R substancji czynnej.",
+                explain: R => `r<sub>G</sub> = ${nf(pk(R, 0).tR, 3)} / ${nf(pk(R, 1).tR, 3)} ≈ ${nf(pk(R, 0).tR / pk(R, 1).tR, 2)}.` }
+      },
+      {
+        title: "Do czego służą czasy retencji w monografii?",
+        report: true,
+        html: `<p>W monografii przy zanieczyszczeniach często podaje się „względną retencję ok. 0,5” itp. Czy układ, w którym wartość ta wynosi np. 0,47, spełnia wymagania?</p>` + REF("Ph. Eur. 2.2.46 – System suitability"),
+        task: { type: "choice", q: "Wybierz poprawną odpowiedź.",
+                options: ["Nie – każda odchyłka retencji względnej powyżej 5% dyskwalifikuje układ.",
+                          "Tak – czasy retencji i retencje względne w monografiach mają charakter informacyjny (o ile monografia nie stanowi inaczej); o przydatności decydują kryteria SST, np. Rs, N, As, S/N, powtarzalność.",
+                          "Tak, ale tylko jeśli t_M jest identyczny jak w monografii.",
+                          "Nie – retencję względną trzeba zawsze liczyć wersją skorygowaną o t_M."],
+                correct: 1,
+                explain: () => "Ph. Eur. 2.2.46: czasy retencji i retencje względne podawane w monografiach są informacyjne, nie stosuje się do nich kryteriów akceptacji. Służą do identyfikacji pików." }
+      }
+    ]
+  },
+  {
+    title: "2. Retencja i selektywność",
+    steps: [
+      {
+        title: "Jak %B zmienia retencję?",
+        setup: LS(),
+        html: `<p>W odwróconym układzie faz retencja maleje wykładniczo ze wzrostem udziału rozpuszczalnika organicznego φ (model LSS):</p>
+               <p><code>log k = log k_w − S·φ</code></p>
+               <p>Dla małych cząsteczek S ≈ 3–5. Zanim odpowiesz – spróbuj przesunąć suwak „Udział B” i obserwuj k w tabeli.</p>`,
+        task: { type: "choice", q: "Substancja czynna ma S = 4. Jak zmieni się jej k, gdy udział ACN wzrośnie z 40% do 50%?",
+                options: ["wzrośnie ok. 2,5 razy", "zmaleje ok. 2,5 razy", "zmaleje o ok. 10%", "nie zmieni się – retencja zależy tylko od kolumny"],
+                correct: 1,
+                explain: () => "Δlog k = −S·Δφ = −4 × 0,10 = −0,4, czyli k maleje 10<sup>0,4</sup> ≈ 2,5 razy (tzw. „reguła 2,5–3” dla zmiany o 10% B)." }
+      },
+      {
+        title: "Dobór składu fazy ruchomej",
+        setup: LS({ phiIso: 50 }),
+        html: `<p>Twoim zadaniem jest dobrać izokratyczny udział ACN tak, aby jednocześnie:</p>
+               <p>• pierwszy pik był dostatecznie zatrzymany: <b>k ≥ 2</b>,<br>• para krytyczna (substancja czynna / zanieczyszczenie B) miała <b>R<sub>s</sub> ≥ 1,5</b>,<br>• analiza trwała <b>≤ 16 min</b>.</p>
+               <p>Startujesz od 50% ACN. Nie zmieniaj kolumny ani przepływu.</p>`,
+        task: { type: "goal", q: "Ustaw udział B i kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.F !== B.F || S.mode !== "iso") return { ok: false, msg: "Zmieniono kolumnę, przepływ lub tryb elucji – przywróć warunki i zmieniaj tylko %B." };
+                  const k1 = R.el.length ? R.el[0].k : 0, rs = pairRs(R, 1, 2);
+                  const fails = [];
+                  if (k1 < 2) fails.push(`k pierwszego piku = ${nf(k1, 2)} (&lt; 2)`);
+                  if (rs < 1.5) fails.push(`R<sub>s</sub> = ${nf(rs, 2)} (&lt; 1,5)`);
+                  if (R.runTime > 16) fails.push(`czas analizy = ${nf(R.runTime, 1)} min (&gt; 16)`);
+                  return fails.length ? { ok: false, msg: "Jeszcze nie: " + fails.join("; ") + "." }
+                                      : { ok: true, msg: `Spełnione: k₁ = ${nf(k1, 2)}, R<sub>s</sub> = ${nf(rs, 2)}, czas ${nf(R.runTime, 1)} min przy ${nf(S.phiIso, 1)}% B.` };
+                },
+                hint: "Obniżenie %B zwiększa retencję i zwykle Rs, ale wydłuża analizę. Szukaj w okolicy 38–41% (krok 0,5%).",
+                explain: () => "Okno warunków jest wąskie: to typowa sytuacja kompromisu między rozdzielczością a czasem analizy. Poza tym oknem trzeba zmienić selektywność (inny modyfikator, pH, faza stacjonarna) albo sprawność (kolumna)." }
+      },
+      {
+        title: "Odwrócenie kolejności elucji",
+        setup: LS({ phiIso: 55 }),
+        html: `<p>Ustawiono 55% ACN. Porównaj kolejność pików z poprzednim krokiem (możesz przesuwać suwak między 40 a 60%).</p>`,
+        task: { type: "choice", q: "Dlaczego przy 55% B zanieczyszczenie B eluuje przed substancją czynną?",
+                options: ["Kolumna uległa degradacji przy wyższym udziale ACN.",
+                          "Oba związki mają różne nachylenie S zależności log k od φ – proste przecinają się (koelucja ok. 50% B), a powyżej kolejność się odwraca.",
+                          "Zwiększył się przepływ, więc szybsze związki wyprzedziły wolniejsze.",
+                          "Detektor rejestruje piki w odwrotnej kolejności przy dużym udziale ACN."],
+                correct: 1,
+                explain: () => "Zanieczyszczenie B ma większe S (4,3 vs 4,0), więc jego retencja szybciej maleje ze wzrostem φ. Dlatego zmiana %B zmienia nie tylko retencję, ale i selektywność – a 2.2.46 ostrzega, że dostosowania warunków mogą prowadzić do koelucji lub inwersji pików i błędnej identyfikacji." }
+      },
+      {
+        title: "Dozwolone zmiany składu fazy ruchomej",
+        setup: LS(),
+        html: `<p>Metoda z monografii: faza ruchoma woda–ACN 60:40 (V/V). Według 2.2.46 w elucji izokratycznej ilość <b>składnika mniejszościowego</b> (≤ 100/n %, n – liczba składników) można zmienić o <b>±30% względnie</b>, ale żaden składnik nie może się zmienić o więcej niż <b>10% bezwzględnie</b>.</p>` + REF("Ph. Eur. 2.2.46 – Adjustment of chromatographic conditions, LC isocratic elution, Mobile phase"),
+        task: { type: "choice", q: "W jakim zakresie wolno zmienić udział ACN bez rewalidacji?",
+                options: ["28–52%", "30–50%", "36–44%", "38–42%"],
+                correct: 1,
+                explain: () => "30% względnie z 40% to ±12%, ale limit bezwzględny wynosi 10%, więc zakres to 30–50% ACN." }
+      },
+      {
+        title: "Poprawa rozdzielczości w dozwolonym zakresie",
+        setup: LS(),
+        html: `<p>Wymaganie przydatności układu w (fikcyjnej) monografii: <b>R<sub>s</sub> ≥ 2,0</b> między substancją czynną a zanieczyszczeniem B. Popraw rozdzielczość, korzystając tylko ze zmian dopuszczonych przez 2.2.46: skład fazy (30–50% ACN) i przepływ (±50%, bez zmiany kolumny).</p>`,
+        task: { type: "goal", q: "Ustaw warunki i kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.mode !== "iso") return { ok: false, msg: "Nie zmieniaj kolumny ani trybu elucji." };
+                  if (S.phiIso < 30 || S.phiIso > 50) return { ok: false, msg: `Udział ACN ${nf(S.phiIso, 1)}% wykracza poza dozwolone 30–50%.` };
+                  if (S.F < 0.5 * B.F - 1e-9 || S.F > 1.5 * B.F + 1e-9) return { ok: false, msg: `Przepływ ${nf(S.F, 2)} mL/min wykracza poza ±50% (0,50–1,50 mL/min).` };
+                  const rs = pairRs(R, 1, 2);
+                  return rs >= 2.0 ? { ok: true, msg: `R<sub>s</sub> = ${nf(rs, 2)} przy ${nf(S.phiIso, 1)}% ACN i ${nf(S.F, 2)} mL/min – wymaganie spełnione.` }
+                                   : { ok: false, msg: `R<sub>s</sub> = ${nf(rs, 2)} – jeszcze za mało.` };
+                },
+                hint: "Niższy %B zwiększa i k, i α tej pary. Sprawdź też, czy przepływ bliższy optimum van Deemtera nie pomaga.",
+                explain: () => "Wymaganie da się spełnić w dozwolonym zakresie kosztem dłuższej analizy. Zwróć uwagę, że obniżenie %B zmieniło również selektywność – dlatego po każdej zmianie trzeba potwierdzić kolejność elucji." }
+      }
+    ]
+  },
+  {
+    title: "3. Sprawność kolumny i van Deemter",
+    steps: [
+      {
+        title: "Optymalny przepływ",
+        setup: LS({ F: 2.0 }), hideVd: true,
+        html: `<p>Wysokość półki H zależy od prędkości liniowej fazy ruchomej (krzywa van Deemtera): przy małych prędkościach dominuje dyfuzja podłużna (B/u), przy dużych – opory przenoszenia masy (C·u).</p>
+               <p>Wysokość zredukowana <code>h = H/d_p</code> (2.2.46) pozwala porównywać kolumny o różnym ziarnie: dobra kolumna ma h<sub>min</sub> ≈ 2.</p>`,
+        task: { type: "goal", q: "Przepływ ustawiono na 2,0 mL/min. Ustaw go tak, by H różniło się od minimum krzywej o nie więcej niż 2%.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B)) return { ok: false, msg: "Nie zmieniaj kolumny." };
+                  const dev = (R.H - R.Hmin) / R.Hmin;
+                  return dev <= 0.02 ? { ok: true, msg: `H = ${nf(R.H * 1000, 2)} µm (H<sub>min</sub> = ${nf(R.Hmin * 1000, 2)} µm) przy F = ${nf(S.F, 2)} mL/min.` }
+                                     : { ok: false, msg: `H = ${nf(R.H * 1000, 2)} µm jest o ${nf(dev * 100, 0)}% powyżej minimum.` };
+                },
+                hint: "Obserwuj niebieski punkt na wykresie van Deemtera – przesuń go do minimum krzywej suwakiem przepływu.",
+                explain: R => `Optimum dla ziarna 5 µm wypada przy ok. ${nf(R.Fopt, 2)} mL/min. W praktyce często pracuje się nieco powyżej optimum – krzywa jest tam płaska, a analiza krótsza.` }
+      },
+      {
+        title: "Ziarno a sprawność",
+        setup: LS(),
+        html: `<p>Przy optymalnej prędkości h<sub>min</sub> ≈ const, więc <code>N = L/(h·d_p)</code>.</p>`,
+        task: { type: "choice", q: "Jak zmieni się N, jeśli przy tej samej długości kolumny zmniejszysz ziarno z 5 µm do 2,5 µm (każdorazowo przy optymalnym przepływie)?",
+                options: ["nie zmieni się", "wzrośnie ok. 2 razy", "wzrośnie ok. 4 razy", "zmaleje ok. 2 razy"],
+                correct: 1,
+                explain: () => "N ∝ L/d_p – dwukrotnie mniejsze ziarno daje ok. dwukrotnie więcej półek, a Rs rośnie ok. √2 razy. Ceną jest ciśnienie: ΔP ∝ 1/d_p² przy stałej prędkości, a optymalna prędkość rośnie ∝ 1/d_p – razem ok. 8 razy więcej." }
+      },
+      {
+        title: "Przeliczenie przepływu przy zmianie kolumny",
+        setup: LS(),
+        html: `<p>Wg 2.2.46 długość kolumny i ziarno można zmienić, jeżeli stosunek <b>L/d<sub>p</sub></b> mieści się w zakresie <b>−25% … +50%</b> wartości z monografii. Przepływ przelicza się na nową średnicę i ziarno:</p>
+               <p><code>F₂ = F₁ · (dc₂² · dp₁) / (dc₁² · dp₂)</code></p>
+               <p>Metoda: 150 × 4,6 mm, 5 µm, 1,0 mL/min (L/d<sub>p</sub> = 30). Nowa kolumna: 100 × 2,1 mm, 3 µm (L/d<sub>p</sub> = 33,3, +11% – dozwolone).</p>` + REF("Ph. Eur. 2.2.46 – LC isocratic elution: column parameters and flow rate"),
+        task: { type: "num", q: "Oblicz przepływ dla nowej kolumny.", unit: "mL/min", answer: () => 1.0 * (2.1 * 2.1 * 5) / (4.6 * 4.6 * 3), tol: 0.03,
+                hint: "dc₂² = 4,41; dc₁² = 21,16.",
+                explain: () => "F₂ = 1,0 × (4,41 × 5) / (21,16 × 3) ≈ 0,35 mL/min. Po takim dostosowaniu 2.2.46 pozwala jeszcze zmienić przepływ o ±50%." }
+      },
+      {
+        title: "Przeniesienie metody na krótszą kolumnę",
+        setup: LS(),
+        html: `<p>Przenieś metodę na kolumnę <b>100 × 2,1 mm, 3 µm</b> z przeliczonym przepływem. Warunki przydatności: <b>R<sub>s</sub> ≥ 1,5</b> dla pary krytycznej, a Twój aparat HPLC ma limit <b>400 bar</b>. Składu fazy nie zmieniaj. Możesz za to zmniejszyć dyspersję pozakolumnową aparatu (kapilary o mniejszej średnicy, mikrocela detektora – pole σ<sub>V</sub>).</p>`,
+        task: { type: "goal", q: "Ustaw kolumnę i przepływ, potem kliknij „Sprawdź”.",
+                check: (R, S) => {
+                  if (S.L !== 100 || S.ID !== 2.1 || S.dp !== 3) return { ok: false, msg: "Ustaw kolumnę 100 × 2,1 mm, ziarno 3 µm." };
+                  if (S.mode !== "iso" || S.phiIso !== 40) return { ok: false, msg: "Nie zmieniaj składu fazy ruchomej (40% ACN)." };
+                  const F2 = 1.0 * (2.1 * 2.1 * 5) / (4.6 * 4.6 * 3);
+                  if (S.F < 0.5 * F2 - 1e-9 || S.F > 1.5 * F2 + 1e-9) return { ok: false, msg: `Przepływ ${nf(S.F, 2)} mL/min jest poza dozwolonym zakresem (±50% od ${nf(F2, 2)} mL/min).` };
+                  const rs = pairRs(R, 1, 2);
+                  if (rs < 1.5) return { ok: false, msg: `R<sub>s</sub> = ${nf(rs, 2)} (&lt; 1,5).` + (S.sigEC > 6 ? " Kolumna i przepływ są poprawne – porównaj N pików z N kolumny: piki poszerza aparat (σ<sub>V</sub>)." : "") };
+                  if (R.dP > 400) return { ok: false, msg: `Ciśnienie ${nInt(R.dP)} bar przekracza limit aparatu.` };
+                  return { ok: true, msg: `R<sub>s</sub> = ${nf(rs, 2)}, ΔP = ${nInt(R.dP)} bar, czas analizy ${nf(R.runTime, 1)} min, zużycie fazy ${nf(S.F * R.runTime, 1)} mL.` };
+                },
+                hint: "Oblicz F₂ z poprzedniego kroku (≈ 0,35 mL/min). Porównaj czas analizy i zużycie fazy z metodą oryginalną (ok. 13 min, 13 mL).",
+                explain: () => "Rozdzielczość pozostała podobna (podobne L/d_p), a zużycie rozpuszczalników spadło kilkukrotnie. 2.2.46 wymaga przy tym potwierdzenia selektywności i kolejności elucji oraz uwagi na dyspersję pozakolumnową – mniejsze piki są na nią wrażliwsze (lekcja 4)." }
+      },
+      {
+        title: "Kolumny core-shell",
+        html: `<p>Cząstki <b>core-shell</b> (superficially porous, SPP) mają nieporowaty rdzeń i porowatą otoczkę. Dają mniejsze h przy podobnym ciśnieniu jak cząstki całkowicie porowate (TPP) tej samej średnicy. Przełącz „Typ cząstek” i porównaj N.</p>` + REF("Ph. Eur. 2.2.46 – Stationary phase / Column dimensions"),
+        task: { type: "choice", q: "Czy wg 2.2.46 wolno zastąpić kolumnę TPP kolumną SPP?",
+                options: ["Nie, zmiana typu cząstek zawsze wymaga rewalidacji.",
+                          "Tak, jeśli podstawnik (np. C18) i właściwości fazy są podobne, a N (w gradiencie: (t_R/w_h)²) mieści się w zakresie −25% … +50% wartości dla kolumny z monografii.",
+                          "Tak, bez żadnych warunków.",
+                          "Tylko jeśli ziarno jest identyczne."],
+                correct: 1,
+                explain: () => "Zmiana TPP → SPP jest dozwolona przy zachowaniu identyczności podstawnika i podobieństwa fazy; zamiast kryterium L/d_p stosuje się wtedy kryterium N (−25% … +50%). Zawsze obowiązuje spełnienie SST." }
+      }
+    ]
+  },
+  {
+    title: "4. Aparatura: dyspersja, ciśnienie, objętość opóźnienia",
+    steps: [
+      {
+        title: "Dyspersja pozakolumnowa",
+        setup: LS({ L: 50, ID: 2.1, dp: 1.7, F: 0.5, sigEC: 12, Vinj: 1 }),
+        html: `<p>Metodę przeniesiono na kolumnę <b>50 × 2,1 mm, 1,7 µm</b>, ale uruchomiono ją na starym aparacie HPLC (dyspersja pozakolumnowa σ<sub>V</sub> = 12 µL: kapilary, dozownik, cela detektora). Kolumna ma ok. 14 000 półek, a piki są wyraźnie gorsze.</p>
+               <p>Porównaj N pików w tabeli z N kolumny w kafelku u góry.</p>` + REF("Ph. Eur. 2.2.29 (aparatura do sub-2 µm: mniejsze poszerzenie pozakolumnowe) i 2.2.46 (ostrożność przy mniejszych objętościach pików)"),
+        task: { type: "goal", q: "Bez zmiany kolumny, fazy i przepływu uzyskaj Rs ≥ 1,5 dla pary krytycznej. Jaki σ_V jest potrzebny?",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.F !== B.F || S.phiIso !== B.phiIso || S.mode !== "iso") return { ok: false, msg: "Zmieniaj tylko parametry aparatu (σ_V, objętość nastrzyku)." };
+                  const rs = pairRs(R, 1, 2);
+                  return rs >= 1.5 ? { ok: true, msg: `R<sub>s</sub> = ${nf(rs, 2)} przy σ<sub>V</sub> = ${nf(S.sigEC, 1)} µL.` }
+                                   : { ok: false, msg: `R<sub>s</sub> = ${nf(rs, 2)} – aparat wciąż za bardzo poszerza piki.` };
+                },
+                hint: "Zmniejszaj σ_V w polu „Aparatura i detekcja”. Porównaj wynik z typowymi wartościami dla HPLC i UHPLC.",
+                explain: () => "Objętość piku z tej kolumny to zaledwie kilka µL (σ ≈ 7 µL dla k ≈ 6), więc σ_V aparatu musi być wyraźnie mniejsze – poziom aparatu UHPLC (≤ ~4 µL). Wariancje się sumują: σ²_obs = σ²_kol + σ²_poza." }
+      },
+      {
+        title: "Dlaczego stary aparat był dobry dla dużej kolumny?",
+        html: `<p>Ten sam aparat (σ<sub>V</sub> = 12 µL) dawał dobre wyniki na kolumnie 150 × 4,6 mm, 5 µm. Możesz to sprawdzić, ustawiając tę kolumnę i przepływ 1 mL/min.</p>`,
+        task: { type: "choice", q: "Dlaczego?",
+                options: ["Duża kolumna ma mniej półek, więc poszerzenie nie ma znaczenia.",
+                          "Objętość piku z kolumny 4,6 mm (σ ≈ 100 µL) jest wielokrotnie większa niż σ_V aparatu, więc jego udział w całkowitej wariancji jest pomijalny.",
+                          "Przy przepływie 1 mL/min dyspersja pozakolumnowa znika.",
+                          "Dla kolumn 4,6 mm dyspersja pozakolumnowa zmniejsza się z powodu większego ciśnienia."],
+                correct: 1,
+                explain: () => "Liczy się stosunek wariancji: σ_V,kol ∝ V_M(1+k)/√N. Objętość kolumny 4,6 mm jest ~5× większa na jednostkę długości niż 2,1 mm, a kolumna 150 mm jest 3× dłuższa – piki mają objętość setek µL." }
+      },
+      {
+        title: "Limit ciśnienia",
+        setup: LS({ L: 100, ID: 2.1, dp: 1.7, F: 0.5, sigEC: 4, Vinj: 1 }),
+        html: `<p>Kolumny z ziarnem &lt; 2 µm wymagają aparatury pracującej przy ciśnieniach do ok. 100 MPa (1000 bar). Masz jednak tylko aparat HPLC z limitem <b>400 bar</b>.</p>` + REF("Ph. Eur. 2.2.29 – Principle"),
+        task: { type: "goal", q: "Ustaw największy przepływ, przy którym ciśnienie mieści się w limicie (370–400 bar). Porównaj go z przepływem optymalnym.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B)) return { ok: false, msg: "Nie zmieniaj kolumny." };
+                  if (R.dP > 400) return { ok: false, msg: `ΔP = ${nInt(R.dP)} bar – przekroczony limit aparatu.` };
+                  if (R.dP < 370) return { ok: false, msg: `ΔP = ${nInt(R.dP)} bar – możesz jeszcze zwiększyć przepływ.` };
+                  return { ok: true, msg: `F = ${nf(S.F, 2)} mL/min, ΔP = ${nInt(R.dP)} bar; przepływ optymalny ≈ ${nf(R.Fopt, 2)} mL/min.` };
+                },
+                hint: "Ciśnienie jest proporcjonalne do przepływu – oblicz F z proporcji.",
+                explain: R => `Na aparacie 400 bar ta kolumna pracuje poniżej optimum van Deemtera (≈ ${nf(R.Fopt, 2)} mL/min), więc nie wykorzystuje swojej sprawności i analiza jest dłuższa. Stąd wymaganie aparatury UHPLC w 2.2.29.` }
+      },
+      {
+        title: "Objętość opóźnienia – przeliczenie",
+        setup: LS({ mode: "grad", phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0 }, MIX4()),
+        html: `<p><b>Objętość opóźnienia</b> D (dwell volume) to objętość między punktem mieszania eluentów a wlotem kolumny. Gradient dociera do kolumny z opóźnieniem D/F, więc aparaty o różnym D dają różne chromatogramy.</p>
+               <p>Metodę opracowano na aparacie z D₀ = 1,0 mL (widoczny chromatogram). Twój aparat ma <b>D = 0,35 mL</b>, F = 1,0 mL/min. Wg 2.2.46 punkty czasowe programu przelicza się:</p>
+               <p><code>t_c = t − (D − D₀)/F</code></p>
+               <p>Dlatego monografie zalecają izokratyczny krok na początku programu – jego długość dostosowuje się do aparatu.</p>` + REF("Ph. Eur. 2.2.46 – Dwell volume; LC gradient elution"),
+        task: { type: "num", q: "O ile minut trzeba wydłużyć początkowy krok izokratyczny na Twoim aparacie?", unit: "min", answer: () => 0.65, tol: 0.02, abs: true,
+                hint: "(D − D₀)/F = (0,35 − 1,0)/1,0 – ujemne przesunięcie oznacza, że wszystkie punkty programu przesuwają się później.",
+                explain: () => "t_c = t − (0,35 − 1,0)/1,0 = t + 0,65 min: wszystkie punkty programu przesuwają się o 0,65 min później, czyli izokrata początkowa trwa 0,65 min." }
+      },
+      {
+        title: "Objętość opóźnienia – kompensacja",
+        setup: LS({ mode: "grad", phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 0.35 }, MIX4()),
+        ref: LS({ mode: "grad", phi0: 10, phi1: 90, tG: 20, hold: 3, VD: 1.0 }, MIX4()),
+        html: `<p>Ustawiono D = 0,35 mL. Piki eluują wcześniej niż w metodzie oryginalnej (D₀ = 1,0 mL), a rozdzielczość pary krytycznej się zmieniła.</p>`,
+        task: { type: "goal", q: "Zmieniając tylko izokratę początkową, doprowadź czasy retencji wszystkich pików do zgodności z metodą oryginalną (±1%).",
+                check: (R, S, B, Rref) => {
+                  const keys = ["L", "ID", "dp", "F", "phi0", "phi1", "tG", "VD"];
+                  if (keys.some(k => S[k] !== B[k]) || S.mode !== "grad") return { ok: false, msg: "Zmieniaj tylko izokratę początkową (D musi pozostać 0,35 mL)." };
+                  const devs = R.peaks.map((p, i) => p.eluted ? Math.abs(p.tR - Rref.peaks[i].tR) / Rref.peaks[i].tR : 1);
+                  const worst = Math.max(...devs);
+                  return worst <= 0.01 ? { ok: true, msg: `Maksymalna różnica t<sub>R</sub>: ${nf(worst * 100, 2)}% przy izokracie ${nf(S.tIso0, 2)} min.` }
+                                       : { ok: false, msg: `Największa różnica t<sub>R</sub> względem metody oryginalnej: ${nf(worst * 100, 1)}%.` };
+                },
+                hint: "Wpisz wynik z poprzedniego kroku w polu „Izokrata początk.”.",
+                explain: () => "Izokrata 0,65 min dokładnie kompensuje mniejszą objętość opóźnienia – chromatogram jest taki jak na aparacie, na którym opracowano metodę. Bez kompensacji zmienia się nie tylko t_R, ale i selektywność w gradiencie." }
+      }
+    ]
+  },
+  {
+    title: "5. Przydatność układu (SST)",
+    steps: [
+      {
+        title: "Symetria piku",
+        setup: LS({ endcap: false }, [
+          { name: "Zanieczyszczenie A", logkw: 1.80, S: 3.5, amt: 0.5, basic: false },
+          { name: "Substancja czynna (zasada)", logkw: 2.40, S: 4.0, amt: 1.0, basic: true },
+          { name: "Zanieczyszczenie B", logkw: 2.55, S: 4.3, amt: 0.5, basic: false }]),
+        html: `<p>Współczynnik symetrii (tailing factor) liczy się na 1/20 wysokości piku:</p>
+               <p><code>A_s = w_0,05 / (2d)</code></p>
+               <p>gdzie d – odległość od maksimum do zbocza wstępującego. A<sub>s</sub> = 1 – pik symetryczny; &gt; 1 – ogonowanie; &lt; 1 – fronting. Jeśli monografia nie stanowi inaczej, pik stosowany do oznaczania musi mieć <b>A<sub>s</sub> = 0,8–1,8</b>.</p>
+               <p>Substancja czynna jest zasadą; kolumna ma fazę C18 <b>bez end-cappingu</b>.</p>` + REF("Ph. Eur. 2.2.46 – Symmetry factor; System suitability: peak symmetry"),
+        task: { type: "goal", q: "Spraw, aby pik substancji czynnej spełniał wymaganie symetrii (nie zmieniaj fazy ruchomej).",
+                check: (R, S, B) => {
+                  if (S.phiIso !== B.phiIso || S.mode !== "iso") return { ok: false, msg: "Nie zmieniaj fazy ruchomej." };
+                  if (!S.analytes[1] || !S.analytes[1].basic) return { ok: false, msg: "Substancja czynna jest zasadą – nie zmieniaj jej właściwości." };
+                  const as = pk(R, 1).As;
+                  return as >= 0.8 && as <= 1.8 ? { ok: true, msg: `A<sub>s</sub> = ${nf(as, 2)} – wymaganie spełnione.` }
+                                                : { ok: false, msg: `A<sub>s</sub> = ${nf(as, 2)} – poza zakresem 0,8–1,8.` };
+                },
+                hint: "Przyczyną ogonowania zasad są oddziaływania z wolnymi grupami silanolowymi. Spójrz na wybór fazy stacjonarnej.",
+                explain: () => "Faza z end-cappingiem (sililowane resztkowe silanole) ogranicza oddziaływania jonowe zasad z krzemionką. W praktyce pomaga też niskie pH fazy (protonowane silanole) lub dodatki (np. trietyloamina)." }
+      },
+      {
+        title: "Skąd ogonowanie?",
+        html: `<p>Ph. Eur. 2.2.29 wymienia wśród czynników decydujących o właściwościach faz odwróconych stopień pokrycia (carbon loading) i end-capping.</p>`,
+        task: { type: "choice", q: "Które związki szczególnie ogonują na kolumnach z wolnymi grupami silanolowymi?",
+                options: ["kwasy karboksylowe", "związki zasadowe (np. aminy)", "węglowodory aromatyczne", "wszystkie związki w jednakowym stopniu"],
+                correct: 1,
+                explain: () => "Zdysocjowane silanole (Si–O⁻) oddziałują jonowo z protonowanymi aminami – to druga, wolna ścieżka retencji, która daje ogon piku (2.2.29: „tailing of peaks, particularly of basic substances”)." }
+      },
+      {
+        title: "Stosunek sygnału do szumu",
+        setup: LS({}, [{ name: "Substancja czynna 0,05%", logkw: 2.40, S: 4.0, amt: 0.0005, basic: false }]),
+        report: true,
+        html: `<p>Czułość układu określa się przez S/N. Wstrzyknięto roztwór substancji na poziomie <b>progu raportowania 0,05%</b>. Ustaw skalę Y na ×1000, aby zobaczyć pik i szum.</p>
+               <p><code>S/N = 2H/h</code></p>
+               <p>H – wysokość piku od ekstrapolowanej linii podstawowej; h – rozstęp szumu w chromatogramie ślepej próby w oknie co najmniej 5 × w<sub>h</sub>.</p>` + REF("Ph. Eur. 2.2.46 – Signal-to-noise ratio"),
+        task: { type: "num", q: "Oblicz S/N z danych w tabeli (H i h).", unit: "", answer: R => pk(R, 0).SN, tol: 0.04,
+                hint: "Pomnóż H przez 2 i podziel przez h.",
+                explain: R => `S/N = 2 × ${sig3(pk(R, 0).H)} / ${sig3(pk(R, 0).hNoise)} ≈ ${nf(pk(R, 0).SN, 1)}. Granica oznaczalności odpowiada S/N = 10 – układ jest za mało czuły.` }
+      },
+      {
+        title: "Czułość układu",
+        setup: LS({}, [{ name: "Substancja czynna 0,05%", logkw: 2.40, S: 4.0, amt: 0.0005, basic: false }]),
+        html: `<p>Wymaganie 2.2.46: granica oznaczalności (S/N = 10) ma być <b>nie wyższa niż próg raportowania</b>. Zwiększ S/N do ≥ 10, korzystając z dozwolonych zmian: objętość nastrzyku, wymiary kolumny (L/d<sub>p</sub> −25…+50%, średnica dowolna, przepływ przeliczony ±50%). Nie zmieniaj składu fazy ani stężenia roztworu.</p>`,
+        task: { type: "goal", q: "Uzyskaj S/N ≥ 10 i kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (S.phiIso !== B.phiIso || S.mode !== "iso") return { ok: false, msg: "Nie zmieniaj składu fazy ruchomej." };
+                  if (!S.analytes[0] || S.analytes[0].amt !== B.analytes[0].amt) return { ok: false, msg: "Nie zmieniaj stężenia roztworu – musi odpowiadać progowi raportowania." };
+                  if (S.noise !== B.noise) return { ok: false, msg: "Szum detektora to cecha aparatu – nie zmieniaj go." };
+                  const ld = S.L / S.dp, ld0 = B.L / B.dp;
+                  if (ld < 0.75 * ld0 - 1e-9 || ld > 1.5 * ld0 + 1e-9) return { ok: false, msg: `L/d<sub>p</sub> = ${nf(ld, 1)} poza zakresem ${nf(0.75 * ld0, 1)}–${nf(1.5 * ld0, 1)}.` };
+                  const F2 = B.F * (S.ID * S.ID * B.dp) / (B.ID * B.ID * S.dp);
+                  if (S.F < 0.5 * F2 - 1e-9 || S.F > 1.5 * F2 + 1e-9) return { ok: false, msg: `Przepływ poza zakresem: dla tej kolumny F₂ = ${nf(F2, 2)} mL/min (±50%).` };
+                  const sn = pk(R, 0).SN;
+                  return sn >= 10 ? { ok: true, msg: `S/N = ${nf(sn, 1)} – LOQ nie przekracza progu raportowania.` }
+                                  : { ok: false, msg: `S/N = ${nf(sn, 1)} – za mało.` };
+                },
+                hint: "Większy nastrzyk daje proporcjonalnie większy pik. Węższa kolumna (z przeliczonym przepływem) daje węższe objętościowo, a więc wyższe piki przy tej samej masie.",
+                explain: () => "Obie drogi są dozwolone. 2.2.46 przypomina, że przy zwiększaniu nastrzyku trzeba potwierdzić liniowość i rozdzielczość, a przy mniejszych kolumnach – kontrolować poszerzenie pozakolumnowe." }
+      },
+      {
+        title: "Powtarzalność układu",
+        html: `<p>Dla oznaczania zawartości (cel 100%) maksymalne dopuszczalne RSD odpowiedzi dla n nastrzyków roztworu porównawczego wynosi:</p>
+               <p><code>%RSD_max = K · B · √n / t(90%, n−1)</code></p>
+               <p>K = 0,349; B – górna granica z definicji monografii minus 100%; t – wartość krytyczna Studenta (90%, dwustronnie). Dla n − 1 = 5: t = 2,015.</p>` + REF("Ph. Eur. 2.2.46 – System repeatability, Table 2.2.46.-1"),
+        task: { type: "num", q: "Monografia: zawartość 98,0–102,0%. Oblicz %RSD_max dla n = 6 nastrzyków.", unit: "%", answer: () => 0.349 * 2.0 * Math.sqrt(6) / RSD_T90[5], tol: 0.012, abs: true,
+                hint: "B = 102,0 − 100 = 2,0.",
+                explain: () => "%RSD_max = 0,349 × 2,0 × √6 / 2,015 ≈ 0,85% – zgodnie z tabelą 2.2.46.-1. Dla n = 3 wymaganie jest ostrzejsze (0,41%), bo mniejsza liczba nastrzyków daje mniej pewne oszacowanie RSD." }
+      }
+    ]
+  }
+];
+
+const lesson = { active: false, li: 0, si: 0, base: null, ref: null, tries: 0, loadedLi: -1 };
+const TEACHER = /prowadzacy/.test(location.search + location.hash);
+const PROG_KEY = "hplc-zajecia-v1";
+function loadProg() { try { return JSON.parse(localStorage.getItem(PROG_KEY)) || {}; } catch (_) { return {}; } }
+function saveProg(p) { try { localStorage.setItem(PROG_KEY, JSON.stringify(p)); } catch (_) {} }
+let progress = loadProg();
+const isDone = (li, si) => !!(progress[li] && progress[li][si]);
+function markDone() {
+  progress[lesson.li] = progress[lesson.li] || {};
+  progress[lesson.li][lesson.si] = true;
+  saveProg(progress); renderDots();
+}
+
+function stepSetup(li, si) {       // warunki kroku: własne lub ostatnie zdefiniowane wcześniej
+  const steps = LESSONS[li].steps;
+  for (let j = si; j >= 0; j--) if (steps[j].setup) return steps[j].setup;
+  return LS();
+}
+
+function renderDots() {
+  const L = LESSONS[lesson.li];
+  $("dots").innerHTML = L.steps.map((s, j) =>
+    `<button class="${isDone(lesson.li, j) ? "done" : ""} ${j === lesson.si ? "cur" : ""}" data-j="${j}" title="${escapeHtml(s.title)}">${j + 1}</button>`).join("");
+  const nDone = L.steps.filter((_, j) => isDone(lesson.li, j)).length;
+  $("lessonProgress").textContent = `${nDone}/${L.steps.length} zaliczone`;
+}
+
+function openStep(li, si, applySetup) {
+  lesson.li = li; lesson.si = si; lesson.tries = 0;
+  const st = LESSONS[li].steps[si];
+  if (applySetup !== false && (st.setup || lesson.loadedLi !== li)) applyState(stepSetup(li, si));
+  lesson.loadedLi = li;
+  reportMode = !!st.report; hideVdHint = !!st.hideVd;
+  lesson.base = JSON.parse(JSON.stringify(state));
+  lesson.ref = st.ref ? compute(JSON.parse(JSON.stringify(st.ref))) : null;
+  renderStats();
+  $("lessonSel").value = String(li);
+  $("stepTitle").textContent = `Krok ${si + 1}. ${st.title}`;
+  $("stepText").innerHTML = st.html;
+  renderTask(st);
+  renderDots();
+  $("prevStep").disabled = si === 0 && li === 0;
+  $("nextStep").textContent = si < LESSONS[li].steps.length - 1 ? "Dalej →" : (li < LESSONS.length - 1 ? "Następna lekcja →" : "Koniec");
+  $("nextStep").disabled = si === LESSONS[li].steps.length - 1 && li === LESSONS.length - 1;
+  try { history.replaceState(null, "", "#zajecia=" + (li + 1) + "." + (si + 1)); } catch (_) {}
+}
+
+function renderTask(st) {
+  const t = st.task;
+  let html = `<div class="q">${t.q}</div>`;
+  if (t.type === "num") {
+    html += `<div class="ansrow"><input type="text" id="ans" inputmode="decimal" autocomplete="off" aria-label="Odpowiedź">${t.unit ? `<span>${t.unit}</span>` : ""}<button class="btn primary" id="checkBtn">Sprawdź</button></div>`;
+  } else if (t.type === "choice") {
+    html += t.options.map((o, j) => `<label class="opt"><input type="radio" name="opt" value="${j}"><span>${o}</span></label>`).join("");
+    html += `<button class="btn primary" id="checkBtn" style="margin-top:6px">Sprawdź</button>`;
+  } else {
+    html += `<button class="btn primary" id="checkBtn">Sprawdź</button>`;
+  }
+  html += `<div class="feedback" id="fb"></div>`;
+  if (t.hint) html += `<details class="hintbox"><summary>Podpowiedź</summary><div>${t.hint}</div></details>`;
+  if (TEACHER) {
+    let key = "";
+    if (t.type === "num") key = "Odpowiedź (dla bieżących warunków): " + fmt(t.answer(result));
+    if (t.type === "choice") key = "Poprawna odpowiedź: " + String.fromCharCode(97 + t.correct) + ")";
+    if (t.type === "goal") key = "Sprawdzane automatycznie; podpowiedź: " + (t.hint || "");
+    html += `<div class="teacher">Prowadzący – ${key}</div>`;
+  }
+  $("task").innerHTML = html;
+  $("checkBtn").addEventListener("click", checkAnswer);
+  if (t.type === "num") $("ans").addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+}
+
+function feedback(kind, msg) { const fb = $("fb"); fb.className = "feedback " + kind; fb.innerHTML = msg; }
+
+function checkAnswer() {
+  const st = LESSONS[lesson.li].steps[lesson.si], t = st.task;
+  readForm(); result = compute(state); renderStats(); redraw();
+  const R = result;
+  lesson.tries++;
+  if (t.type === "num") {
+    const raw = $("ans").value.trim().replace(/\s/g, "").replace(",", ".");
+    const v = Number(raw);
+    if (raw === "" || !isFinite(v)) { feedback("bad", "Wpisz liczbę (możesz użyć przecinka)."); return; }
+    const ans = t.answer(R);
+    const err = t.abs ? Math.abs(v - ans) : Math.abs(v - ans) / Math.abs(ans);
+    if (err <= t.tol) { feedback("ok", "<b>Dobrze!</b> " + t.explain(R)); markDone(); }
+    else if (err <= 3 * t.tol) feedback("near", "<b>Blisko</b> – sprawdź zaokrąglenia i jednostki (t<sub>R</sub> i w<sub>h</sub> w minutach).");
+    else feedback("bad", "<b>Niepoprawnie.</b> " + (lesson.tries >= 2 && t.hint ? "Wskazówka: " + t.hint : "Spróbuj jeszcze raz."));
+  } else if (t.type === "choice") {
+    const sel = document.querySelector('#task input[name="opt"]:checked');
+    if (!sel) { feedback("bad", "Zaznacz odpowiedź."); return; }
+    if (+sel.value === t.correct) { feedback("ok", "<b>Dobrze!</b> " + t.explain(R)); markDone(); }
+    else feedback("bad", "<b>Niepoprawnie.</b> Zastanów się jeszcze raz" + (st.task.hint ? " – " + st.task.hint : "."));
+  } else {
+    const res = t.check(R, state, lesson.base, lesson.ref);
+    if (res.ok) { feedback("ok", "<b>Zaliczone!</b> " + res.msg + " " + t.explain(R)); markDone(); }
+    else feedback("bad", res.msg + (lesson.tries >= 2 && t.hint ? "<br>Wskazówka: " + t.hint : ""));
+  }
+}
+
+function setAppMode(mode) {
+  lesson.active = mode === "lesson";
+  document.querySelectorAll("#appMode button").forEach(b => b.classList.toggle("on", b.dataset.app === mode));
+  $("lessonCard").classList.toggle("hidden", !lesson.active);
+  $("presetCard").classList.toggle("hidden", lesson.active);
+  if (lesson.active) openStep(lesson.li, lesson.si, true);
+  else {
+    reportMode = false; hideVdHint = false; renderStats();
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (_) {}
+  }
+}
+
+$("lessonSel").innerHTML = LESSONS.map((L, i) => `<option value="${i}">${L.title}</option>`).join("");
+$("lessonSel").addEventListener("change", e => openStep(+e.target.value, 0, true));
+$("dots").addEventListener("click", e => { const b = e.target.closest("button"); if (b) openStep(lesson.li, +b.dataset.j, true); });
+$("prevStep").addEventListener("click", () => {
+  if (lesson.si > 0) openStep(lesson.li, lesson.si - 1, true);
+  else if (lesson.li > 0) openStep(lesson.li - 1, LESSONS[lesson.li - 1].steps.length - 1, true);
+});
+$("nextStep").addEventListener("click", () => {
+  if (lesson.si < LESSONS[lesson.li].steps.length - 1) openStep(lesson.li, lesson.si + 1, true);
+  else if (lesson.li < LESSONS.length - 1) openStep(lesson.li + 1, 0, true);
+});
+$("resetStep").addEventListener("click", () => {
+  applyState(stepSetup(lesson.li, lesson.si));
+  openStep(lesson.li, lesson.si, false);
+});
+document.querySelectorAll("#appMode button").forEach(b => b.addEventListener("click", () => setAppMode(b.dataset.app)));
+
+// =====================================================================
+// Zdarzenia
+// =====================================================================
 document.querySelector("aside").addEventListener("input", e => {
+  if (e.target.closest("#lessonCard")) return;
   if (e.target.id === "Fr") $("F").value = e.target.value;
   if (e.target.id === "F" && readNum("F") != null) $("Fr").value = $("F").value;
   if (e.target.id === "phiIsoR") $("phiIso").value = e.target.value;
   if (e.target.id === "phiIso" && readNum("phiIso") != null) $("phiIsoR").value = $("phiIso").value;
   if (e.target.id !== "preset") update();
 });
-document.querySelector("aside").addEventListener("change", e => { if (e.target.tagName === "SELECT" && e.target.id !== "preset") update(); });
+document.querySelector("aside").addEventListener("change", e => {
+  if (e.target.closest("#lessonCard")) return;
+  if ((e.target.tagName === "SELECT" && e.target.id !== "preset") || e.target.type === "checkbox") update();
+});
+$("yzoom").addEventListener("change", redraw);
 
 $("modeSeg").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
-  state.mode = b.dataset.mode; writeForm(); update();
+  readForm(); state.mode = b.dataset.mode; writeForm(); update();
 });
 $("anList").addEventListener("click", e => {
   if (!e.target.classList.contains("del")) return;
@@ -866,15 +1582,14 @@ $("addAn").addEventListener("click", () => {
   if (state.analytes.length >= MAX_ANALYTES) return;
   readForm();
   const last = state.analytes[state.analytes.length - 1] || { logkw: 1.5, S: 3.5 };
-  state.analytes.push({ name: "Analit " + (state.analytes.length + 1), logkw: +(last.logkw + 0.3).toFixed(2), S: last.S, amt: 1 });
+  state.analytes.push({ name: "Analit " + (state.analytes.length + 1), logkw: +(last.logkw + 0.3).toFixed(2), S: last.S, amt: 1, basic: false });
   renderAnalytes(); update();
 });
 $("preset").addEventListener("change", e => {
   const p = PRESETS[e.target.value];
   $("presetHint").textContent = p ? p.hint : "";
   if (!p) return;
-  readForm();
-  Object.assign(state, p.s, { analytes: DEFAULT_ANALYTES.map(a => Object.assign({}, a)) });
+  Object.assign(state, p.s, { analytes: cloneAn(DEFAULT_ANALYTES) });
   writeForm(); update();
 });
 
@@ -891,10 +1606,9 @@ $("chrom").addEventListener("mousemove", e => {
   const rect = e.currentTarget.getBoundingClientRect();
   const t = (e.clientX - rect.left - chromGeom.m.l) / chromGeom.pw * chromGeom.tEnd;
   if (t < 0 || t > chromGeom.tEnd) { $("readout").textContent = ""; return; }
-  let txt = "t = " + nf(t, 2) + " min";
+  const j = Math.round(t / result.tEnd * GRID);
+  let txt = "t = " + nf(t, 3) + " min · " + sig3(result.tot[j] + result.noise[j]) + " mAU";
   if (!result.iso) txt += " · B = " + nf(result.phiProg(t - result.tD - result.t0) * 100, 0) + "%";
-  const near = result.el.reduce((b, p) => Math.abs(p.tR - t) < 2 * p.sigma && (!b || Math.abs(p.tR - t) < Math.abs(b.tR - t)) ? p : b, null);
-  if (near) txt += " · " + near.name + " (t_R " + nf(near.tR, 2) + ")";
   $("readout").textContent = txt;
 });
 $("chrom").addEventListener("mouseleave", () => { $("readout").textContent = ""; });
@@ -902,11 +1616,15 @@ $("chrom").addEventListener("mouseleave", () => { $("readout").textContent = "";
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
 
 $("btnShare").addEventListener("click", async () => {
-  readForm();
-  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-  const url = location.href.split("#")[0] + "#s=" + enc;
-  try { history.replaceState(null, "", "#s=" + enc); } catch (_) {}
-  try { await navigator.clipboard.writeText(url); toast("Link skopiowany do schowka"); }
+  let url;
+  if (lesson.active) url = location.href.split("#")[0] + "#zajecia=" + (lesson.li + 1) + "." + (lesson.si + 1);
+  else {
+    readForm();
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+    url = location.href.split("#")[0] + "#s=" + enc;
+    try { history.replaceState(null, "", "#s=" + enc); } catch (_) {}
+  }
+  try { await navigator.clipboard.writeText(url); toast(lesson.active ? "Link do tego kroku zajęć skopiowany" : "Link z ustawieniami skopiowany"); }
   catch (_) { toast("Link zapisany w pasku adresu"); }
 });
 
@@ -921,18 +1639,36 @@ $("btnPng").addEventListener("click", () => {
 new ResizeObserver(() => redraw()).observe(document.querySelector(".content"));
 try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw); } catch (_) {}
 
-// ---------- Start ----------
+// =====================================================================
+// Start
+// =====================================================================
+window.addEventListener("hashchange", () => {
+  const mz = location.hash.match(/^#zajecia(?:=(\d+)(?:\.(\d+))?)?/);
+  if (!mz) return;
+  const li = Math.min(LESSONS.length - 1, Math.max(0, (+mz[1] || 1) - 1));
+  const si = Math.min(LESSONS[li].steps.length - 1, Math.max(0, (+mz[2] || 1) - 1));
+  if (li === lesson.li && si === lesson.si && lesson.active) return;
+  lesson.li = li; lesson.si = si; lesson.loadedLi = -1;
+  if (lesson.active) openStep(li, si, true); else setAppMode("lesson");
+});
+
 (function init() {
-  const m = location.hash.match(/^#s=(.+)$/);
-  if (m) {
+  const hs = location.hash;
+  const ms = hs.match(/^#s=(.+)$/);
+  const mz = hs.match(/^#zajecia(?:=(\d+)(?:\.(\d+))?)?/);
+  if (ms) {
     try {
-      const s = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
-      if (s && Array.isArray(s.analytes)) state = Object.assign(state, s);
+      const s = JSON.parse(decodeURIComponent(escape(atob(ms[1]))));
+      if (s && Array.isArray(s.analytes)) state = Object.assign({}, BASE, s, { analytes: s.analytes.map(a => Object.assign({ basic: false }, a)) });
     } catch (_) {}
-  }
-  else { $("preset").value = "uhplc"; $("presetHint").textContent = PRESETS.uhplc.hint; }
+  } else { $("preset").value = "uhplc"; $("presetHint").textContent = PRESETS.uhplc.hint; }
   writeForm();
-  update();
+  result = compute(state); renderStats(); redraw();
+  if (mz) {
+    lesson.li = Math.min(LESSONS.length - 1, Math.max(0, (+mz[1] || 1) - 1));
+    lesson.si = Math.min(LESSONS[lesson.li].steps.length - 1, Math.max(0, (+mz[2] || 1) - 1));
+    setAppMode("lesson");
+  }
 })();
 </script>
 </body>
