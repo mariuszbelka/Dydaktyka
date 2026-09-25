@@ -5,8 +5,8 @@
 ## Status
 Działający dwujęzyczny (PL/EN) symulator HPLC z trybem zajęć (5 lekcji podstawowych + 5 przykładów z monografii Ph. Eur.) i kartą wzorów Ph. Eur. 2.2.46, opublikowany na GitHub Pages. Następny etap: przebudowa pod telefony, porcjowanie treści, materiały „przed zajęciami” i raport mailem do prowadzącego (D6–D10). Docelowo repozytorium obejmie wszystkie prowadzone ćwiczenia (D11); LC jest pierwszym z nich. **Pierwsze ćwiczenia: grudzień 2026.** Wymagania: indywidualne raporty, zadania casowe, odporność na oszustwa, moduły otwierane wg harmonogramu – wymagają serwera (D12–D16).
 
-Online: https://mariuszbelka.github.io/LC/?lang=pl · https://mariuszbelka.github.io/LC/?lang=en
-Repozytorium: https://github.com/mariuszbelka/LC (publiczne; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`).
+Online: https://mariuszbelka.github.io/LC/?lang=pl · https://mariuszbelka.github.io/LC/?lang=en (po zmianie nazwy repo: `…github.io/dydaktyka/`)
+Repozytorium: https://github.com/mariuszbelka/LC → docelowo `dydaktyka` (obecnie publiczne – widoczność do decyzji, patrz Następne kroki; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`).
 
 ## Decyzje
 | # | Data | Decyzja | Uzasadnienie / uwaga |
@@ -25,18 +25,23 @@ Repozytorium: https://github.com/mariuszbelka/LC (publiczne; gałąź robocza `c
 | D12 | 25.09.2026 | Każdy student wysyła **własny raport** z wykonania | §10 |
 | D13 | 25.09.2026 | Zadania **angażujące, problemowe, casowe** (diagnoza → działanie w granicach Ph. Eur. → sprawdzenie → uzasadnienie) | §10.3 |
 | D14 | 25.09.2026 | **Odporność na oszustwa**: indywidualne warianty, sprawdzanie na serwerze, rejestr prób, weryfikacja ustna na seminarium | §10.2 |
-| D15 | 25.09.2026 | Moduły **otwierane i zamykane** zgodnie z terminami zajęć grup | egzekwowane na serwerze; §10 |
+| D15 | 25.09.2026 | Moduły **otwierane i zamykane** zgodnie z terminami zajęć grup | ~~egzekwowane na serwerze~~ → daty dostępności w Moodle (D17), serwer dodatkowo odrzuca spóźnione zgłoszenia; §10 |
 | D16 | 25.09.2026 | Potrzebny **backend**; D9 w wariancie „mailto” ~~raport z przeglądarki~~ → raport tworzony na serwerze, mail jako powiadomienie | wynika z D12, D14, D15; warianty w §10.4 (rekomendacja: usługa w chmurze UE po uzgodnieniu z IOD) |
 | D17 | 25.09.2026 | Platforma: **Moodle uczelni przez LTI 1.3**; terminy otwarcia/zamknięcia modułów ustawiane w Moodle | tożsamość, grupy i harmonogram z Moodle; potrzebny mały serwer narzędzia + rejestracja przez IT; §10.7 |
 | D18 | 25.09.2026 | Logowanie przez Moodle (LTI); zapasowo jednorazowy link na mail uczelniany | dostęp spoza Moodle i pilotaż przed konfiguracją IT |
 | D19 | 25.09.2026 | Wyniki **nie wpływają na ocenę** – raport = informacja zwrotna | umiarkowany poziom zabezpieczeń (warianty, serwer, okna, rejestr), bez proctoringu |
+| D20 | 25.09.2026 | Repozytorium = **prywatne źródło prawdy Mariusza** dla wszystkich zajęć; Moodle = kanał udostępniania studentom | treści, zadania i decyzje powstają w repo, do Moodle trafiają aktywności/linki |
+| D21 | 25.09.2026 | Nazwa repozytorium: **`dydaktyka`** (zamiast `LC`) | zgodne z D11; zmianę nazwy wykonuje Mariusz w ustawieniach GitHub; adres stron zmieni się na `mariuszbelka.github.io/dydaktyka/` |
+| D22 | 25.09.2026 | Skala: **~80 studentów, 10 grup**; kursy Moodle **PL i EN są osobne** | język ćwiczenia ustalany przez kurs (parametr LTI), harmonogramy grup w Moodle |
+| D23 | 25.09.2026 | Cel: **zbiorcze zaliczenie w Moodle** dla wszystkich studentów | narzędzie zwraca do Moodle wynik „ukończono” (LTI Assignment and Grade Services); w kursie: ukończenie aktywności „po otrzymaniu oceny/zaliczenia”, pozycja oceny ukryta, waga 0 (zgodnie z D19) – raport ukończenia kursu pokazuje wszystkich naraz |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
 
 ## Następne kroki / blokery
 1. **Moodle/LTI (D17):** kontakt z administratorem Moodle uczelni (wersja ≥ 3.10, rejestracja narzędzia LTI 1.3), miejsce hostingu serwera narzędzia i uzgodnienie z IOD (§10.7, pyt. 15–17) – **blokuje D12, D14, D15 w wersji produkcyjnej**; termin: październik 2026. Do tego czasu: wspólny silnik, ścieżka mobilna, casy i serwer narzędzia z logowaniem zapasowym (D18).
-1a. Decyzja o docelowej strukturze repozytorium i adresach (D11, `docs/ZALOZENIA_PROJEKTOWE.md` §9) – **przed** przebudową mobilną, żeby nie robić jej dwa razy.
+1a. ~~Decyzja o nazwie~~ → `dydaktyka` (D21): Mariusz zmienia nazwę w GitHub (Settings → General → Repository name); potem aktualizacja linków w repo i przekierowanie ze starego adresu `…/LC/`.
+1b. **Widoczność repozytorium (do decyzji):** „prywatne” = tylko widoczność kodu? Repo prywatne ukrywa rozwiązania zadań (plus dla D14), ale GitHub Pages z repo prywatnego wymaga płatnego planu GitHub Pro; alternatywa: repo prywatne + strona serwowana z serwera narzędzia LTI.
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
 3. Projekt ekranu zadania na telefon (makieta) i podział obecnych kroków na mikrokroki (D6–D7).
 4. Przegląd merytoryczny wersji EN przez English Division.
@@ -52,6 +57,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 25.09.2026 — Claude Code: D20–D23 (repo jako źródło prawdy, nazwa `dydaktyka`, 80 studentów / 10 grup / osobne kursy PL i EN, zbiorcze zaliczenie w Moodle).
 - 25.09.2026 — Claude Code: D17–D19 (Moodle LTI, logowanie, wyniki bez wpływu na ocenę).
 - 25.09.2026 — Claude Code: D12–D16 (raporty indywidualne, casy, odporność na oszustwa, harmonogram modułów, backend); termin: grudzień 2026.
 - 25.09.2026 — Claude Code: założenie pliku; decyzje D1–D5 (stan obecny), D6–D10 (mobile, porcjowanie, „przed zajęciami”, raport mailem) i D11 (repo dla wszystkich zajęć).
