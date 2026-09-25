@@ -5,8 +5,8 @@
 ## Status
 Działający dwujęzyczny (PL/EN) symulator HPLC z trybem zajęć (5 lekcji podstawowych + 5 przykładów z monografii Ph. Eur.) i kartą wzorów Ph. Eur. 2.2.46, opublikowany na GitHub Pages. Następny etap: przebudowa pod telefony, porcjowanie treści, materiały „przed zajęciami” i raport mailem do prowadzącego (D6–D10). Docelowo repozytorium obejmie wszystkie prowadzone ćwiczenia (D11); LC jest pierwszym z nich. **Pierwsze ćwiczenia: grudzień 2026.** Wymagania: indywidualne raporty, zadania casowe, odporność na oszustwa, moduły otwierane wg harmonogramu – wymagają serwera (D12–D16).
 
-Online: https://mariuszbelka.github.io/dydaktyka/ (ćwiczenie LC: `…/dydaktyka/lc/?lang=pl|en` po scaleniu nowej struktury do `main`)
-Repozytorium: https://github.com/mariuszbelka/dydaktyka (publiczne, plan darmowy; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`). Stary adres `…/LC/` nie działa od zmiany nazwy.
+Online: https://mariuszbelka.github.io/Dydaktyka/ (ćwiczenie LC: `…/Dydaktyka/lc/?lang=pl|en` po scaleniu nowej struktury do `main`)
+Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`). Stary adres `…/LC/` nie działa od zmiany nazwy.
 
 ## Decyzje
 | # | Data | Decyzja | Uzasadnienie / uwaga |
@@ -31,7 +31,7 @@ Repozytorium: https://github.com/mariuszbelka/dydaktyka (publiczne, plan darmowy
 | D18 | 25.09.2026 | Logowanie przez Moodle (LTI); zapasowo jednorazowy link na mail uczelniany | dostęp spoza Moodle i pilotaż przed konfiguracją IT |
 | D19 | 25.09.2026 | Wyniki **nie wpływają na ocenę** – raport = informacja zwrotna | umiarkowany poziom zabezpieczeń (warianty, serwer, okna, rejestr), bez proctoringu |
 | D20 | 25.09.2026 | Repozytorium = **prywatne źródło prawdy Mariusza** dla wszystkich zajęć; Moodle = kanał udostępniania studentom | treści, zadania i decyzje powstają w repo, do Moodle trafiają aktywności/linki |
-| D21 | 25.09.2026 | Nazwa repozytorium: **`dydaktyka`** (zamiast `LC`) | zgodne z D11; zmianę nazwy wykonuje Mariusz w ustawieniach GitHub; adres stron zmieni się na `mariuszbelka.github.io/dydaktyka/` |
+| D21 | 25.09.2026 | Nazwa repozytorium: **`dydaktyka`** (zamiast `LC`) | zgodne z D11; zmianę nazwy wykonuje Mariusz w ustawieniach GitHub; adres stron zmieni się na `mariuszbelka.github.io/Dydaktyka/` |
 | D22 | 25.09.2026 | Skala: **~80 studentów, 10 grup**; kursy Moodle **PL i EN są osobne** | język ćwiczenia ustalany przez kurs (parametr LTI), harmonogramy grup w Moodle |
 | D23 | 25.09.2026 | Cel: **zbiorcze zaliczenie w Moodle** dla wszystkich studentów | narzędzie zwraca do Moodle wynik „ukończono” (LTI Assignment and Grade Services); w kursie: ukończenie aktywności „po otrzymaniu oceny/zaliczenia”, pozycja oceny ukryta, waga 0 (zgodnie z D19) – raport ukończenia kursu pokazuje wszystkich naraz |
 | D24 | 25.09.2026 | Repozytorium na razie **publiczne, plan darmowy** (GitHub Pages) | ochronę przed oszustwami zapewnią warianty i sprawdzanie na serwerze (D14), nie ukrycie kodu |

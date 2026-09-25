@@ -4,7 +4,7 @@ Repozytorium materiałów do zajęć prowadzonych przez dr. hab. Mariusza Belkę
 cieczowej (LC), spektrometrii mas (MS), ekstrakcji i analityki leków biotechnologicznych – każde w wersji
 polskiej i angielskiej. Statyczne strony bez zależności (GitHub Pages lub otwarcie z dysku).
 
-Online: https://mariuszbelka.github.io/dydaktyka/ · ćwiczenie LC: https://mariuszbelka.github.io/dydaktyka/lc/?lang=pl (EN: `?lang=en`)
+Online: https://mariuszbelka.github.io/Dydaktyka/ · ćwiczenie LC: https://mariuszbelka.github.io/Dydaktyka/lc/?lang=pl (EN: `?lang=en`)
 
 Założenia i decyzje projektowe: `KONTEKST.md`, `docs/ZALOZENIA_PROJEKTOWE.md`.
 
@@ -20,7 +20,7 @@ Interaktywny symulator dydaktyczny chromatografii cieczowej (Ph. Eur. 2.2.46, 2.
   werapamil 0573, aspartam 0973, estolan erytromycyny 0552); zadania obliczeniowe, zamknięte i cele w symulatorze.
 - **Wzory** – karta wzorów Ph. Eur. 2.2.46 w zapisie MathML, do druku / PDF.
 
-### Linki (względem `…/dydaktyka/lc/`)
+### Linki (względem `…/Dydaktyka/lc/`)
 | | PL | EN |
 |---|---|---|
 | wybór języka | `?lang=pl` | `?lang=en` |
