@@ -42,6 +42,7 @@
         <a class="btn primary" data-href="lc/" data-i18n="open"></a>
         <a class="btn" data-href="lc/" data-mode="lessons" data-i18n="lessons"></a>
         <a class="btn" data-href="lc/" data-mode="formulas" data-i18n="formulas"></a>
+        <a class="btn" data-href="lc/modul.html" data-mode="m1" data-i18n="module1"></a>
       </div>
     </section>
     <section class="card course off">
@@ -66,7 +67,8 @@
   applyI18n();
   const HASH = { pl: { lessons: "#zajecia", formulas: "#wzory" }, en: { lessons: "#lessons", formulas: "#formulas" } };
   document.querySelectorAll("a[data-href]").forEach(a => {
-    a.href = a.dataset.href + "?lang=" + LANG + (a.dataset.mode ? HASH[LANG][a.dataset.mode] : "");
+    const m = a.dataset.mode;
+    a.href = a.dataset.href + "?lang=" + LANG + (m === "m1" ? "&m=m1" : m ? HASH[LANG][m] : "");
   });
   document.querySelectorAll("#langSeg button").forEach(b => b.addEventListener("click", () => switchLang(b.dataset.lang)));
 </script>

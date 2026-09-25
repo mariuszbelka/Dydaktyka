@@ -38,15 +38,17 @@ function prep(canvas) {
 }
 
 let chromGeom = null;
-function drawChrom(T) {
-  const R = result, canvas = document.getElementById("chrom");
+function drawChrom(T, opts) {
+  opts = opts || {};
+  const R = result, canvas = document.getElementById(opts.canvas || "chrom");
   const { ctx, w, h } = prep(canvas);
   const C = { text: cssVar("--text"), muted: cssVar("--muted"), grid: cssVar("--grid"), border: cssVar("--border"), accent: cssVar("--accent") };
   const m = { l: 56, r: R.iso ? 14 : 40, t: 22, b: 34 };
   const pw = w - m.l - m.r, ph = h - m.t - m.b;
   const tEnd = R.tEnd, tShow = T == null ? tEnd : T;
   const X = t => m.l + t / tEnd * pw;
-  const zoom = Number(document.getElementById("yzoom").value) || 1;
+  const zEl = document.getElementById("yzoom");
+  const zoom = opts.zoom || (zEl ? Number(zEl.value) : 1) || 1;
   let peakMax = 0;
   for (let j = 0; j <= GRID; j++) if (R.tot[j] > peakMax) peakMax = R.tot[j];
   const yTop = Math.max(peakMax * 1.12 / zoom, 8 * (R.s.noise || 0.001));

@@ -110,7 +110,11 @@ ui: {
   tryAgain: "Try again.", selectAnswer: "Select an answer.", thinkAgain: "Think again", passedGoal: "Completed!",
   linkStep: "Link to this lesson step copied", linkState: "Link with settings copied", linkAddr: "Link saved in the address bar",
   readout: (t, y) => `t = ${t} min · ${y} mAU`,
-  hashLessons: "lessons", hashFormulas: "formulas"
+  hashLessons: "lessons", hashFormulas: "formulas",
+  more: "More (Ph. Eur.)", finish: "Finish", solution: "Solution:", reveal: "Show solution (the step will be marked “with help”)",
+  stOk: "completed", stHelp: "with help", stTodo: "to do", seminar: "At the seminar:",
+  reportSoon: "Sending the report to the teacher will be added together with the Moodle integration. Progress is saved on this device.",
+  moduleLink: "Module 1 – before class (phone)"
 },
 
 msg: {
@@ -124,6 +128,58 @@ msg: {
   flowScaled: F2 => `Flow rate out of range: for this column F₂ = ${F2} mL/min (±50%).`,
   snOk: sn => `S/N = ${sn}.`,
   snLow: sn => `S/N = ${sn} – too low.`
+},
+
+modules: {
+  m1: { title: "Module 1 · Chromatographic parameters", steps: {
+    intro: { title: "Before you come to class",
+      text: `<p>After this module you will calculate from a chromatogram the parameters Ph. Eur. uses to assess a system: <b>t<sub>M</sub>, k, α, N, R<sub>s</sub></b> and relative retention.</p><p>Time: about 20 min. You need a calculator. Each step is one concept or one task.</p>` },
+    look: { title: "Look at the chromatogram", short: "Warm-up",
+      text: `<p>This is a system suitability solution: the active substance (2) and two impurities (1, 3).</p>`,
+      q: "Which component spends the longest time in the stationary phase?",
+      options: ["peak 1", "peak 2", "peak 3", "all equally long"],
+      explain: () => "Peak 3 elutes last. The Ph. Eur. 2.2.46 parameters describe this in numbers – we start with the reference point: the hold-up time." },
+    tmDef: { title: "Hold-up time t<sub>M</sub>",
+      text: `<p>A component that does not interact with the stationary phase passes through the column in time <b>t<sub>M</sub></b> (dashed line). The volume of mobile phase needed to elute it is the <b>hold-up volume</b>:</p>`,
+      more: "Ph. Eur. 2.2.46 – hold-up time t<sub>M</sub>, hold-up volume V<sub>M</sub>. V<sub>M</sub> includes the mobile phase in the column and in the tubing between injector and detector." },
+    vm: { title: "Task: hold-up volume", short: "V<sub>M</sub>", q: "Calculate V<sub>M</sub>.", hint: "Multiply t_M [min] by the flow rate F [mL/min].",
+      explain: R => `V<sub>M</sub> = ${n(R.t0, 3)} min × ${n(R.s.F, 2)} mL/min = ${n(R.t0 * R.s.F, 2)} mL.` },
+    kDef: { title: "Retention factor k",
+      text: `<p>How many times longer does the analyte stay in the stationary phase than in the mobile phase? That is <b>k</b>. In practice k ≈ 2–10 is targeted.</p>`,
+      more: "Formerly capacity factor k′; in Ph. Eur. also “mass distribution ratio” D<sub>m</sub>. At k &lt; 1 peaks are close to t<sub>M</sub> and hard to separate; at high k the run becomes long." },
+    k: { title: "Task: k", short: "k", q: "Calculate k of the active substance (peak 2).", hint: "Subtract t_M from t_R of peak 2 and divide by t_M.",
+      explain: R => `k = (${n(R.peaks[1].tR, 3)} − ${n(R.t0, 3)}) / ${n(R.t0, 3)} = ${n(R.peaks[1].k, 2)}.` },
+    aDef: { title: "Separation factor α",
+      text: `<p>The ratio of k of two adjacent peaks – later peak in the numerator, so α &gt; 1. It describes only peak <b>position</b>, not width.</p>`,
+      more: "Ph. Eur. 2.2.46 – separation factor (α)." },
+    alpha: { title: "Task: α", short: "α", q: "Calculate α for the pair active substance (2) / impurity B (3).", hint: "Calculate k of peak 3 as for peak 2, then divide k₃ by k₂.",
+      explain: R => `α = ${n(R.peaks[2].k, 2)} / ${n(R.peaks[1].k, 2)} = ${n(R.peaks[2].k / R.peaks[1].k, 3)}. Low selectivity – this is the critical pair.` },
+    nDef: { title: "Plate number N",
+      text: `<p>Column efficiency: how narrow a peak is relative to its retention time. The pharmacopoeia calculates it from the width at half-height w<sub>h</sub>:</p>`,
+      more: "t<sub>R</sub> and w<sub>h</sub> in the same units. According to 2.2.46 N is calculated only under isocratic conditions; it depends on the analyte, column, temperature and mobile phase." },
+    N: { title: "Task: N", short: "N", q: "Calculate N for the active substance (peak 2).", hint: "Divide t_R by w_h, square it and multiply by 5.54.",
+      explain: R => `N = 5.54 × (${n(R.peaks[1].tR, 3)} / ${n(R.peaks[1].wh, 4)})² ≈ ${n(R.peaks[1].N, 0)}.` },
+    rsDef: { title: "Resolution R<sub>s</sub>",
+      text: `<p>Combines peak position (α) and width (N). R<sub>s</sub> ≥ 1.5 means, in practice, baseline separation. Monographs require a minimum R<sub>s</sub> for the critical pair.</p>`,
+      more: "Ph. Eur. 2.2.46 – resolution (R<sub>s</sub>); t<sub>R2</sub> &gt; t<sub>R1</sub>." },
+    Rs: { title: "Task: R<sub>s</sub>", short: "R<sub>s</sub>", q: "Calculate R<sub>s</sub> between peaks 2 and 3.", hint: "Multiply the difference in t_R by 1.18 and divide by the sum of both w_h.",
+      explain: R => `R<sub>s</sub> = 1.18 × (${n(R.peaks[2].tR, 3)} − ${n(R.peaks[1].tR, 3)}) / (${n(R.peaks[1].wh, 4)} + ${n(R.peaks[2].wh, 4)}) = ${n(pairRs(R, 1, 2), 2)}.` },
+    rgDef: { title: "Relative retention",
+      text: `<p>Monographs give impurity positions relative to the substance to be examined. Unless otherwise indicated, as <b>unadjusted</b> relative retention:</p>`,
+      more: "Adjusted version: r = (t<sub>Ri</sub> − t<sub>M</sub>)/(t<sub>Rst</sub> − t<sub>M</sub>). Ph. Eur. 2.2.46 – relative retention." },
+    rG: { title: "Task: r<sub>G</sub>", short: "r<sub>G</sub>", q: "Calculate r<sub>G</sub> of impurity A (peak 1) relative to the active substance (peak 2).", hint: "Divide t_R of peak 1 by t_R of peak 2.",
+      explain: R => `r<sub>G</sub> = ${n(R.peaks[0].tR, 3)} / ${n(R.peaks[1].tR, 3)} ≈ ${n(R.peaks[0].tR / R.peaks[1].tR, 2)}.` },
+    rtInfo: { title: "Check question", short: "Retention in a monograph",
+      q: "The monograph states “relative retention about 0.5” and you measure 0.47. Does the system comply?",
+      options: ["No – a deviation above 5% disqualifies the system.",
+                "Yes – retention times and relative retentions in monographs are for information; suitability is decided by SST criteria (e.g. R_s, N, A_s, S/N).",
+                "Yes, but only with an identical t_M.",
+                "No – the adjusted version must always be used."],
+      explain: () => "Ph. Eur. 2.2.46: retention times and relative retentions in monographs are for information only – they are used to identify peaks, not as acceptance criteria." },
+    summary: { title: "Summary",
+      text: `<p>Your results in this module:</p>`,
+      seminar: "After a column change, R<sub>s</sub> of pair 2/3 dropped from about 1.8 to 1.3. Prepare <b>two hypotheses</b> for the cause and say how you will test each one (which parameters from this module you will compare)." }
+  } }
 },
 
 lessons: [

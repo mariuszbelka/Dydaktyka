@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moduł / Module</title>
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/player.css">
+</head>
+<body class="player">
+<div class="pl-wrap">
+  <div class="pl-top">
+    <div class="pl-toprow">
+      <a class="pl-back" id="plBack" href="./" data-i18n-aria="home">←</a>
+      <div class="pl-title" id="plTitle"></div>
+      <div class="pl-count" id="plCount"></div>
+    </div>
+    <div class="pl-bar"><i id="plBarFill"></i></div>
+  </div>
+  <div class="pl-viz hidden" id="plViz"><canvas id="plChrom" data-i18n-aria="chrom"></canvas></div>
+  <div class="pl-body" id="plBody"></div>
+</div>
+<div class="pl-actions"><div>
+  <button class="btn" id="plPrev" aria-label="←">←</button>
+  <button class="btn primary pl-main" id="plMain"></button>
+</div></div>
+
+<script src="i18n/pl.js"></script>
+<script src="i18n/en.js"></script>
+<script src="../shared/js/i18n.js"></script>
+<script src="js/model.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/lessons.js"></script>
+<script src="../shared/js/mathml.js"></script>
+<script src="js/formulas.js"></script>
+<script src="js/modules.js"></script>
+<script src="../shared/js/player.js"></script>
+<script>
+  applyI18n();
+  const q = new URLSearchParams(location.search);
+  const key = MODULES[q.get("m")] ? q.get("m") : "m1";
+  $("plBack").href = "./?lang=" + LANG;
+  const start = /^#\d+$/.test(location.hash) ? +location.hash.slice(1) - 1 : null;
+  playerStart(MODULES[key], L10.modules[key], start);
+  new ResizeObserver(() => { if (!$("plViz").classList.contains("hidden")) PLAYER_HOOKS.view("plChrom"); }).observe($("plViz"));
+</script>
+</body>
+</html>

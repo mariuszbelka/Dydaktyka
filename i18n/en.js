@@ -7,6 +7,7 @@ I18N.en = {
     title: "Exercises in pharmaceutical analysis",
     subtitle: "Class materials: simulators, pre-class modules and formula sheets. Polish and English versions.",
     available: "available", soon: "in preparation",
+    module1: "Module 1 (phone)",
     open: "Open", lessons: "Lessons", formulas: "Formulas",
     lcTitle: "Liquid chromatography (LC)",
     lcDesc: "HPLC/UHPLC simulator, lessons based on Ph. Eur. 2.2.46 and 2.2.29, monograph examples, formula sheet.",

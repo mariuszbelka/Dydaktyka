@@ -36,6 +36,7 @@ Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy
 | D23 | 25.09.2026 | Cel: **zbiorcze zaliczenie w Moodle** dla wszystkich studentów | narzędzie zwraca do Moodle wynik „ukończono” (LTI Assignment and Grade Services); w kursie: ukończenie aktywności „po otrzymaniu oceny/zaliczenia”, pozycja oceny ukryta, waga 0 (zgodnie z D19) – raport ukończenia kursu pokazuje wszystkich naraz |
 | D24 | 25.09.2026 | Repozytorium na razie **publiczne, plan darmowy** (GitHub Pages) | ochronę przed oszustwami zapewnią warianty i sprawdzanie na serwerze (D14), nie ukrycie kodu |
 | D25 | 25.09.2026 | Struktura: strona główna + `shared/` (wspólne) + folder na ćwiczenie (`lc/`, później `ms/`, `ekstrakcja/`, `biotech/`) | realizacja D11; silnik lekcji trafi do `shared/` w kroku 2 (mobile) |
+| D26 | 25.09.2026 | Moduły „przed zajęciami” w **odtwarzaczu mikrokroków** (`shared/js/player.js`, strona `lc/modul.html`): 1 ekran = 1 pojęcie lub 1 zadanie, przyklejony chromatogram, duży przycisk na dole; nie można przeskoczyć nierozwiązanego zadania; po 3 błędnych próbach „Pokaż rozwiązanie” = krok „z pomocą”; na końcu podsumowanie + pytanie na seminarium | prototyp: moduł 1 (LC) = ten sam zakres obliczeń i tolerancje co lekcja 1; test: ekran informacyjny ≤ 80 słów, przejście całego modułu PL/EN |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
@@ -45,7 +46,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 1a. ~~Zmiana nazwy~~ – zrobione (25.09.2026). Nowa struktura `shared/` + `lc/` + strona główna – zrobione na gałęzi roboczej (krok 1); do scalenia z `main` po akceptacji.
 1b. ~~Widoczność~~ → repo **na razie publiczne i darmowe** (D24). Mariusz sprawdza wersję Moodle.
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
-3. Projekt ekranu zadania na telefon (makieta) i podział obecnych kroków na mikrokroki (D6–D7).
+3. ~~Makieta ekranu na telefon~~ → prototyp modułu 1 gotowy (D26) – **czeka na ocenę Mariusza** (wygląd, porcje treści, pytanie na seminarium); po akceptacji: pozostałe lekcje i casy w tym formacie, raport (po Moodle).
 4. Przegląd merytoryczny wersji EN przez English Division.
 5. Rozszerzenie `npm test` o kryteria z §8.
 
@@ -56,9 +57,11 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `README.md` | struktura kodu, linki PL/EN, testy |
 | `lc/i18n/pl.js`, `lc/i18n/en.js` | wszystkie teksty LC (lekcje, komunikaty, wzory) |
 | `lc/js/lessons.js` | logika zadań LC (wspólna dla języków) |
+| `shared/js/player.js`, `lc/js/modules.js`, `lc/modul.html` | odtwarzacz modułów „przed zajęciami” i moduł 1 LC |
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 25.09.2026 — Claude Code: D26 – odtwarzacz mikrokroków i prototyp modułu 1 (krok 2).
 - 25.09.2026 — Claude Code: D24–D25; zmiana nazwy repo na `dydaktyka`; nowa struktura (krok 1) na gałęzi roboczej.
 - 25.09.2026 — Claude Code: D20–D23 (repo jako źródło prawdy, nazwa `dydaktyka`, 80 studentów / 10 grup / osobne kursy PL i EN, zbiorcze zaliczenie w Moodle).
 - 25.09.2026 — Claude Code: D17–D19 (Moodle LTI, logowanie, wyniki bez wpływu na ocenę).

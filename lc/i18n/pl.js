@@ -110,7 +110,11 @@ ui: {
   tryAgain: "Spróbuj jeszcze raz.", selectAnswer: "Zaznacz odpowiedź.", thinkAgain: "Zastanów się jeszcze raz", passedGoal: "Zaliczone!",
   linkStep: "Link do tego kroku zajęć skopiowany", linkState: "Link z ustawieniami skopiowany", linkAddr: "Link zapisany w pasku adresu",
   readout: (t, y) => `t = ${t} min · ${y} mAU`,
-  hashLessons: "zajecia", hashFormulas: "wzory"
+  hashLessons: "zajecia", hashFormulas: "wzory",
+  more: "Więcej (Ph. Eur.)", finish: "Zakończ", solution: "Rozwiązanie:", reveal: "Pokaż rozwiązanie (krok zostanie oznaczony jako „z pomocą”)",
+  stOk: "zaliczone", stHelp: "z pomocą", stTodo: "do zrobienia", seminar: "Na seminarium:",
+  reportSoon: "Wysyłanie raportu do prowadzącego zostanie dodane wraz z integracją z Moodle. Postęp zapisuje się na tym urządzeniu.",
+  moduleLink: "Moduł 1 – przed zajęciami (telefon)"
 },
 
 msg: {
@@ -124,6 +128,58 @@ msg: {
   flowScaled: F2 => `Przepływ poza zakresem: dla tej kolumny F₂ = ${F2} mL/min (±50%).`,
   snOk: sn => `S/N = ${sn}.`,
   snLow: sn => `S/N = ${sn} – za mało.`
+},
+
+modules: {
+  m1: { title: "Moduł 1 · Parametry chromatograficzne", steps: {
+    intro: { title: "Zanim przyjdziesz na zajęcia",
+      text: `<p>Po tym module policzysz z chromatogramu parametry, którymi Ph. Eur. ocenia układ: <b>t<sub>M</sub>, k, α, N, R<sub>s</sub></b> i retencję względną.</p><p>Czas: ok. 20 min. Potrzebny kalkulator. Każdy krok to jedno pojęcie albo jedno zadanie.</p>` },
+    look: { title: "Spójrz na chromatogram", short: "Rozgrzewka",
+      text: `<p>To roztwór do sprawdzania przydatności układu: substancja czynna (2) i dwa zanieczyszczenia (1, 3).</p>`,
+      q: "Który składnik najdłużej przebywa w fazie stacjonarnej?",
+      options: ["pik 1", "pik 2", "pik 3", "wszystkie tak samo długo"],
+      explain: () => "Pik 3 eluuje najpóźniej. Liczbowo opisują to parametry z Ph. Eur. 2.2.46 – zaczynamy od punktu odniesienia: czasu martwego." },
+    tmDef: { title: "Czas martwy t<sub>M</sub>",
+      text: `<p>Składnik, który nie oddziałuje z fazą stacjonarną, przechodzi przez kolumnę w czasie <b>t<sub>M</sub></b> (przerywana linia). Objętość fazy ruchomej potrzebna do jego elucji to <b>objętość martwa</b>:</p>`,
+      more: "Ph. Eur. 2.2.46 – hold-up time t<sub>M</sub>, hold-up volume V<sub>M</sub>. V<sub>M</sub> obejmuje objętość fazy ruchomej w kolumnie i w przewodach między dozownikiem a detektorem." },
+    vm: { title: "Zadanie: objętość martwa", short: "V<sub>M</sub>", q: "Oblicz V<sub>M</sub>.", hint: "Pomnóż t_M [min] przez przepływ F [mL/min].",
+      explain: R => `V<sub>M</sub> = ${n(R.t0, 3)} min × ${n(R.s.F, 2)} mL/min = ${n(R.t0 * R.s.F, 2)} mL.` },
+    kDef: { title: "Współczynnik retencji k",
+      text: `<p>Ile razy dłużej analit przebywa w fazie stacjonarnej niż w ruchomej? Mówi to <b>k</b>. W praktyce dąży się do k ≈ 2–10.</p>`,
+      more: "Dawniej współczynnik pojemnościowy k′; w Ph. Eur. także „mass distribution ratio” D<sub>m</sub>. Przy k &lt; 1 piki są blisko t<sub>M</sub> i trudno je rozdzielić; przy dużym k analiza się wydłuża." },
+    k: { title: "Zadanie: k", short: "k", q: "Oblicz k substancji czynnej (pik 2).", hint: "Odejmij t_M od t_R piku 2 i podziel przez t_M.",
+      explain: R => `k = (${n(R.peaks[1].tR, 3)} − ${n(R.t0, 3)}) / ${n(R.t0, 3)} = ${n(R.peaks[1].k, 2)}.` },
+    aDef: { title: "Współczynnik rozdzielenia α",
+      text: `<p>Stosunek k dwóch sąsiednich pików – późniejszy w liczniku, więc α &gt; 1. Opisuje tylko <b>położenie</b> pików, nie ich szerokość.</p>`,
+      more: "Ph. Eur. 2.2.46 – separation factor (α)." },
+    alpha: { title: "Zadanie: α", short: "α", q: "Oblicz α dla pary: substancja czynna (2) / zanieczyszczenie B (3).", hint: "Policz k dla piku 3 tak jak dla piku 2, potem podziel k₃ przez k₂.",
+      explain: R => `α = ${n(R.peaks[2].k, 2)} / ${n(R.peaks[1].k, 2)} = ${n(R.peaks[2].k / R.peaks[1].k, 3)}. Mała selektywność – to para krytyczna.` },
+    nDef: { title: "Liczba półek N",
+      text: `<p>Sprawność kolumny: jak wąski jest pik w stosunku do czasu retencji. Farmakopea liczy ją z szerokości w połowie wysokości w<sub>h</sub>:</p>`,
+      more: "t<sub>R</sub> i w<sub>h</sub> w tych samych jednostkach. Wg 2.2.46 N liczy się tylko w warunkach izokratycznych; zależy od analitu, kolumny, temperatury i fazy ruchomej." },
+    N: { title: "Zadanie: N", short: "N", q: "Oblicz N dla substancji czynnej (pik 2).", hint: "Podziel t_R przez w_h, podnieś do kwadratu i pomnóż przez 5,54.",
+      explain: R => `N = 5,54 × (${n(R.peaks[1].tR, 3)} / ${n(R.peaks[1].wh, 4)})² ≈ ${n(R.peaks[1].N, 0)}.` },
+    rsDef: { title: "Rozdzielczość R<sub>s</sub>",
+      text: `<p>Łączy położenie pików (α) i ich szerokość (N). R<sub>s</sub> ≥ 1,5 oznacza w praktyce rozdzielenie do linii podstawowej. Monografie wymagają minimalnej R<sub>s</sub> dla pary krytycznej.</p>`,
+      more: "Ph. Eur. 2.2.46 – resolution (R<sub>s</sub>); t<sub>R2</sub> &gt; t<sub>R1</sub>." },
+    Rs: { title: "Zadanie: R<sub>s</sub>", short: "R<sub>s</sub>", q: "Oblicz R<sub>s</sub> między pikami 2 i 3.", hint: "Różnicę t_R pomnóż przez 1,18 i podziel przez sumę obu w_h.",
+      explain: R => `R<sub>s</sub> = 1,18 × (${n(R.peaks[2].tR, 3)} − ${n(R.peaks[1].tR, 3)}) / (${n(R.peaks[1].wh, 4)} + ${n(R.peaks[2].wh, 4)}) = ${n(pairRs(R, 1, 2), 2)}.` },
+    rgDef: { title: "Retencja względna",
+      text: `<p>Monografie podają położenie zanieczyszczeń względem substancji badanej. Jeśli nie zaznaczono inaczej – jako retencję <b>nieskorygowaną</b>:</p>`,
+      more: "Wersja skorygowana: r = (t<sub>Ri</sub> − t<sub>M</sub>)/(t<sub>Rst</sub> − t<sub>M</sub>). Ph. Eur. 2.2.46 – relative retention." },
+    rG: { title: "Zadanie: r<sub>G</sub>", short: "r<sub>G</sub>", q: "Oblicz r<sub>G</sub> zanieczyszczenia A (pik 1) względem substancji czynnej (pik 2).", hint: "Podziel t_R piku 1 przez t_R piku 2.",
+      explain: R => `r<sub>G</sub> = ${n(R.peaks[0].tR, 3)} / ${n(R.peaks[1].tR, 3)} ≈ ${n(R.peaks[0].tR / R.peaks[1].tR, 2)}.` },
+    rtInfo: { title: "Pytanie kontrolne", short: "Retencja w monografii",
+      q: "Monografia podaje „retencja względna ok. 0,5”, a Ty mierzysz 0,47. Czy układ spełnia wymagania?",
+      options: ["Nie – odchyłka ponad 5% dyskwalifikuje układ.",
+                "Tak – t_R i retencje względne w monografii są informacyjne; o przydatności decydują kryteria SST (np. R_s, N, A_s, S/N).",
+                "Tak, ale tylko przy identycznym t_M.",
+                "Nie – trzeba zawsze liczyć wersję skorygowaną."],
+      explain: () => "Ph. Eur. 2.2.46: czasy retencji i retencje względne z monografii są informacyjne – służą do identyfikacji pików, nie są kryterium akceptacji." },
+    summary: { title: "Podsumowanie",
+      text: `<p>Twoje wyniki z tego modułu:</p>`,
+      seminar: "Po wymianie kolumny R<sub>s</sub> pary 2/3 spadło z ok. 1,8 do 1,3. Przygotuj <b>dwie hipotezy</b> przyczyny i powiedz, jak sprawdzisz każdą z nich (które parametry z tego modułu porównasz)." }
+  } }
 },
 
 lessons: [

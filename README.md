@@ -37,6 +37,7 @@ shared/css/base.css        wspólny wygląd (tryb ciemny, telefon, wydruk)
 shared/fonts/              podzbiór STIX Two Math (SIL OFL 1.1, licencja: OFL-STIXTwoMath.txt)
 shared/js/i18n.js          wspólny silnik języków: ?lang=, t(), przełącznik PL/EN
 shared/js/mathml.js        pomocnik zapisu wzorów w MathML
+shared/js/player.js        odtwarzacz modułów „przed zajęciami” (mikrokroki, telefon) + shared/css/player.css
 lc/index.html              ćwiczenie LC
 lc/i18n/pl.js, en.js       WSZYSTKIE teksty LC (interfejs, lekcje, komunikaty, legendy wzorów)
 lc/js/model.js             model chromatograficzny
@@ -44,6 +45,7 @@ lc/js/ui.js                wykresy, tabela, formularz, animacja
 lc/js/lessons.js           logika zadań (wspólna dla języków) i silnik zajęć
 lc/js/formulas.js          wzory LC w MathML
 lc/js/app.js               zdarzenia i start
+lc/modul.html, lc/js/modules.js   moduły „przed zajęciami” LC (?m=m1)
 tests/run.js               test (wszystkie strony, oba języki)
 docs/                      założenia projektowe
 ```
