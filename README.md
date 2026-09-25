@@ -15,6 +15,12 @@ Wersja online: https://mariuszbelka.github.io/LC/
   N = 5,54(t_R/w_h)², R_s = 1,18Δt_R/(w_h1+w_h2), A_s = w_0,05/2d, S/N = 2H/h;
   do tego ciśnienie, czas analizy, zużycie fazy, animacja pasm w kolumnie, krzywa van Deemtera.
 
+## Tryb „Wzory”
+Karta wzorów z Ph. Eur. 2.2.46 (definicje, przydatność układu, dostosowanie warunków LC) zapisanych
+w MathML w układzie monograficznym, z legendą symboli i tabelą 2.2.46.-1; przycisk „Drukuj / PDF”
+daje wersję do rozdania. Link: `…/LC/#wzory`. Wzory składane są osadzonym podzbiorem czcionki
+STIX Two Math (SIL Open Font License 1.1).
+
 ## Tryb „Zajęcia”
 Pięć lekcji dla studentów (poziom podstawowy), oparte na Ph. Eur. 2.2.46 i 2.2.29:
 
