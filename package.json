@@ -1,0 +1,7 @@
+{
+  "name": "hplc-simulator",
+  "private": true,
+  "description": "Dydaktyczny symulator HPLC / Educational HPLC simulator",
+  "scripts": { "test": "node tests/run.js" },
+  "devDependencies": { "playwright": "^1.56.0" }
+}
