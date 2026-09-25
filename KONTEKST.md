@@ -27,12 +27,15 @@ Repozytorium: https://github.com/mariuszbelka/LC (publiczne; gałąź robocza `c
 | D14 | 25.09.2026 | **Odporność na oszustwa**: indywidualne warianty, sprawdzanie na serwerze, rejestr prób, weryfikacja ustna na seminarium | §10.2 |
 | D15 | 25.09.2026 | Moduły **otwierane i zamykane** zgodnie z terminami zajęć grup | egzekwowane na serwerze; §10 |
 | D16 | 25.09.2026 | Potrzebny **backend**; D9 w wariancie „mailto” ~~raport z przeglądarki~~ → raport tworzony na serwerze, mail jako powiadomienie | wynika z D12, D14, D15; warianty w §10.4 (rekomendacja: usługa w chmurze UE po uzgodnieniu z IOD) |
+| D17 | 25.09.2026 | Platforma: **Moodle uczelni przez LTI 1.3**; terminy otwarcia/zamknięcia modułów ustawiane w Moodle | tożsamość, grupy i harmonogram z Moodle; potrzebny mały serwer narzędzia + rejestracja przez IT; §10.7 |
+| D18 | 25.09.2026 | Logowanie przez Moodle (LTI); zapasowo jednorazowy link na mail uczelniany | dostęp spoza Moodle i pilotaż przed konfiguracją IT |
+| D19 | 25.09.2026 | Wyniki **nie wpływają na ocenę** – raport = informacja zwrotna | umiarkowany poziom zabezpieczeń (warianty, serwer, okna, rejestr), bez proctoringu |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
 
 ## Następne kroki / blokery
-1. **Decyzja o architekturze backendu** (§10.4) i zgoda IOD uczelni na przetwarzanie danych studentów; pytania §10.6 – **blokuje D12, D14, D15**; termin: październik 2026.
+1. **Moodle/LTI (D17):** kontakt z administratorem Moodle uczelni (wersja ≥ 3.10, rejestracja narzędzia LTI 1.3), miejsce hostingu serwera narzędzia i uzgodnienie z IOD (§10.7, pyt. 15–17) – **blokuje D12, D14, D15 w wersji produkcyjnej**; termin: październik 2026. Do tego czasu: wspólny silnik, ścieżka mobilna, casy i serwer narzędzia z logowaniem zapasowym (D18).
 1a. Decyzja o docelowej strukturze repozytorium i adresach (D11, `docs/ZALOZENIA_PROJEKTOWE.md` §9) – **przed** przebudową mobilną, żeby nie robić jej dwa razy.
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
 3. Projekt ekranu zadania na telefon (makieta) i podział obecnych kroków na mikrokroki (D6–D7).
@@ -49,5 +52,6 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 25.09.2026 — Claude Code: D17–D19 (Moodle LTI, logowanie, wyniki bez wpływu na ocenę).
 - 25.09.2026 — Claude Code: D12–D16 (raporty indywidualne, casy, odporność na oszustwa, harmonogram modułów, backend); termin: grudzień 2026.
 - 25.09.2026 — Claude Code: założenie pliku; decyzje D1–D5 (stan obecny), D6–D10 (mobile, porcjowanie, „przed zajęciami”, raport mailem) i D11 (repo dla wszystkich zajęć).

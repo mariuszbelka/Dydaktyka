@@ -241,3 +241,18 @@ wymagane funkcje do grudnia; **B** warto rozważyć, jeśli uczelnia udostępnia
 12. Kto poza Mariuszem ma mieć dostęp do panelu prowadzącego (asystenci, English Division)?
 13. Czy raport i wyniki wpływają na ocenę (to określa wymagany poziom zabezpieczeń i archiwizacji)?
 14. Liczba grup i studentów w grudniowych zajęciach (PL/EN), harmonogram terminów.
+
+### 10.7 Decyzje z 25.09.2026 (D17–D19)
+| # | Decyzja | Konsekwencje |
+|---|---|---|
+| D17 | **Integracja z uczelnianą platformą Moodle przez LTI 1.3** (wariant B z §10.4) | Moodle zapewnia tożsamość studenta, grupy i **daty dostępności aktywności** – otwieranie/zamykanie modułów (D15) ustawia się w kursie Moodle (ograniczenia dostępu wg daty i grupy). Symulator działa jako zewnętrzne narzędzie LTI; potrzebny jest mały serwer narzędzia (rejestracja LTI, warianty, sprawdzanie, zapis raportów) – hosting w UE lub na infrastrukturze uczelni. Wymaga rejestracji narzędzia przez administratora Moodle (dział IT). |
+| D18 | **Logowanie:** w Moodle przez LTI (bez osobnego hasła); **zapasowo** jednorazowy link na adres uczelniany | link na mail służy do dostępu spoza Moodle i do pilotażu przed konfiguracją LTI przez IT; w obu drogach student jest identyfikowany adresem/kontem uczelnianym |
+| D19 | **Wyniki nie wpływają na ocenę** – raport jest informacją zwrotną dla prowadzącego | poziom zabezpieczeń umiarkowany: indywidualne warianty, sprawdzanie na serwerze, okna czasowe, rejestr prób i flagi anomalii (§10.2) – bez nadzoru typu proctoring i bez formalnej archiwizacji ocen; prostsze uzgodnienia z IOD (mniejszy zakres danych) |
+
+Skutki dla raportu (D9, D12): raport zapisuje serwer narzędzia LTI; prowadzący widzi zestawienie grupy
+w panelu narzędzia (i opcjonalnie status „ukończono” w Moodle), dostaje powiadomienie mailem; student – kopię.
+
+Nowe pytania (uzupełnienie §10.6):
+15. Kontakt do administratora Moodle uczelni i wersja Moodle (LTI 1.3 wymaga Moodle ≥ 3.10) – do rejestracji narzędzia.
+16. Gdzie hostować serwer narzędzia: infrastruktura uczelni czy usługa chmurowa w UE (uzgodnienie z IOD)?
+17. Czy kursy Moodle dla grup PL i EN są osobne (wpływa na przypisanie języka i harmonogramów)?
