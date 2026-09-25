@@ -6,7 +6,8 @@ let chromium;
 try { ({ chromium } = require("playwright")); }
 catch (_) { ({ chromium } = require(process.env.PLAYWRIGHT_PATH || "/opt/node22/lib/node_modules/playwright")); }
 
-const URL = "file://" + path.resolve(__dirname, "..", "index.html");
+const ROOT = "file://" + path.resolve(__dirname, "..");
+const URL = ROOT + "/lc/index.html";
 
 // Rozwiązania zadań typu „cel”: klucz „lekcja.krok” → zmiany stanu
 const SOLUTIONS = {
@@ -85,9 +86,9 @@ async function structure(browser) {
         });
       }
     };
-    walk(I18N_PL, I18N_EN, "L10");
-    if (I18N_PL.lessons.length !== LESSON_LOGIC.length) d.push("liczba lekcji ≠ logika");
-    I18N_PL.lessons.forEach((L, i) => { if (L.steps.length !== LESSON_LOGIC[i].steps.length) d.push(`lekcja ${i + 1}: liczba kroków ≠ logika`); });
+    walk(I18N.pl, I18N.en, "L10");
+    if (I18N.pl.lessons.length !== LESSON_LOGIC.length) d.push("liczba lekcji ≠ logika");
+    I18N.pl.lessons.forEach((L, i) => { if (L.steps.length !== LESSON_LOGIC[i].steps.length) d.push(`lekcja ${i + 1}: liczba kroków ≠ logika`); });
     return d;
   });
   await page.close();
@@ -120,6 +121,22 @@ async function structure(browser) {
     });
     ok(`${r.steps.length} kroków, ${n} zadań typu „cel” sprawdzonych`);
   }
+  console.log("Strona główna");
+  for (const lang of ["pl", "en"]) {
+    const p = await browser.newPage({ viewport: { width: 390, height: 844 } }); const errs = [];
+    p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error" || m.type() === "warning") errs.push(m.text()); });
+    await p.goto(ROOT + "/index.html?lang=" + lang); await p.waitForTimeout(200);
+    const info = await p.evaluate(() => ({ title: document.querySelector("h1").textContent, link: document.querySelector("a[data-href]").getAttribute("href"),
+      over: document.documentElement.scrollWidth > innerWidth }));
+    errs.length ? errs.forEach(fail) : ok(`${lang}: brak błędów, tytuł „${info.title}”, link ${info.link}`);
+    if (info.over) fail(`${lang}: przewijanie w poziomie`);
+    await p.close();
+  }
+  const pr = await browser.newPage();
+  await pr.goto(ROOT + "/index.html?lang=en#lessons=2.3"); await pr.waitForTimeout(400);
+  /\/lc\/index\.html\?lang=en#lessons=2\.3$/.test(pr.url()) || /\/lc\/\?lang=en#lessons=2\.3$/.test(pr.url())
+    ? ok("stary link #lessons przekierowany do lc/") : fail("przekierowanie starego linku: " + pr.url());
+  await pr.close();
   console.log("Zgodność wyników PL/EN");
   const same = JSON.stringify(R.pl.steps.map(s => [s.tR, s.ans, s.correct, s.initial, s.solved])) === JSON.stringify(R.en.steps.map(s => [s.tR, s.ans, s.correct, s.initial, s.solved]));
   same ? ok("identyczne czasy retencji, odpowiedzi i wyniki sprawdzeń") : fail("wyniki PL i EN się różnią");

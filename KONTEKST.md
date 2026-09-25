@@ -5,8 +5,8 @@
 ## Status
 Działający dwujęzyczny (PL/EN) symulator HPLC z trybem zajęć (5 lekcji podstawowych + 5 przykładów z monografii Ph. Eur.) i kartą wzorów Ph. Eur. 2.2.46, opublikowany na GitHub Pages. Następny etap: przebudowa pod telefony, porcjowanie treści, materiały „przed zajęciami” i raport mailem do prowadzącego (D6–D10). Docelowo repozytorium obejmie wszystkie prowadzone ćwiczenia (D11); LC jest pierwszym z nich. **Pierwsze ćwiczenia: grudzień 2026.** Wymagania: indywidualne raporty, zadania casowe, odporność na oszustwa, moduły otwierane wg harmonogramu – wymagają serwera (D12–D16).
 
-Online: https://mariuszbelka.github.io/LC/?lang=pl · https://mariuszbelka.github.io/LC/?lang=en (po zmianie nazwy repo: `…github.io/dydaktyka/`)
-Repozytorium: https://github.com/mariuszbelka/LC → docelowo `dydaktyka` (obecnie publiczne – widoczność do decyzji, patrz Następne kroki; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`).
+Online: https://mariuszbelka.github.io/dydaktyka/ (ćwiczenie LC: `…/dydaktyka/lc/?lang=pl|en` po scaleniu nowej struktury do `main`)
+Repozytorium: https://github.com/mariuszbelka/dydaktyka (publiczne, plan darmowy; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`). Stary adres `…/LC/` nie działa od zmiany nazwy.
 
 ## Decyzje
 | # | Data | Decyzja | Uzasadnienie / uwaga |
@@ -34,14 +34,16 @@ Repozytorium: https://github.com/mariuszbelka/LC → docelowo `dydaktyka` (obecn
 | D21 | 25.09.2026 | Nazwa repozytorium: **`dydaktyka`** (zamiast `LC`) | zgodne z D11; zmianę nazwy wykonuje Mariusz w ustawieniach GitHub; adres stron zmieni się na `mariuszbelka.github.io/dydaktyka/` |
 | D22 | 25.09.2026 | Skala: **~80 studentów, 10 grup**; kursy Moodle **PL i EN są osobne** | język ćwiczenia ustalany przez kurs (parametr LTI), harmonogramy grup w Moodle |
 | D23 | 25.09.2026 | Cel: **zbiorcze zaliczenie w Moodle** dla wszystkich studentów | narzędzie zwraca do Moodle wynik „ukończono” (LTI Assignment and Grade Services); w kursie: ukończenie aktywności „po otrzymaniu oceny/zaliczenia”, pozycja oceny ukryta, waga 0 (zgodnie z D19) – raport ukończenia kursu pokazuje wszystkich naraz |
+| D24 | 25.09.2026 | Repozytorium na razie **publiczne, plan darmowy** (GitHub Pages) | ochronę przed oszustwami zapewnią warianty i sprawdzanie na serwerze (D14), nie ukrycie kodu |
+| D25 | 25.09.2026 | Struktura: strona główna + `shared/` (wspólne) + folder na ćwiczenie (`lc/`, później `ms/`, `ekstrakcja/`, `biotech/`) | realizacja D11; silnik lekcji trafi do `shared/` w kroku 2 (mobile) |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
 
 ## Następne kroki / blokery
 1. **Moodle/LTI (D17):** kontakt z administratorem Moodle uczelni (wersja ≥ 3.10, rejestracja narzędzia LTI 1.3), miejsce hostingu serwera narzędzia i uzgodnienie z IOD (§10.7, pyt. 15–17) – **blokuje D12, D14, D15 w wersji produkcyjnej**; termin: październik 2026. Do tego czasu: wspólny silnik, ścieżka mobilna, casy i serwer narzędzia z logowaniem zapasowym (D18).
-1a. ~~Decyzja o nazwie~~ → `dydaktyka` (D21): Mariusz zmienia nazwę w GitHub (Settings → General → Repository name); potem aktualizacja linków w repo i przekierowanie ze starego adresu `…/LC/`.
-1b. **Widoczność repozytorium (do decyzji):** „prywatne” = tylko widoczność kodu? Repo prywatne ukrywa rozwiązania zadań (plus dla D14), ale GitHub Pages z repo prywatnego wymaga płatnego planu GitHub Pro; alternatywa: repo prywatne + strona serwowana z serwera narzędzia LTI.
+1a. ~~Zmiana nazwy~~ – zrobione (25.09.2026). Nowa struktura `shared/` + `lc/` + strona główna – zrobione na gałęzi roboczej (krok 1); do scalenia z `main` po akceptacji.
+1b. ~~Widoczność~~ → repo **na razie publiczne i darmowe** (D24). Mariusz sprawdza wersję Moodle.
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
 3. Projekt ekranu zadania na telefon (makieta) i podział obecnych kroków na mikrokroki (D6–D7).
 4. Przegląd merytoryczny wersji EN przez English Division.
@@ -52,11 +54,12 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 |---|---|
 | `docs/ZALOZENIA_PROJEKTOWE.md` | cele i zasady D6–D16, struktura repozytorium, backend i ochrona przed oszustwami (§10), harmonogram do grudnia, pytania otwarte |
 | `README.md` | struktura kodu, linki PL/EN, testy |
-| `i18n/pl.js`, `i18n/en.js` | wszystkie teksty (lekcje, komunikaty, wzory) |
-| `js/lessons.js` | logika zadań (wspólna dla języków) |
+| `lc/i18n/pl.js`, `lc/i18n/en.js` | wszystkie teksty LC (lekcje, komunikaty, wzory) |
+| `lc/js/lessons.js` | logika zadań LC (wspólna dla języków) |
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 25.09.2026 — Claude Code: D24–D25; zmiana nazwy repo na `dydaktyka`; nowa struktura (krok 1) na gałęzi roboczej.
 - 25.09.2026 — Claude Code: D20–D23 (repo jako źródło prawdy, nazwa `dydaktyka`, 80 studentów / 10 grup / osobne kursy PL i EN, zbiorcze zaliczenie w Moodle).
 - 25.09.2026 — Claude Code: D17–D19 (Moodle LTI, logowanie, wyniki bez wpływu na ocenę).
 - 25.09.2026 — Claude Code: D12–D16 (raporty indywidualne, casy, odporność na oszustwa, harmonogram modułów, backend); termin: grudzień 2026.

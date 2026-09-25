@@ -1,7 +1,9 @@
 // =====================================================================
+// Wspólny silnik języków. Słowniki strony rejestrują się wcześniej jako
+// I18N.pl, I18N.en (var I18N = I18N || {}; I18N.pl = {...}).
 // Wybór języka: ?lang=pl|en → zapamiętany wybór → język przeglądarki
 // =====================================================================
-const LANGS = { pl: I18N_PL, en: I18N_EN };
+const LANGS = I18N;
 const LANG = (() => {
   const q = new URLSearchParams(location.search).get("lang");
   if (q && LANGS[q]) { try { localStorage.setItem("hplc-lang", q); } catch (_) {} return q; }
@@ -32,6 +34,7 @@ function switchLang(l) {
   const u = new URL(location.href);
   u.searchParams.set("lang", l);
   // przetłumacz nazwę trybu w adresie (#zajecia ↔ #lessons, #wzory ↔ #formulas)
-  u.hash = u.hash.replace(/^#(zajecia|lessons)/, "#" + LANGS[l].ui.hashLessons).replace(/^#(wzory|formulas)/, "#" + LANGS[l].ui.hashFormulas);
+  const ui = LANGS[l].ui;
+  if (ui.hashLessons) u.hash = u.hash.replace(/^#(zajecia|lessons)/, "#" + ui.hashLessons).replace(/^#(wzory|formulas)/, "#" + ui.hashFormulas);
   location.href = u.toString();
 }

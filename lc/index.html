@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symulator HPLC / HPLC Simulator</title>
+<link rel="stylesheet" href="../shared/css/base.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <a class="home-link" id="homeLink" href="../" data-i18n="home"></a>
+    <h1 data-i18n="appTitle"></h1>
+    <p data-i18n="appSubtitle"></p>
+  </div>
+  <div class="header-actions">
+    <div class="seg" id="appMode"><button data-app="sim" class="on" data-i18n="modeSim"></button><button data-app="lesson" data-i18n="modeLesson"></button><button data-app="formulas" data-i18n="modeFormulas"></button></div>
+    <div class="seg" id="langSeg" aria-label="Język / Language"><button data-lang="pl" lang="pl">PL</button><button data-lang="en" lang="en">EN</button></div>
+    <button class="btn" id="btnShare" data-i18n="share" data-i18n-title="shareTitle"></button>
+    <button class="btn" id="btnPng" data-i18n="png"></button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <section class="card lesson hidden" id="lessonCard">
+      <div class="card-head"><h2 data-i18n="lessonsHead"></h2><span class="hint" id="lessonProgress" style="margin:0"></span></div>
+      <select id="lessonSel" data-i18n-aria="lessonAria"></select>
+      <div class="dots" id="dots"></div>
+      <h3 id="stepTitle"></h3>
+      <div class="lesson-text" id="stepText"></div>
+      <div class="live hidden" id="liveBox"></div>
+      <div class="task" id="task"></div>
+      <div class="lesson-nav">
+        <button class="btn" id="prevStep" data-i18n="prev"></button>
+        <button class="btn" id="resetStep" data-i18n="reset" data-i18n-title="resetTitle"></button>
+        <button class="btn primary" id="nextStep" data-i18n="next"></button>
+      </div>
+    </section>
+
+    <section class="card" id="presetCard">
+      <h2 data-i18n="presetHead"></h2>
+      <select id="preset" data-i18n-aria="presetHead">
+        <option value="" data-i18n="presetPlaceholder"></option>
+        <option value="uhplc" data-i18n="presetOpt_uhplc"></option>
+        <option value="hplc" data-i18n="presetOpt_hplc"></option>
+        <option value="crit" data-i18n="presetOpt_crit"></option>
+        <option value="gep" data-i18n="presetOpt_gep"></option>
+        <option value="ecv" data-i18n="presetOpt_ecv"></option>
+      </select>
+      <p class="hint" id="presetHint"></p>
+    </section>
+
+    <section class="card" id="controls">
+      <h2 data-i18n="column"></h2>
+      <div class="row2">
+        <div class="field"><label for="L"><span data-i18n="length"></span> <small>[mm]</small></label>
+          <select id="L"><option>30</option><option>50</option><option>75</option><option>100</option><option>150</option><option>250</option></select></div>
+        <div class="field"><label for="ID"><span data-i18n="idLabel"></span> <small>[mm]</small></label>
+          <select id="ID"><option>1.0</option><option>2.1</option><option>3.0</option><option>4.0</option><option>4.6</option></select></div>
+        <div class="field"><label for="dp"><span data-i18n="particle"></span> <small>[µm]</small></label>
+          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3</option><option>3.5</option><option>5</option><option>10</option></select></div>
+        <div class="field"><label for="ptype" data-i18n="ptype"></label>
+          <select id="ptype"><option value="porous" data-i18n="porous"></option><option value="coreshell" data-i18n="coreshell"></option></select></div>
+        <div class="field span2"><label for="endcap" data-i18n="phase"></label>
+          <select id="endcap"><option value="1" data-i18n="endcap1"></option><option value="0" data-i18n="endcap0"></option></select></div>
+      </div>
+
+      <h2 style="margin-top:16px" data-i18n="mobile"></h2>
+      <div class="field"><label for="F"><span data-i18n="flow"></span> <small>[mL/min]</small></label>
+        <input type="number" id="F" step="0.01" min="0.01" max="5">
+        <input type="range" class="range" id="Fr" min="0.05" max="3" step="0.01"></div>
+      <div class="field"><label for="mod" data-i18n="modifier"></label>
+        <select id="mod" style="width:auto"><option value="ACN" data-i18n="acn"></option><option value="MeOH" data-i18n="meoh"></option></select></div>
+      <div class="field" style="margin-top:12px"><label data-i18n="elutionMode"></label>
+        <div class="seg" id="modeSeg"><button data-mode="iso" data-i18n="iso"></button><button data-mode="grad" data-i18n="grad"></button></div></div>
+
+      <div id="isoBox">
+        <div class="field"><label for="phiIso"><span data-i18n="phiB"></span> <small>[%]</small></label>
+          <input type="number" id="phiIso" step="0.5" min="0" max="100">
+          <input type="range" class="range" id="phiIsoR" min="0" max="100" step="0.5"></div>
+      </div>
+      <div id="gradBox">
+        <div class="row2">
+          <div class="field"><label for="phi0"><span data-i18n="phi0"></span> <small>[%]</small></label><input type="number" id="phi0" step="1" min="0" max="100"></div>
+          <div class="field"><label for="phi1"><span data-i18n="phi1"></span> <small>[%]</small></label><input type="number" id="phi1" step="1" min="0" max="100"></div>
+          <div class="field"><label for="tIso0"><span data-i18n="tIso0"></span> <small>[min]</small></label><input type="number" id="tIso0" step="0.05" min="0" max="60"></div>
+          <div class="field"><label for="tG"><span data-i18n="tG"></span> <small>[min]</small></label><input type="number" id="tG" step="0.5" min="0.5" max="120"></div>
+          <div class="field"><label for="hold"><span data-i18n="hold"></span> <small>[min]</small></label><input type="number" id="hold" step="0.5" min="0" max="60"></div>
+          <div class="field"><label for="VD"><span data-i18n="VD"></span> <small>[mL]</small></label><input type="number" id="VD" step="0.05" min="0" max="5"></div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:16px" data-i18n="instr"></h2>
+      <div class="field"><label for="sigEC"><span data-i18n="sigEC"></span> <small>[µL]</small></label>
+        <input type="number" id="sigEC" step="0.5" min="0" max="100"></div>
+      <div class="field"><label for="Vinj"><span data-i18n="Vinj"></span> <small>[µL]</small></label>
+        <input type="number" id="Vinj" step="1" min="0.1" max="250"></div>
+      <div class="field"><label for="noise"><span data-i18n="noise"></span> <small>[mAU]</small></label>
+        <input type="number" id="noise" step="0.001" min="0" max="5"></div>
+      <div class="field"><label for="Dm"><span data-i18n="Dm"></span> <small>[10⁻⁵ cm²/s]</small></label>
+        <input type="number" id="Dm" step="0.1" min="0.05" max="5"></div>
+      <p class="hint" data-i18n="instrHint"></p>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 data-i18n="analytes"></h2><button class="btn icon" id="addAn" data-i18n="add" data-i18n-title="addTitle"></button></div>
+      <div class="analytes" id="anList"></div>
+      <p class="hint" data-i18n="analytesHint"></p>
+    </section>
+  </aside>
+
+  <div class="content">
+    <div class="kpis">
+      <div class="card kpi"><div class="lab" data-i18n="kpiT0"></div><div class="val" id="k_t0">–</div><div class="sub" id="k_t0s"></div></div>
+      <div class="card kpi"><div class="lab" data-i18n="kpiN"></div><div class="val" id="k_N">–</div><div class="sub" id="k_Ns"></div></div>
+      <div class="card kpi"><div class="lab" data-i18n="kpiP"></div><div class="val" id="k_P">–</div><div class="sub" id="k_Ps"></div></div>
+      <div class="card kpi"><div class="lab" data-i18n="kpiRs"></div><div class="val" id="k_Rs">–</div><div class="sub" id="k_Rss"></div></div>
+      <div class="card kpi"><div class="lab" data-i18n="kpiT"></div><div class="val" id="k_T">–</div><div class="sub" id="k_Ts"></div></div>
+      <div class="card kpi"><div class="lab" data-i18n="kpiV"></div><div class="val" id="k_V">–</div><div class="sub" id="k_Vs"></div></div>
+    </div>
+
+    <section class="card">
+      <div class="card-head"><h2 data-i18n="chrom"></h2>
+        <label class="inline-sel"><span data-i18n="yScale"></span>
+          <select id="yzoom"><option value="1">auto</option><option value="10">×10</option><option value="100">×100</option><option value="1000">×1000</option><option value="10000">×10 000</option></select></label></div>
+      <div class="canvas-wrap"><canvas id="chrom" data-i18n-aria="chrom"></canvas><div class="readout" id="readout"></div></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 data-i18n="bands"></h2></div>
+      <canvas id="column" data-i18n-aria="bandsAria"></canvas>
+      <div class="transport">
+        <button class="btn primary" id="play" data-i18n="play"></button>
+        <input type="range" id="scrub" min="0" max="1000" step="1" value="1000" data-i18n-aria="timeAria">
+        <span class="t" id="tLabel"></span>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card" id="resultsCard">
+        <h2 data-i18n="results"></h2>
+        <p class="report-note" data-i18n="reportNote"></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th data-i18n="thAnalyte"></th><th>t<sub>R</sub> [min]</th><th>w<sub>h</sub> [min]</th><th>H [mAU]</th><th data-i18n="thArea"></th><th id="thK">k</th><th>α</th><th>N</th><th>A<sub>s</sub></th><th>R<sub>s</sub></th><th id="thSN">S/N</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="tableHint"></p>
+      </section>
+      <section class="card">
+        <h2 data-i18n="vd"></h2>
+        <canvas id="vd" data-i18n-aria="vd"></canvas>
+        <p class="hint" id="vdHint"></p>
+      </section>
+    </div>
+
+    <section class="card">
+      <details class="model">
+        <summary data-i18n="modelTitle"></summary>
+        <ul data-i18n="modelBody"></ul>
+      </details>
+    </section>
+  </div>
+</main>
+
+<section class="formulas hidden" id="formulas">
+  <div class="fhead">
+    <div><h2 class="ftitle" data-i18n="fTitle"></h2>
+      <p class="hint" data-i18n="fSub"></p></div>
+    <button class="btn" id="btnPrint" data-i18n="print"></button>
+  </div>
+  <div id="formulaList"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<!-- Kolejność ma znaczenie: słowniki → silnik języków → model → interfejs → zajęcia → wzory → start -->
+<script src="i18n/pl.js"></script>
+<script src="i18n/en.js"></script>
+<script src="../shared/js/i18n.js"></script>
+<script src="js/model.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/lessons.js"></script>
+<script src="../shared/js/mathml.js"></script>
+<script src="js/formulas.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

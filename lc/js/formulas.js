@@ -1,23 +1,6 @@
 // =====================================================================
-// Karta wzorów (Ph. Eur. 2.2.46) – MathML; opisy w L10.formulas
+// Karta wzorów LC (Ph. Eur. 2.2.46) – MathML (pomocnik: shared/js/mathml.js); opisy w L10.formulas
 // =====================================================================
-const DEC = L10.decimal;
-const numStr = v => String(v).replace(".", DEC);
-const MX = {
-  tok(s) {                        // liczby → mn, litery → mi (kursywa), reszta → mo
-    return (s.match(/\d+(?:\.\d+)?|[A-Za-zα]|\S/g) || []).map(tk =>
-      /^\d/.test(tk) ? `<mn>${numStr(tk)}</mn>` : /^[A-Za-zα]$/.test(tk) ? `<mi>${tk}</mi>` : `<mo>${tk.replace("-", "−")}</mo>`).join("");
-  },
-  sub: (a, b) => `<msub><mrow>${a}</mrow><mrow>${b}</mrow></msub>`,
-  sup: (a, b) => `<msup><mrow>${a}</mrow><mrow>${b}</mrow></msup>`,
-  subsup: (a, b, c) => `<msubsup><mrow>${a}</mrow><mrow>${b}</mrow><mrow>${c}</mrow></msubsup>`,
-  frac: (a, b) => `<mfrac><mrow>${a}</mrow><mrow>${b}</mrow></mfrac>`,
-  sqrt: a => `<msqrt>${a}</msqrt>`,
-  par: a => `<mrow><mo>(</mo>${a}<mo>)</mo></mrow>`,
-  bar: a => `<mover><mrow>${a}</mrow><mo>‾</mo></mover>`,
-  txt: a => `<mtext>${a}</mtext>`,
-  o: a => `<mo>${a}</mo>`
-};
 const T = MX.tok, S_ = (a, b) => MX.sub(T(a), T(b));
 const sym = {
   tR: S_("t", "R"), tR1: S_("t", "R1"), tR2: S_("t", "R2"), tM: S_("t", "M"), t0: S_("t", "0"), tt: S_("t", "t"),

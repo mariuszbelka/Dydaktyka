@@ -141,6 +141,7 @@ window.addEventListener("hashchange", () => {
 
 (function init() {
   applyI18n();
+  $("homeLink").href = "../?lang=" + LANG;
   renderFormulas();
   const hs = location.hash;
   const ms = hs.match(/^#s=(.+)$/);

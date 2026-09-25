@@ -70,6 +70,8 @@
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
     padding: 18px 20px 6px; max-width: 1480px; margin: 0 auto;
   }
+  .home-link { display: inline-block; font-size: 13px; color: var(--accent); text-decoration: none; margin-bottom: 4px; }
+  .home-link:hover { text-decoration: underline; }
   header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
   header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
