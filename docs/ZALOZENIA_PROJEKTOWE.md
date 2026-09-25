@@ -83,7 +83,10 @@ Ograniczenia techniczne (strona jest statyczna, na GitHub Pages – bez serwera)
   ale na telefonie mniej wygodny.
 - **Wariant C – formularz uczelniany** (np. MS Forms / Google Forms) zamiast maila. Wygodne zbiorcze
   wyniki dla prowadzącego, ale to nie jest „mail” i zależy od polityki uczelni.
-- Rekomendacja robocza: **A jako podstawa** (zwięzły raport w treści maila) + opcjonalnie B dla pełnej wersji.
+- ~~Rekomendacja robocza: A jako podstawa + opcjonalnie B~~ → **nieaktualne po D12–D15 (25.09.2026)**:
+  wymaganie odporności na oszustwa wyklucza raport tworzony i wysyłany wyłącznie z przeglądarki
+  studenta (można go dowolnie zmienić). Raport ma powstawać i być przechowywany po stronie serwera; e-mail
+  pozostaje kanałem powiadomienia i kopii dla studenta – patrz §10.
 
 Zawartość raportu (propozycja do akceptacji):
 - identyfikacja: imię i nazwisko, nr albumu, grupa (wpisywane przez studenta, nie przechowywane na serwerze),
@@ -166,3 +169,75 @@ Pytania otwarte (uzupełnienie §7):
 8. Kolejność powstawania ćwiczeń (MS, ekstrakcja, biotech) i terminy zajęć, na które mają być gotowe.
 9. Czy ćwiczenia MS / ekstrakcja / biotech mają mieć symulator (jak LC), czy wystarczą lekcje
    z zadaniami na danych (np. widma, wyniki odzysku)?
+
+## 10. Wymagania funkcjonalne od 25.09.2026 (D12–D16)
+
+Termin: **pierwsze ćwiczenia w grudniu 2026**. Funkcjonalność ma priorytet nad szybkością wdrożenia.
+
+| # | Wymaganie | Co to oznacza w praktyce |
+|---|---|---|
+| D12 | **Każdy student wysyła własny, indywidualny raport z wykonania** | identyfikacja studenta, raport przypisany do osoby i modułu, prowadzący widzi listę raportów grupy |
+| D13 | **Zadania angażujące, problemowe, oparte na przypadkach („casy”)** | zamiast „oblicz Rs” – sytuacja z laboratorium kontroli jakości, którą trzeba zdiagnozować i rozwiązać w granicach Ph. Eur., z krótkim uzasadnieniem |
+| D14 | **Odporność na oszustwa** | indywidualne warianty zadań, sprawdzanie odpowiedzi poza przeglądarką, rejestr prób, wykrywanie anomalii |
+| D15 | **Moduły otwierane i zamykane zgodnie z terminami zajęć** | harmonogram na grupę; poza oknem czasowym nie da się wysłać rozwiązania (lub wysłanie jest oznaczone jako spóźnione) |
+| D16 | **Potrzebny serwer (backend)** – wniosek z D12, D14, D15 | strona statyczna na GitHub Pages zostaje jako interfejs; dochodzi usługa: logowanie, wydawanie wariantów, sprawdzanie, raporty, harmonogram |
+
+### 10.1 Dlaczego sama strona statyczna nie wystarczy
+Kod strony jest publiczny i wykonuje się w telefonie studenta. Każdą kontrolę w przeglądarce
+(data otwarcia modułu, sprawdzenie odpowiedzi, „suma kontrolna” raportu) można obejść narzędziami
+przeglądarki, a poprawne odpowiedzi można policzyć, uruchamiając kod strony. Ochrona musi więc
+opierać się na tym, czego student nie kontroluje: serwerze z tajnym kluczem i zapisie zdarzeń.
+
+### 10.2 Projekt ochrony przed oszustwami (warstwy)
+1. **Tożsamość:** logowanie adresem uczelnianym (domena uczelni) – najlepiej przez uczelniane
+   konto (SSO, np. Microsoft 365) albo jednorazowy link na maila uczelnianego.
+2. **Indywidualne warianty:** parametry zadania (retencje, poziomy zanieczyszczeń, warunki metody, dane „casu”)
+   generuje serwer z ziarna = f(student, moduł, tajny klucz). Każdy ma inne liczby, więc przekazanie
+   odpowiedzi koledze nic nie daje, a znajomość publicznego kodu nie wystarcza do wyliczenia cudzych wyników.
+3. **Sprawdzanie po stronie serwera:** przeglądarka wysyła odpowiedź, serwer ją ocenia; wyjaśnienia
+   i poprawne wartości trafiają do przeglądarki dopiero po zaliczeniu lub zamknięciu modułu.
+4. **Okna czasowe na serwerze** (D15): serwer odrzuca albo oznacza rozwiązania spoza harmonogramu grupy.
+5. **Rejestr zdarzeń:** czas rozpoczęcia i zakończenia, liczba prób, czas na zadanie. Flagi dla prowadzącego:
+   ukończenie nierealnie szybko, identyczne błędne odpowiedzi u różnych studentów, wiele kont z jednego urządzenia.
+6. **Raport tworzony przez serwer** (nie przez przeglądarkę): prowadzący dostaje zestawienie (tabela / CSV) i powiadomienie
+   mailem; student dostaje kopię.
+7. **Weryfikacja na zajęciach:** zadania „casowe” kończą się pytaniem, które student rozwija ustnie na seminarium –
+   najskuteczniejsze zabezpieczenie przed oddaniem cudzej pracy.
+
+Ograniczenie, które trzeba przyjąć świadomie: żaden system zdalny nie zapobiegnie w 100% temu,
+że ktoś rozwiąże zadanie za studenta. Celem jest, by oszustwo kosztowało więcej niż samodzielna praca
+i było wykrywalne.
+
+### 10.3 Zadania „casowe” (D13) – zasady
+- Punkt wyjścia to **realna sytuacja**: np. „SST nie przechodzi po wymianie kolumny”, „nowy aparat UHPLC,
+  a monografia jest na HPLC”, „w serii pojawił się nieznany pik”.
+- Student **diagnozuje** (z chromatogramu i danych), **proponuje działanie** w granicach Ph. Eur. 2.2.46,
+  **sprawdza** je w symulatorze i **uzasadnia** decyzję w 1–3 zdaniach (uzasadnienie trafia do raportu).
+- Casy mają kilka poprawnych ścieżek, a niektóre także pułapki (zmiana niedozwolona przez 2.2.46),
+  co odróżnia rozumienie od zgadywania.
+- Każdy case ma warianty liczbowe (§10.2 p. 2), dzięki czemu te same casy można stosować w kolejnych latach.
+
+### 10.4 Warianty architektury (do decyzji)
+| Wariant | Opis | Zalety | Wady / ryzyka |
+|---|---|---|---|
+| **A. Własna usługa w chmurze UE** (np. Supabase – region Frankfurt, lub Cloudflare Workers + baza) | logowanie adresem uczelnianym (jednorazowy link), baza zadań, raportów i harmonogramu, prosty panel prowadzącego | pełna kontrola nad wariantami, sprawdzaniem i harmonogramem; darmowy lub tani plan wystarcza dla kilkuset studentów | dane osobowe u zewnętrznego dostawcy – wymaga uzgodnienia z IOD uczelni (umowa powierzenia, UE); utrzymanie po stronie projektu |
+| **B. Integracja z uczelnianą platformą e-learningową** (np. Moodle przez LTI, jeśli uczelnia ją udostępnia) | logowanie, grupy, terminy i oceny z platformy; symulator jako zewnętrzne narzędzie | tożsamość i RODO po stronie uczelni; znane studentom miejsce | wymaga zgody i konfiguracji przez dział IT; narzędzie LTI i tak potrzebuje własnego serwera do wariantów i sprawdzania |
+| **C. Uczelniane Microsoft 365** (SSO + np. Power Automate / listy SharePoint) | logowanie kontem uczelnianym, raporty do listy/arkusza | dane w infrastrukturze uczelni | ograniczone możliwości sprawdzania i generowania wariantów; zależność od uprawnień w tenancie uczelni |
+
+Rekomendacja robocza: **A** z logowaniem przez adres uczelniany, po konsultacji z IOD – daje wszystkie
+wymagane funkcje do grudnia; **B** warto rozważyć, jeśli uczelnia udostępnia Moodle z LTI i IT zgodzi się szybko.
+
+### 10.5 Zakres prac i harmonogram roboczy (do grudnia 2026)
+1. Decyzje: architektura (10.4), zgoda IOD, adres/konta, nazwa repozytorium (§9) – **październik**.
+2. Wspólny silnik (§9) + ścieżka lekcji na telefon (D6–D7) – **październik**.
+3. Backend: logowanie, harmonogram, warianty, sprawdzanie, raporty, panel prowadzącego – **październik–listopad**.
+4. Pierwsze casy dla LC (przerobienie obecnych lekcji na „przed zajęciami” i casy) – **listopad**.
+5. Pilotaż na małej grupie / współpracownikach, poprawki – **koniec listopada**.
+6. Pierwsze zajęcia – **grudzień**.
+
+### 10.6 Pytania otwarte (uzupełnienie §7)
+10. Z jakich platform uczelni można korzystać: konta Microsoft 365 (SSO), Moodle/inna platforma e-learningowa?
+11. Czy mogę założyć usługę w chmurze UE (wariant A) i kto uzgadnia to z IOD uczelni?
+12. Kto poza Mariuszem ma mieć dostęp do panelu prowadzącego (asystenci, English Division)?
+13. Czy raport i wyniki wpływają na ocenę (to określa wymagany poziom zabezpieczeń i archiwizacji)?
+14. Liczba grup i studentów w grudniowych zajęciach (PL/EN), harmonogram terminów.
