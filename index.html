@@ -210,6 +210,11 @@
   .feedback.near { display: block; background: var(--warn-bg); color: var(--text); border-left: 3px solid var(--warn); }
   .teacher { margin-top: 8px; font-size: 12px; color: var(--warn); }
   details.hintbox { margin-top: 8px; font-size: 13px; }
+  .live { margin-top: 10px; font-size: 12px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--border); font-variant-numeric: tabular-nums; }
+  .live b { font-weight: 600; }
+  table.cond { font-size: 12px; margin: 4px 0 8px; font-variant-numeric: normal; }
+  table.cond th, table.cond td { text-align: left !important; white-space: normal; padding: 3px 6px; vertical-align: top; }
+  table.cond th { width: 38%; color: var(--muted); font-weight: 500; }
   details.hintbox summary { cursor: pointer; color: var(--accent); }
   .lesson-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 
@@ -245,6 +250,7 @@
       <div class="dots" id="dots"></div>
       <h3 id="stepTitle"></h3>
       <div class="lesson-text" id="stepText"></div>
+      <div class="live hidden" id="liveBox"></div>
       <div class="task" id="task"></div>
       <div class="lesson-nav">
         <button class="btn" id="prevStep">← Wstecz</button>
@@ -272,9 +278,9 @@
         <div class="field"><label for="L">Długość <small>[mm]</small></label>
           <select id="L"><option>30</option><option>50</option><option>75</option><option>100</option><option>150</option><option>250</option></select></div>
         <div class="field"><label for="ID">Średnica wewn. <small>[mm]</small></label>
-          <select id="ID"><option>1.0</option><option>2.1</option><option>3.0</option><option>4.6</option></select></div>
+          <select id="ID"><option>1.0</option><option>2.1</option><option>3.0</option><option>4.0</option><option>4.6</option></select></div>
         <div class="field"><label for="dp">Ziarno <small>[µm]</small></label>
-          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3</option><option>3.5</option><option>5</option></select></div>
+          <select id="dp"><option>1.7</option><option>1.8</option><option>2.7</option><option>3</option><option>3.5</option><option>5</option><option>10</option></select></div>
         <div class="field"><label for="ptype">Typ cząstek</label>
           <select id="ptype"><option value="porous">całk. porowate</option><option value="coreshell">core-shell</option></select></div>
         <div class="field span2"><label for="endcap">Faza stacjonarna</label>
@@ -310,7 +316,7 @@
       <div class="field"><label for="sigEC">Dyspersja pozakolumnowa σ<sub>V</sub> <small>[µL]</small></label>
         <input type="number" id="sigEC" step="0.5" min="0" max="100"></div>
       <div class="field"><label for="Vinj">Objętość nastrzyku <small>[µL]</small></label>
-        <input type="number" id="Vinj" step="1" min="0.1" max="100"></div>
+        <input type="number" id="Vinj" step="1" min="0.1" max="250"></div>
       <div class="field"><label for="noise">Szum detektora σ <small>[mAU]</small></label>
         <input type="number" id="noise" step="0.001" min="0" max="5"></div>
       <div class="field"><label for="Dm">D<sub>m</sub> <small>[10⁻⁵ cm²/s]</small></label>
@@ -358,7 +364,7 @@
         <p class="report-note">Tryb raportu: widoczne są tylko dane z integracji (t<sub>R</sub>, w<sub>h</sub>, H, h). Parametry oblicz samodzielnie ze wzorów Ph. Eur. 2.2.46.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Analit</th><th>t<sub>R</sub> [min]</th><th>w<sub>h</sub> [min]</th><th>H [mAU]</th><th id="thK">k</th><th>α</th><th>N</th><th>A<sub>s</sub></th><th>R<sub>s</sub></th><th id="thSN">S/N</th></tr></thead>
+            <thead><tr><th>#</th><th>Analit</th><th>t<sub>R</sub> [min]</th><th>w<sub>h</sub> [min]</th><th>H [mAU]</th><th>pole [mAU·s]</th><th id="thK">k</th><th>α</th><th>N</th><th>A<sub>s</sub></th><th>R<sub>s</sub></th><th id="thSN">S/N</th></tr></thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
@@ -570,8 +576,8 @@ function compute(s) {
     const sigCol = t0 * (1 + p.kE) / Math.sqrt(N);
     p.sigma = Math.sqrt(sigCol * sigCol + sigEC * sigEC);
     p.tau = tailFactor(a, s) * sigCol;
-    const area = AREA_SCALE * a.amt * (s.Vinj / 10) / s.F / 60;   // mAU·min
-    p.shape = peakShape(p.mu, p.sigma, p.tau, area);
+    p.area = AREA_SCALE * a.amt * (s.Vinj / 10) / s.F;         // mAU·s
+    p.shape = peakShape(p.mu, p.sigma, p.tau, p.area / 60);
     Object.assign(p, measurePeak(p.shape));
     p.k = (p.tR - t0) / t0;
     p.N = 5.54 * Math.pow(p.tR / p.wh, 2);
@@ -614,6 +620,7 @@ function compute(s) {
     p.sig = new Float64Array(GRID + 1);
     const j0 = Math.max(0, Math.floor(p.shape.t0 / tEnd * GRID)), j1 = Math.min(GRID, Math.ceil((p.shape.t0 + p.shape.dt * p.shape.M) / tEnd * GRID));
     for (let j = j0; j <= j1; j++) { const v = shapeAt(p.shape, ts[j]); p.sig[j] = v; tot[j] += v; }
+    p.jA = Math.round(p.tR / tEnd * GRID);
   });
   const rng = mulberry32(12345);
   for (let j = 0; j <= GRID; j++) noise[j] = s.noise * gaussRand(rng);
@@ -901,20 +908,21 @@ function renderStats() {
     const snCell = reportMode ? `<td>${R.s.noise > 0 ? sig3(p.hNoise) : "0"}</td>`
       : `<td>${p.SN == null ? "∞" : `<span class="badge ${p.SN >= 10 ? "good" : "bad"}">${p.SN >= 100 ? nInt(p.SN) : nf(p.SN, 1)}</span>`}</td>`;
     return `<tr${crit}><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td>
-      <td>${nf(p.tR, 3)}</td><td>${nf(p.wh, 4)}</td><td>${sig3(p.H)}</td>
+      <td>${nf(p.tR, 3)}</td><td>${nf(p.wh, 4)}</td><td>${sig3(p.H)}</td><td>${sig3(p.area)}</td>
       ${reportMode ? q + q + q : `<td>${nf(R.iso ? p.k : p.kE, 2)}</td><td>${p.alpha == null ? "–" : nf(p.alpha, 3)}</td><td>${R.iso ? nInt(p.N) : "–"}</td>`}
       <td><span class="badge ${asCls}">${nf(p.As, 2)}</span></td>
       ${reportMode ? q : `<td>${p.Rs == null ? "–" : `<span class="badge ${rsCls}">${nf(p.Rs, 2)}</span>`}</td>`}
       ${snCell}</tr>`;
   });
   R.peaks.filter(p => !p.eluted).forEach(p => rows.push(
-    `<tr><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td><td colspan="9" style="text-align:left;color:var(--bad)">nie eluuje w rozsądnym czasie – zwiększ %B</td></tr>`));
+    `<tr><td>${p.i + 1}</td><td><span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</td><td colspan="10" style="text-align:left;color:var(--bad)">nie eluuje w rozsądnym czasie – zwiększ %B</td></tr>`));
   document.getElementById("tbody").innerHTML = rows.join("");
   document.getElementById("tableHint").innerHTML = reportMode
     ? `t<sub>M</sub> = ${nf(R.t0, 3)} min, F = ${nf(s.F, 2)} mL/min. h – rozstęp szumu ślepej próby w oknie 5·w<sub>h</sub>.`
     : (R.iso
       ? "Parametry liczone wzorami Ph. Eur. 2.2.46 z pomiaru pików. R<sub>s</sub> do poprzedniego piku; podświetlona para krytyczna. A<sub>s</sub> wymagane 0,8–1,8, S/N ≥ 10 dla LOQ."
       : "W gradiencie k<sub>e</sub> to współczynnik retencji w chwili elucji; α i N (liczone tylko w izokracji wg 2.2.46) nie są podawane; n<sub>c</sub> – pojemność pików.");
+  renderLive();
   document.getElementById("vdHint").innerHTML = hideVdHint
     ? "Linie przerywane to składowe A, B/u i C·u. Odczytaj optimum z wykresu."
     : `Optimum: u<sub>opt</sub> = ${nf(R.uOpt, 2)} mm/s, co odpowiada F ≈ ${nf(R.Fopt, 2)} mL/min (H<sub>min</sub> = ${nf(R.Hmin * 1000, 1)} µm). Linie przerywane to składowe A, B/u i C·u.`;
@@ -926,9 +934,9 @@ function renderStats() {
 const $ = id => document.getElementById(id);
 const NUM = {
   F: [0.01, 5], phiIso: [0, 100], phi0: [0, 100], phi1: [0, 100], tIso0: [0, 60], tG: [0.5, 120], hold: [0, 60],
-  VD: [0, 5], sigEC: [0, 100], Vinj: [0.1, 100], noise: [0, 5], Dm: [0.05, 5]
+  VD: [0, 5], sigEC: [0, 100], Vinj: [0.1, 250], noise: [0, 5], Dm: [0.05, 5]
 };
-const AN_LIM = { logkw: [-2, 8], S: [0, 15], amt: [0, 100] };
+const AN_LIM = { logkw: [-8, 12], S: [-15, 15], amt: [0, 100] };
 
 function readNum(id) {
   const el = $(id), [lo, hi] = NUM[id];
@@ -1422,6 +1430,374 @@ const LESSONS = [
   }
 ];
 
+// ---------- Przypadki z monografii Ph. Eur. ----------
+const K = (name, k, phi, S, amt, basic) => ({ name, logkw: +(Math.log10(k) + S * phi).toFixed(3), S, amt, basic: !!basic });
+const COND = rows => `<table class="cond">${rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("")}</table>`;
+const CASE_NOTE = `<p class="ref">Parametry retencji dobrano tak, by odtworzyć czasy retencji podane w monografii. Temperatura, pH, bufor i chemia fazy stacjonarnej nie są modelowane – symulacja ilustruje zasady, nie zastępuje metody.</p>`;
+const t0Of = (L, ID, F, eps) => (eps || 0.65) * Math.PI * (ID / 2) ** 2 * L / 1000 / F;
+function pvRatio(R, i, j) {           // p/v: i – pik mniejszy, j – pik główny
+  const a = R.peaks[i], b = R.peaks[j];
+  if (!a.eluted || !b.eluted) return 0;
+  const j0 = Math.min(a.jA, b.jA), j1 = Math.max(a.jA, b.jA);
+  let mn = Infinity;
+  for (let k = j0; k <= j1; k++) mn = Math.min(mn, R.tot[k]);
+  const Hp = R.tot[a.jA];
+  return mn <= Hp * 1e-4 ? Infinity : Hp / mn;
+}
+const fmtPv = v => isFinite(v) ? nf(v, 2) : "∞ (rozdz. do linii podstawowej)";
+const minRsAll = R => R.el.reduce((m, p) => p.Rs == null ? m : Math.min(m, p.Rs), Infinity);
+const within = (v, lo, hi) => v >= lo - 1e-9 && v <= hi + 1e-9;
+
+// Sulfametoksazol (0108)
+const SMX_SET = Object.assign({}, BASE, { L: 250, ID: 4.0, dp: 5, F: 0.9, mod: "MeOH", mode: "iso", phiIso: 35, sigEC: 12, Vinj: 20 });
+const T0_SMX = t0Of(250, 4.0, 0.9);
+const smx = (name, rrt, S, amt) => K(name, rrt * 10 / T0_SMX - 1, 0.35, S, amt);
+const SMX_NAMES = ["Sulfametoksazol", "Zanieczyszczenie B", "Zanieczyszczenie D", "Zanieczyszczenie A", "Zanieczyszczenie F", "Zanieczyszczenie C", "Zanieczyszczenie E"];
+const SMX_RRT = [[1, 3.5], [2.0, 4.5], [0.3, 1.5], [1.2, 3.8], [0.45, 3.0], [0.5, 2.5], [0.35, 2.0]];
+const smxMix = (named, amt) => SMX_RRT.map(([r, S], i) => smx(named || i === 0 ? SMX_NAMES[i] : "Pik " + (i + 1), r, S, i === 0 ? 1 : amt));
+const SMX_COND = COND([
+  ["Kolumna", "250 × 4,0 mm, oktylosilil (C8), 5 µm, 30 °C"],
+  ["Faza ruchoma", "metanol : bufor fosforanowy pH 5,3 (35 : 65 V/V)"],
+  ["Przepływ / detekcja", "0,9 mL/min, UV 210 nm"],
+  ["Nastrzyk / czas", "20 µL; 3 × t<sub>R</sub> sulfametoksazolu (≈ 10 min)"],
+  ["Retencja względna", "D ≈ 0,3; E ≈ 0,35; F ≈ 0,45; C ≈ 0,5; A ≈ 1,2; B ≈ 2,0"],
+  ["SST", "R<sub>s</sub> ≥ 3,5 sulfametoksazol / zanieczyszczenie A"]]);
+
+// Kwas askorbinowy (0253)
+const AA_SET = Object.assign({}, BASE, { L: 250, ID: 4.6, dp: 5, F: 1.0, mod: "ACN", mode: "iso", phiIso: 75, sigEC: 12, Vinj: 20 });
+const T0_AA = t0Of(250, 4.6, 1.0);
+const aa = (name, rrt, S, amt) => K(name, rrt * 9 / T0_AA - 1, 0.75, S, amt);
+const AA_COND = COND([
+  ["Kolumna", "250 × 4,6 mm, aminopropylosilil, 5 µm, 45 °C"],
+  ["Faza ruchoma", "bufor fosforanowy : acetonitryl (25 : 75 V/V)"],
+  ["Przepływ / detekcja", "1,0 mL/min, UV 210 nm; nastrzyk 20 µL"],
+  ["Retencja", "kwas askorbinowy ≈ 9 min; D ≈ 0,5; C ≈ 1,45"],
+  ["SST", "R<sub>s</sub> ≥ 3,0 kwas askorbinowy / zanieczyszczenie C (roztwór c); S/N ≥ 20 dla zanieczyszczenia C (roztwór d)"]]);
+
+// Werapamil (0573)
+const VER_SET = Object.assign({}, BASE, { L: 250, ID: 4.6, dp: 5, F: 1.5, mod: "ACN", mode: "grad", phi0: 37, phi1: 65, tIso0: 22, tG: 5, hold: 18, VD: 1.0, sigEC: 12, Vinj: 10 });
+const T0_VER = t0Of(250, 4.6, 1.5);
+const ver = (name, rrt, S, amt) => K(name, rrt * 15 / T0_VER - 1, 0.37, S, amt, true);
+const VER_MIX = () => [ver("Werapamil", 1, 4.5, 1.0), ver("Zanieczyszczenie I", 1.3, 4.8, 1.0), K("Zanieczyszczenie M", 398, 0.37, 7.0, 1.0, true)];
+const VER_COND = COND([
+  ["Kolumna", "250 × 4,6 mm, C18 z wbudowaną grupą polarną, end-capping, 5 µm"],
+  ["Faza ruchoma", "A: bufor K<sub>2</sub>HPO<sub>4</sub> pH 7,2; B: acetonitryl"],
+  ["Program", "0–22 min: 37% B; 22–27 min: 37→65% B; 27–45 min: 65% B"],
+  ["Przepływ / detekcja", "1,5 mL/min, UV 278 nm; nastrzyk 10 µL"],
+  ["Retencja", "werapamil ≈ 15 min; I ≈ 1,3; M ≈ 2,4"],
+  ["SST", "R<sub>s</sub> ≥ 4,5 werapamil / zanieczyszczenie I; zanieczyszczenie M eluuje z kolumny"]]);
+
+// Aspartam (0973)
+const ASP_SET = Object.assign({}, BASE, { L: 250, ID: 4.0, dp: 5, F: 1.0, mod: "ACN", mode: "iso", phiIso: 10, sigEC: 12, Vinj: 20 });
+const ASP_MIX = () => [K("Zanieczyszczenie C (fenyloalanina)", 1.2, 0.10, 3.0, 0.3), K("Zanieczyszczenie B (Asp-Phe)", 1.55, 0.10, 3.2, 0.3),
+                       K("Zanieczyszczenie A (diketopiperazyna)", 3.0, 0.10, 3.5, 0.3), K("Aspartam", 6.0, 0.10, 4.0, 1.0)];
+const ASP_COND = COND([
+  ["Kolumna", "250 × 4,0 mm, oktadecylosilil (C18), <b>5–10 µm</b>"],
+  ["Faza ruchoma", "acetonitryl : bufor KH<sub>2</sub>PO<sub>4</sub> pH 3,7 (10 : 90 V/V)"],
+  ["Przepływ / detekcja", "1 mL/min, UV 220 nm; nastrzyk 20 µL; czas: 2 × t<sub>R</sub> aspartamu"],
+  ["SST", "R<sub>s</sub> ≥ 3,5 między zanieczyszczeniami B i C (roztwór d)"]]);
+
+// Erytromycyna, estolan (0552)
+const T0_ERY = t0Of(250, 4.6, 1.0);
+const ery = (name, rrt, S, amt) => K(name, rrt * 23 / T0_ERY - 1, 0.35, S, amt, true);
+const ERY_MIX = () => [ery("Zanieczyszczenie A", 0.4, 5.0, 0.02), ery("Zanieczyszczenie B", 0.52, 5.5, 0.03), ery("Erytromycyna C", 0.55, 5.2, 0.03),
+  ery("Zanieczyszczenie C", 0.9, 5.6, 0.03), ery("Erytromycyna A", 1.0, 5.5, 1.0), ery("Erytromycyna B", 1.75, 5.8, 0.05),
+  ery("Zanieczyszczenie F", 1.81, 6.2, 0.015), K("Zanieczyszczenie E", 38.3, 0.35, 6.0, 0.03, true)];
+const ERY_SET = Object.assign({}, BASE, { L: 250, ID: 4.6, dp: 3.5, F: 1.0, mod: "ACN", mode: "grad", phi0: 35, phi1: 50, tIso0: 40.3, tG: 2, hold: 13, VD: 1.0, sigEC: 12, Vinj: 200, Dm: 0.5 });
+function eryBIso(S) {                // t_R erytromycyny B w izokracji fazą A
+  const s = Object.assign({}, S, { mode: "iso", phiIso: S.phi0, analytes: [S.analytes[5]] });
+  const R = compute(s);
+  return R.peaks[0].eluted ? R.peaks[0].tR : Infinity;
+}
+const ERY_COND = COND([
+  ["Kolumna", "250 × 4,6 mm, C18 z wbudowaną grupą polarną, end-capping, 3,5 µm, <b>65 °C</b>"],
+  ["Faza ruchoma", "A: bufor pH 7,0 : ACN : woda (5 : 35 : 60); B: bufor : woda : ACN (5 : 45 : 50)"],
+  ["Program", "0 – t<sub>R</sub>: 100% A; t<sub>R</sub> – (t<sub>R</sub>+2): A→B; do t<sub>R</sub>+15: 100% B; t<sub>R</sub> = czas retencji erytromycyny B oznaczony izokratycznie fazą A"],
+  ["Przepływ / detekcja", "1,0 mL/min, UV 210 nm; <b>nastrzyk 200 µL</b>"],
+  ["Retencja względna", "A ≈ 0,4; B ≈ 0,5; ery C ≈ 0,55; C ≈ 0,9; ery A = 1 (≈ 23 min); ery B ≈ 1,75; F ≈ 1,81; E ≈ 2,3"],
+  ["SST", "R<sub>s</sub> ≥ 1,2 B / ery C; p/v ≥ 1,5 (F / ery B); p/v ≥ 2,0 (C / ery A)"]]);
+
+const CASES = [
+  {
+    title: "Sulfametoksazol (0108) – substancje pokrewne", group: "m",
+    steps: [
+      {
+        title: "Identyfikacja pików po retencji względnej",
+        setup: Object.assign({}, SMX_SET, { analytes: smxMix(false, 0.1) }),
+        html: `<p>Badanie substancji pokrewnych sulfametoksazolu – warunki z monografii:</p>` + SMX_COND +
+              `<p>Na chromatogramie mieszaniny widać sulfametoksazol i sześć zanieczyszczeń (piki 2–7). Monografia pozwala je zidentyfikować po <b>nieskorygowanej retencji względnej</b> <code>r_G = t_Ri / t_R,SMX</code>.</p>` + CASE_NOTE,
+        live: R => `Najedź na chromatogram, aby odczytać czasy; t<sub>R</sub> sulfametoksazolu = <b>${nf(pk(R, 0).tR, 2)} min</b>.`,
+        task: { type: "choice", q: "Który pik to zanieczyszczenie A (r_G ≈ 1,2)?",
+                options: ["Pik 2", "Pik 4", "Pik 5", "Pik 6"], correct: 1,
+                explain: R => `r<sub>G</sub> piku 4 = ${nf(pk(R, 3).tR, 2)} / ${nf(pk(R, 0).tR, 2)} = ${nf(pk(R, 3).tR / pk(R, 0).tR, 2)}. Pik 2 (r<sub>G</sub> ≈ 2,0) to zanieczyszczenie B – wyznacza czas analizy (3 × t<sub>R</sub>).` }
+      },
+      {
+        title: "Piki blisko siebie",
+        html: `<p>Zanieczyszczenia F i C mają zbliżone retencje względne (0,45 i 0,5). Oblicz r<sub>G</sub> dla pików eluujących przed sulfametoksazolem.</p>`,
+        task: { type: "choice", q: "Który pik to zanieczyszczenie C?",
+                options: ["Pik 3", "Pik 5", "Pik 6", "Pik 7"], correct: 2,
+                explain: R => `r<sub>G</sub>: pik 3 = ${nf(pk(R, 2).tR / pk(R, 0).tR, 2)} (D), pik 7 = ${nf(pk(R, 6).tR / pk(R, 0).tR, 2)} (E), pik 5 = ${nf(pk(R, 4).tR / pk(R, 0).tR, 2)} (F), pik 6 = ${nf(pk(R, 5).tR / pk(R, 0).tR, 2)} (C). Przy tak bliskich wartościach identyfikację warto potwierdzić wzorcem (monografia używa CRS zanieczyszczeń A i F).` }
+      },
+      {
+        title: "Przydatność układu",
+        setup: Object.assign({}, SMX_SET, { analytes: [smx("Sulfametoksazol", 1, 3.5, 0.1), smx("Zanieczyszczenie A", 1.2, 3.8, 0.1)] }),
+        report: true,
+        html: `<p>Roztwór porównawczy (b) zawiera sulfametoksazol i zanieczyszczenie A (CRS) w równych ilościach. Wymaganie: <b>R<sub>s</sub> ≥ 3,5</b>.</p>`,
+        task: { type: "num", q: "Oblicz Rs i sprawdź, czy układ spełnia wymaganie.", unit: "", answer: R => pairRs(R, 0, 1), tol: 0.04,
+                hint: "R_s = 1,18·(t_R2 − t_R1)/(w_h1 + w_h2).",
+                explain: R => `R<sub>s</sub> = ${nf(pairRs(R, 0, 1), 2)} ≥ 3,5 – układ spełnia wymaganie z zapasem.` }
+      },
+      {
+        title: "Skrócenie analizy w dozwolonych granicach",
+        setup: Object.assign({}, SMX_SET, { analytes: smxMix(true, 0.1) }),
+        html: `<p>Czas analizy wg monografii to 3 × t<sub>R</sub> sulfametoksazolu ≈ 30 min. Skróć go do <b>≤ 20 min</b>, stosując tylko zmiany dopuszczone przez 2.2.46: udział metanolu (składnik mniejszościowy 35%: ±30% względnie, max 10% bezwzględnie → 25–45%) i przepływ (±50% → 0,45–1,35 mL/min).</p>
+               <p>Muszą pozostać spełnione: R<sub>s</sub>(SMX / A) ≥ 3,5 oraz rozdzielenie wszystkich pików (R<sub>s</sub> ≥ 1,5).</p>`,
+        live: R => `3 × t<sub>R</sub> SMX = <b>${nf(3 * pk(R, 0).tR, 1)} min</b> · R<sub>s</sub>(SMX/A) = <b>${nf(pairRs(R, 0, 3), 2)}</b> · min. R<sub>s</sub> = <b>${nf(minRsAll(R), 2)}</b> · ΔP = ${nInt(R.dP)} bar`,
+        task: { type: "goal", q: "Zmień warunki i kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.mode !== "iso" || S.mod !== "MeOH") return { ok: false, msg: "Nie zmieniaj kolumny, modyfikatora ani trybu elucji." };
+                  if (!within(S.phiIso, 25, 45)) return { ok: false, msg: `${nf(S.phiIso, 1)}% metanolu – poza dozwolonym zakresem 25–45%.` };
+                  if (!within(S.F, 0.45, 1.35)) return { ok: false, msg: `Przepływ ${nf(S.F, 2)} mL/min – poza zakresem 0,45–1,35 mL/min.` };
+                  const T = 3 * pk(R, 0).tR, rs = pairRs(R, 0, 3), mr = minRsAll(R);
+                  const f = [];
+                  if (T > 20) f.push(`czas analizy ${nf(T, 1)} min`);
+                  if (rs < 3.5) f.push(`R<sub>s</sub>(SMX/A) = ${nf(rs, 2)}`);
+                  if (mr < 1.5) f.push(`najsłabiej rozdzielona para ma R<sub>s</sub> = ${nf(mr, 2)}`);
+                  return f.length ? { ok: false, msg: "Jeszcze nie: " + f.join("; ") + "." }
+                                  : { ok: true, msg: `Czas ${nf(T, 1)} min przy ${nf(S.phiIso, 1)}% MeOH i ${nf(S.F, 2)} mL/min; R<sub>s</sub>(SMX/A) = ${nf(rs, 2)}.` };
+                },
+                hint: "Więcej metanolu skraca retencję, ale zmniejsza R_s (SMX/A). Większy przepływ skraca czas proporcjonalnie, ale obniża N. Połącz oba.",
+                explain: () => "Pamiętaj: po zmianie warunków trzeba potwierdzić SST, a zmiany kumulują się – 2.2.46 wymaga oceny ich łącznego wpływu." }
+      },
+      {
+        title: "Ocena wyniku: zawartość zanieczyszczenia",
+        setup: Object.assign({}, SMX_SET, { analytes: [smx("Sulfametoksazol", 1, 3.5, 1.0), smx("Zanieczyszczenie A", 1.2, 3.8, 0.0007), smx("Zanieczyszczenie C", 0.5, 2.5, 0.0003)] }),
+        report: true,
+        html: `<p>Roztwór badany (1 mg/mL) i roztwór porównawczy (a) – ten sam roztwór rozcieńczony 1000-krotnie (odpowiada <b>0,1%</b>). Limit dla zanieczyszczeń A–E: pole piku nie większe niż pole piku głównego w roztworze (a); pomija się piki &lt; 0,25 × tego pola (0,025%).</p>
+               <p>Ustaw skalę Y na ×1000, aby zobaczyć piki zanieczyszczeń.</p>`,
+        live: (R, S) => `Pole piku sulfametoksazolu w roztworze porównawczym (a): <b>${sig3(AREA_SCALE * 0.001 * (S.Vinj / 10) / S.F)} mAU·s</b>`,
+        task: { type: "num", q: "Oblicz zawartość zanieczyszczenia A.", unit: "%", answer: (R, S) => pk(R, 1).area / (AREA_SCALE * 0.001 * (result.s.Vinj / 10) / result.s.F) * 0.1, tol: 0.004, abs: true,
+                hint: "% = (pole piku A / pole piku w roztworze (a)) × 0,1%.",
+                explain: R => { const ref = AREA_SCALE * 0.001 * (R.s.Vinj / 10) / R.s.F; return `${sig3(pk(R, 1).area)} / ${sig3(ref)} × 0,1% = ${nf(pk(R, 1).area / ref * 0.1, 3)}% – poniżej limitu 0,1%. Zanieczyszczenie C (${nf(pk(R, 2).area / ref * 0.1, 3)}%) przekracza próg pomijania 0,025%, więc wlicza się do sumy (limit 0,3%). Metoda zakłada współczynnik odpowiedzi ≈ 1; dla zanieczyszczenia F monografia używa osobnego wzorca.`; } }
+      }
+    ]
+  },
+  {
+    title: "Kwas askorbinowy (0253) – HILIC", group: "m",
+    steps: [
+      {
+        title: "Dlaczego kolumna aminopropylowa?",
+        setup: Object.assign({}, AA_SET, { analytes: [aa("Zanieczyszczenie D", 0.5, -2.5, 0.3), aa("Kwas askorbinowy", 1, -3.0, 1.0), aa("Zanieczyszczenie C", 1.45, -3.5, 0.3)] }),
+        html: `<p>Substancje pokrewne kwasu askorbinowego – warunki z monografii:</p>` + AA_COND +
+              `<p>Kwas askorbinowy jest bardzo polarny (log P &lt; 0). Faza ruchoma zawiera aż 75% acetonitrylu, a faza stacjonarna jest polarna.</p>` + CASE_NOTE,
+        task: { type: "choice", q: "Na czym polega ten układ?",
+                options: ["To klasyczna chromatografia w odwróconym układzie faz – ACN chroni kwas askorbinowy przed utlenianiem.",
+                          "To chromatografia oddziaływań hydrofilowych (HILIC): polarne anality, słabo zatrzymywane na C18, są zatrzymywane na polarnej fazie, a retencja rośnie z udziałem acetonitrylu.",
+                          "To chromatografia jonowymienna – ACN służy tylko do obniżenia lepkości.",
+                          "Kolumna aminopropylowa jest tańsza od C18, a wybór fazy ruchomej jest dowolny."],
+                correct: 1,
+                explain: () => "W HILIC woda jest silniejszym eluentem niż acetonitryl – odwrotnie niż w RP. W modelu odpowiada to ujemnemu S w równaniu log k = log k_w − S·φ (zobacz kolumnę S w tabeli analitów)." }
+      },
+      {
+        title: "Wpływ składu fazy w HILIC",
+        html: `<p>Przesuń suwak „Udział B” między 65 a 85% i obserwuj retencję.</p>`,
+        task: { type: "choice", q: "Jak zmieni się t_R kwasu askorbinowego po zmianie składu z 75% na 70% ACN?",
+                options: ["wzrośnie", "zmaleje", "nie zmieni się", "pik zniknie"], correct: 1,
+                explain: () => "Mniej acetonitrylu = więcej wody = silniejsza elucja w HILIC, więc retencja maleje. Wg 2.2.46 w tym układzie bufor (25%) jest składnikiem mniejszościowym – to jego udział można zmienić o ±30% względnie." }
+      },
+      {
+        title: "Rozdzielczość w roztworze (c)",
+        setup: Object.assign({}, AA_SET, { analytes: [aa("Kwas askorbinowy", 1, -3.0, 0.1), aa("Zanieczyszczenie C", 1.45, -3.5, 0.8)] }),
+        report: true,
+        html: `<p>Roztwór (c): roztwór badany rozcieńczony 200-krotnie, zmieszany z roztworem zanieczyszczenia C. Wymaganie: <b>R<sub>s</sub> ≥ 3,0</b>.</p>`,
+        task: { type: "num", q: "Oblicz Rs między kwasem askorbinowym a zanieczyszczeniem C.", unit: "", answer: R => pairRs(R, 0, 1), tol: 0.04,
+                hint: "R_s = 1,18·(t_R2 − t_R1)/(w_h1 + w_h2).",
+                explain: R => `R<sub>s</sub> = ${nf(pairRs(R, 0, 1), 2)} – wymaganie spełnione.` }
+      },
+      {
+        title: "Czułość: S/N ≥ 20",
+        setup: Object.assign({}, AA_SET, { noise: 0.006, analytes: [aa("Zanieczyszczenie C (0,1%)", 1.45, -3.5, 0.001)] }),
+        html: `<p>Roztwór (d) zawiera zanieczyszczenie C na poziomie ok. 0,1% stężenia roztworu badanego. Wymaganie: <b>S/N ≥ 20</b>. Twój detektor ma szum σ = 0,006 mAU.</p>
+               <p>Popraw S/N zmianami dozwolonymi przez 2.2.46 (np. objętość nastrzyku, średnica kolumny z przeliczeniem przepływu). Nie zmieniaj składu fazy, stężenia roztworu ani detektora.</p>`,
+        live: R => `S/N = <b>${pk(R, 0).SN == null ? "∞" : nf(pk(R, 0).SN, 1)}</b> · N piku = ${nInt(pk(R, 0).N)} · ΔP = ${nInt(R.dP)} bar`,
+        task: { type: "goal", q: "Uzyskaj S/N ≥ 20.",
+                check: (R, S, B) => {
+                  if (S.phiIso !== B.phiIso || S.mode !== "iso") return { ok: false, msg: "Nie zmieniaj składu fazy ruchomej." };
+                  if (S.analytes[0].amt !== B.analytes[0].amt || S.noise !== B.noise) return { ok: false, msg: "Nie zmieniaj stężenia roztworu ani szumu detektora." };
+                  const ld = S.L / S.dp, ld0 = B.L / B.dp;
+                  if (!within(ld, 0.75 * ld0, 1.5 * ld0)) return { ok: false, msg: `L/d<sub>p</sub> = ${nf(ld, 1)} poza zakresem ${nf(0.75 * ld0, 1)}–${nf(1.5 * ld0, 1)}.` };
+                  const F2 = B.F * (S.ID * S.ID * B.dp) / (B.ID * B.ID * S.dp);
+                  if (!within(S.F, 0.5 * F2, 1.5 * F2)) return { ok: false, msg: `Dla tej kolumny F₂ = ${nf(F2, 2)} mL/min; dozwolone ±50%.` };
+                  const sn = pk(R, 0).SN;
+                  return sn >= 20 ? { ok: true, msg: `S/N = ${nf(sn, 1)}.` } : { ok: false, msg: `S/N = ${nf(sn, 1)} – za mało.` };
+                },
+                hint: "S/N rośnie proporcjonalnie do objętości nastrzyku; węższa kolumna daje wyższe piki przy tej samej masie.",
+                explain: () => "W praktyce w HILIC duży nastrzyk roztworu o dużej zawartości wody pogarsza kształt piku – dlatego próbki rozpuszcza się w fazie ruchomej (tu tak jest)." }
+      }
+    ]
+  },
+  {
+    title: "Werapamil (0573) – izokracja z gradientem", group: "m",
+    steps: [
+      {
+        title: "Budowa programu elucji",
+        setup: Object.assign({}, VER_SET, { analytes: VER_MIX() }),
+        html: `<p>Substancje pokrewne chlorowodorku werapamilu – warunki z monografii:</p>` + VER_COND +
+              `<p>Obserwuj niebieską linię %B na chromatogramie: przez 22 min elucja jest izokratyczna, potem następuje szybki gradient i izokrata 65% B.</p>` + CASE_NOTE,
+        task: { type: "choice", q: "Po co gradient po 22 min?",
+                options: ["Żeby poprawić rozdzielczość werapamilu i zanieczyszczenia I.",
+                          "Żeby wymyć silnie zatrzymywane zanieczyszczenia (np. M – związek typu bis-, o dwóch resztach werapamilu) w rozsądnym czasie; stąd wymaganie SST „zanieczyszczenie M eluuje z kolumny”.",
+                          "Żeby oczyścić detektor przed kolejnym nastrzykiem.",
+                          "Gradient kompensuje objętość opóźnienia aparatu."],
+                correct: 1,
+                explain: R => `Zanieczyszczenie M w warunkach izokratycznych (37% B) praktycznie by nie eluowało; w gradiencie ma t<sub>R</sub> ≈ ${pk(R, 2).eluted ? nf(pk(R, 2).tR, 1) : "–"} min. Pary werapamil/I nie rusza gradient – obie substancje eluują w części izokratycznej.` }
+      },
+      {
+        title: "Wymaganie rozdzielczości",
+        report: true,
+        html: `<p>Roztwór porównawczy (a) zawiera werapamil oraz zanieczyszczenia I i M. Wymaganie: <b>R<sub>s</sub> ≥ 4,5</b> między werapamilem a zanieczyszczeniem I.</p>`,
+        task: { type: "num", q: "Oblicz Rs werapamil / zanieczyszczenie I.", unit: "", answer: R => pairRs(R, 0, 1), tol: 0.04,
+                hint: "Obie substancje eluują izokratycznie – wzór 2.2.46 ma tu pełne zastosowanie.",
+                explain: R => `R<sub>s</sub> = ${nf(pairRs(R, 0, 1), 2)} ≥ 4,5.` }
+      },
+      {
+        title: "Zasada na fazie z end-cappingiem",
+        html: `<p>Werapamil jest aminą trzeciorzędową. Monografia przepisuje fazę C18 z end-cappingiem i wbudowaną grupą polarną. Przełącz „Fazę stacjonarną” na wariant bez end-cappingu i obserwuj A<sub>s</sub> oraz R<sub>s</sub>.</p>`,
+        task: { type: "choice", q: "Co się dzieje na fazie bez end-cappingu?",
+                options: ["Piki są węższe, bo zasady nie oddziałują z krzemionką.",
+                          "Piki zasad ogonują (A_s rośnie) na skutek oddziaływań z wolnymi silanolami, co obniża R_s i utrudnia integrację.",
+                          "Zmienia się tylko ciśnienie.",
+                          "Faza bez end-cappingu nie zatrzymuje werapamilu."],
+                correct: 1,
+                explain: () => "Grupa polarna wbudowana w łańcuch C18 dodatkowo osłania silanole, dlatego takie fazy dają symetryczne piki zasad także przy pH obojętnym. Wg 2.2.46 zmiana fazy stacjonarnej na inny typ (np. bez end-cappingu) nie jest dozwolonym dostosowaniem." }
+      },
+      {
+        title: "Przeniesienie metody gradientowej (2.2.46)",
+        setup: Object.assign({}, VER_SET, { analytes: VER_MIX() }),
+        html: `<p>Przenieś metodę na kolumnę <b>150 × 4,6 mm, 3 µm</b> (L/d<sub>p</sub> = 50 – bez zmian). Aparat ma limit <b>400 bar</b>. Procedura 2.2.46 dla gradientu:</p>
+               <p>1) L/d<sub>p</sub> w granicach −25…+50%;<br>2) <code>F₂ = F₁·(dc₂²·dp₁)/(dc₁²·dp₂)</code>, potem dozwolone ±50%;<br>3) każdy segment programu: <code>t₂ = t₁·(F₁/F₂)·(L₂·dc₂²)/(L₁·dc₁²)</code>.</p>
+               <p>Przelicz izokratę początkową (22 min), czas gradientu (5 min) i izokratę końcową (18 min).</p>`,
+        live: R => `ΔP = <b>${nInt(R.dP)} bar</b> · R<sub>s</sub>(wer./I) = <b>${nf(pairRs(R, 0, 1), 2)}</b> · M: ${pk(R, 2).eluted ? "eluuje (" + nf(pk(R, 2).tR, 1) + " min)" : "<b>nie eluuje</b>"} · czas analizy ${nf(R.runTime, 1)} min`,
+        task: { type: "goal", q: "Ustaw kolumnę, przepływ i program, potem kliknij „Sprawdź”.",
+                check: (R, S) => {
+                  if (S.L !== 150 || S.ID !== 4.6 || S.dp !== 3) return { ok: false, msg: "Ustaw kolumnę 150 × 4,6 mm, 3 µm." };
+                  if (S.mode !== "grad" || S.phi0 !== 37 || S.phi1 !== 65) return { ok: false, msg: "Nie zmieniaj składu faz (37% → 65% B)." };
+                  if (!within(S.F, 1.25, 3.75)) return { ok: false, msg: `Przepływ ${nf(S.F, 2)} mL/min poza zakresem F₂ ± 50% (1,25–3,75 mL/min).` };
+                  if (R.dP > 400) return { ok: false, msg: `ΔP = ${nInt(R.dP)} bar – przekroczony limit aparatu. Zmniejsz przepływ (w granicach ±50%) i przelicz czasy.` };
+                  const f = (1.5 / S.F) * (150 / 250);
+                  const bad = [];
+                  if (Math.abs(S.tIso0 - 22 * f) > 0.05 * 22 * f + 0.05) bad.push(`izokrata początkowa powinna wynosić ${nf(22 * f, 2)} min`);
+                  if (Math.abs(S.tG - 5 * f) > 0.1 * 5 * f + 0.05) bad.push(`czas gradientu powinien wynosić ${nf(5 * f, 2)} min`);
+                  if (bad.length) return { ok: false, msg: "Czasy programu nie odpowiadają przepływowi: " + bad.join("; ") + "." };
+                  const rs = pairRs(R, 0, 1);
+                  if (rs < 4.5) return { ok: false, msg: `R<sub>s</sub> = ${nf(rs, 2)} (&lt; 4,5).` };
+                  if (!pk(R, 2).eluted) return { ok: false, msg: "Zanieczyszczenie M nie eluuje – wydłuż izokratę końcową." };
+                  return { ok: true, msg: `F = ${nf(S.F, 2)} mL/min, ΔP = ${nInt(R.dP)} bar, program ${nf(S.tIso0, 1)} / ${nf(S.tG, 1)} / ${nf(S.hold, 1)} min, R<sub>s</sub> = ${nf(rs, 2)}, czas analizy ${nf(R.runTime, 1)} min.` };
+                },
+                hint: "F₂ = 2,5 mL/min daje ok. 560 bar. Przy F = 1,5 mL/min współczynnik czasu = (1,5/1,5)·(150/250) = 0,6: izokrata 13,2 min, gradient 3,0 min, izokrata końcowa 10,8 min.",
+                explain: () => "Skalowanie czasu segmentów zachowuje stosunek objętości gradientu do objętości kolumny, a więc selektywność. Uwaga: objętość opóźnienia aparatu się nie skaluje – przy krótszych kolumnach i mniejszych przepływach jej wpływ rośnie (lekcja 4)." }
+      }
+    ]
+  },
+  {
+    title: "Aspartam (0973) – kolumna 5–10 µm", group: "m",
+    steps: [
+      {
+        title: "Test przydatności jako kontrola kolumny",
+        setup: Object.assign({}, ASP_SET, { analytes: ASP_MIX() }),
+        html: `<p>Substancje pokrewne aspartamu – warunki z monografii:</p>` + ASP_COND +
+              `<p class="ref">Monografia nie podaje czasów retencji – wartości w tym przykładzie są przyjęte ilustracyjnie (kolejność elucji B i C również).</p>`,
+        task: { type: "choice", q: "Monografia dopuszcza ziarno od 5 do 10 µm. Jaką rolę pełni wtedy wymaganie Rs(B/C) ≥ 3,5?",
+                options: ["Żadnej – przy każdym ziarnie rozdzielczość jest taka sama.",
+                          "Sprawdza, czy konkretna kolumna (i przepływ) daje dostateczną sprawność – kolumna 10 µm ma ok. 2× mniej półek niż 5 µm.",
+                          "Służy do identyfikacji aspartamu.",
+                          "Określa czas analizy."],
+                correct: 1,
+                explain: () => "Szeroki zakres ziarna daje laboratoriom swobodę, a SST gwarantuje, że wybrana kolumna rozdziela krytyczną parę. Sprawdź to w następnym kroku." }
+      },
+      {
+        title: "Kolumna 10 µm",
+        setup: Object.assign({}, ASP_SET, { dp: 10, analytes: ASP_MIX() }),
+        html: `<p>Laboratorium ma kolumnę 250 × 4,0 mm z ziarnem <b>10 µm</b>. Sprawdź wymaganie R<sub>s</sub>(B/C) ≥ 3,5. Jeśli nie jest spełnione, popraw je zmianą przepływu (±50%: 0,5–1,5 mL/min). Nie zmieniaj kolumny ani składu fazy.</p>`,
+        live: R => `R<sub>s</sub>(B/C) = <b>${nf(pairRs(R, 0, 1), 2)}</b> · N = ${nInt(R.N)} · czas analizy (2 × t<sub>R</sub> aspartamu) = ${nf(2 * pk(R, 3).tR, 1)} min`,
+        task: { type: "goal", q: "Spełnij wymaganie SST i kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.phiIso !== B.phiIso || S.mode !== "iso") return { ok: false, msg: "Nie zmieniaj kolumny ani składu fazy." };
+                  if (!within(S.F, 0.5, 1.5)) return { ok: false, msg: `Przepływ ${nf(S.F, 2)} mL/min poza zakresem 0,5–1,5 mL/min.` };
+                  const rs = pairRs(R, 0, 1);
+                  return rs >= 3.5 ? { ok: true, msg: `R<sub>s</sub> = ${nf(rs, 2)} przy ${nf(S.F, 2)} mL/min; czas analizy ${nf(2 * pk(R, 3).tR, 1)} min.` }
+                                   : { ok: false, msg: `R<sub>s</sub> = ${nf(rs, 2)} – za mało.` };
+                },
+                hint: "Dla dużego ziarna optimum van Deemtera leży przy małej prędkości – spójrz na wykres.",
+                explain: () => "Dla ziarna 10 µm człon C·u dominuje już przy 1 mL/min, więc mniejszy przepływ wyraźnie zwiększa N – kosztem dłuższej analizy." }
+      }
+    ]
+  },
+  {
+    title: "Erytromycyna, estolan (0552) – p/v i krok izokratyczny", group: "m",
+    steps: [
+      {
+        title: "Program zależny od kolumny",
+        setup: Object.assign({}, ERY_SET, { analytes: ERY_MIX() }),
+        html: `<p>Substancje pokrewne estolanu erytromycyny (po hydrolizie) – warunki z monografii:</p>` + ERY_COND + CASE_NOTE,
+        live: (R, S) => `t<sub>R</sub> erytromycyny B w izokracji fazą A (${nf(S.phi0, 1)}% ACN): <b>${nf(eryBIso(S), 1)} min</b> · izokrata początkowa: ${nf(S.tIso0, 1)} min`,
+        task: { type: "choice", q: "Dlaczego długość kroku izokratycznego zdefiniowano jako tR erytromycyny B, a nie stałą liczbą minut?",
+                options: ["Żeby skrócić analizę.",
+                          "Retencja zależy od konkretnej kolumny i dokładnego składu fazy; taki zapis gwarantuje, że wszystkie piki do erytromycyny B (i F tuż za nią) eluują izokratycznie, a gradient wymywa dopiero silniej zatrzymywane zanieczyszczenia (np. E).",
+                          "Bo gradient uszkadza kolumnę w 65 °C.",
+                          "Bo erytromycyna B jest wzorcem wewnętrznym."],
+                correct: 1,
+                explain: () => "To „samokalibrujący się” program: laboratorium najpierw wstrzykuje roztwór (b) izokratycznie fazą A, odczytuje t_R erytromycyny B i dopiero potem ustawia program." }
+      },
+      {
+        title: "Stosunek pik/dolina",
+        html: `<p>Gdy małego piku nie da się rozdzielić do linii podstawowej od dużego, 2.2.46 przewiduje kryterium <b>p/v = H<sub>p</sub>/H<sub>v</sub></b> (H<sub>p</sub> – wysokość mniejszego piku, H<sub>v</sub> – wysokość najniższego punktu doliny). Ustaw skalę Y na ×10 i znajdź pary ery B / F oraz C / ery A.</p>`,
+        live: R => `p/v (F / ery B) = <b>${fmtPv(pvRatio(R, 6, 5))}</b> · p/v (C / ery A) = <b>${fmtPv(pvRatio(R, 3, 4))}</b> · R<sub>s</sub>(B / ery C) = <b>${nf(pairRs(R, 1, 2), 2)}</b>`,
+        task: { type: "choice", q: "Dlaczego dla pary F / erytromycyna B monografia stosuje p/v zamiast Rs?",
+                options: ["Bo Rs nie da się policzyć dla gradientu.",
+                          "Bo piki bardzo różnią się wielkością i nie są rozdzielone do linii podstawowej – p/v bezpośrednio mierzy, czy mały pik jest wyraźnie widoczny i możliwy do integracji.",
+                          "Bo p/v jest zawsze większe od Rs.",
+                          "Bo zanieczyszczenie F nie absorbuje przy 210 nm."],
+                correct: 1,
+                explain: () => "Rs zakłada podobne, gaussowskie piki. Dla małego piku na zboczu dużego lepszą miarą „czy da się go zmierzyć” jest głębokość doliny." }
+      },
+      {
+        title: "Dostosowanie zawartości acetonitrylu",
+        setup: Object.assign({}, ERY_SET, { phi0: 37, phi1: 52, analytes: ERY_MIX() }),
+        html: `<p>Fazy ruchome przygotowano z 2% nadmiarem acetonitrylu (A: 37%, B: 52%), a izokratę pozostawiono 40,3 min. Monografia pozwala w razie potrzeby dostosować zawartość acetonitrylu w fazach i gradient.</p>
+               <p>Doprowadź do spełnienia SST: <b>R<sub>s</sub>(B/ery C) ≥ 1,2</b>, <b>p/v(F/ery B) ≥ 1,5</b>, <b>p/v(C/ery A) ≥ 2,0</b>. Pamiętaj, że izokrata początkowa musi odpowiadać t<sub>R</sub> erytromycyny B oznaczonemu fazą A (±1 min).</p>`,
+        live: (R, S) => `t<sub>R</sub> ery B (izokr. faza A) = <b>${nf(eryBIso(S), 1)} min</b> · izokrata ${nf(S.tIso0, 1)} min<br>p/v (F / ery B) = <b>${fmtPv(pvRatio(R, 6, 5))}</b> · p/v (C / ery A) = <b>${fmtPv(pvRatio(R, 3, 4))}</b> · R<sub>s</sub>(B / ery C) = <b>${nf(pairRs(R, 1, 2), 2)}</b>`,
+        task: { type: "goal", q: "Dostosuj %ACN w fazach A i B oraz izokratę, potem kliknij „Sprawdź”.",
+                check: (R, S, B) => {
+                  if (!sameCol(S, B) || S.mode !== "grad" || S.F !== B.F) return { ok: false, msg: "Nie zmieniaj kolumny, przepływu ani trybu elucji." };
+                  const tB = eryBIso(S);
+                  if (Math.abs(S.tIso0 - tB) > 1) return { ok: false, msg: `Izokrata początkowa (${nf(S.tIso0, 1)} min) nie odpowiada t<sub>R</sub> erytromycyny B w fazie A (${nf(tB, 1)} min).` };
+                  const pv1 = pvRatio(R, 6, 5), pv2 = pvRatio(R, 3, 4), rs = pairRs(R, 1, 2);
+                  const f = [];
+                  if (rs < 1.2) f.push(`R<sub>s</sub>(B/ery C) = ${nf(rs, 2)}`);
+                  if (pv1 < 1.5) f.push(`p/v(F/ery B) = ${fmtPv(pv1)}`);
+                  if (pv2 < 2.0) f.push(`p/v(C/ery A) = ${fmtPv(pv2)}`);
+                  return f.length ? { ok: false, msg: "Jeszcze nie: " + f.join("; ") + "." }
+                                  : { ok: true, msg: `Faza A ${nf(S.phi0, 1)}% ACN, izokrata ${nf(S.tIso0, 1)} min: p/v(F/ery B) = ${fmtPv(pv1)}, R<sub>s</sub>(B/ery C) = ${nf(rs, 2)}.` };
+                },
+                hint: "Zanieczyszczenie F ma większe S niż erytromycyna B – mniej acetonitrylu zwiększa ich selektywność. Po każdej zmianie fazy A odczytaj nowe t_R ery B z ramki powyżej i wpisz je jako izokratę.",
+                explain: () => "To dokładnie procedura z monografii: zmiana składu fazy zmienia retencję, więc trzeba na nowo wyznaczyć t_R erytromycyny B i długość kroku izokratycznego." }
+      }
+    ]
+  }
+];
+LESSONS.forEach(L => { L.group = L.group || "p"; });
+LESSONS.push(...CASES);
+
+function renderLive() {
+  const box = $("liveBox");
+  if (!lesson.active || !result) { box.classList.add("hidden"); return; }
+  const st = LESSONS[lesson.li].steps[lesson.si];
+  if (!st.live) { box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  box.innerHTML = st.live(result, state);
+}
+
 const lesson = { active: false, li: 0, si: 0, base: null, ref: null, tries: 0, loadedLi: -1 };
 const TEACHER = /prowadzacy/.test(location.search + location.hash);
 const PROG_KEY = "hplc-zajecia-v1";
@@ -1534,7 +1910,8 @@ function setAppMode(mode) {
   }
 }
 
-$("lessonSel").innerHTML = LESSONS.map((L, i) => `<option value="${i}">${L.title}</option>`).join("");
+$("lessonSel").innerHTML = [["p", "Podstawy"], ["m", "Przykłady z monografii Ph. Eur."]].map(([g, lab]) =>
+  `<optgroup label="${lab}">` + LESSONS.map((L, i) => L.group === g ? `<option value="${i}">${L.title}</option>` : "").join("") + "</optgroup>").join("");
 $("lessonSel").addEventListener("change", e => openStep(+e.target.value, 0, true));
 $("dots").addEventListener("click", e => { const b = e.target.closest("button"); if (b) openStep(lesson.li, +b.dataset.j, true); });
 $("prevStep").addEventListener("click", () => {

@@ -26,6 +26,21 @@ Pięć lekcji dla studentów (poziom podstawowy), oparte na Ph. Eur. 2.2.46 i 2.
 4. **Aparatura** – dyspersja pozakolumnowa, limit ciśnienia, objętość opóźnienia i jej kompensacja.
 5. **Przydatność układu (SST)** – współczynnik symetrii, S/N i czułość układu, %RSD_max.
 
+**Przykłady z monografii Ph. Eur.** (warunki LC i wymagania SST z monografii, retencje dopasowane
+do podanych w monografii czasów i retencji względnych):
+
+6. **Sulfametoksazol (0108)** – identyfikacja pików po r_G, SST R_s ≥ 3,5, skrócenie analizy
+   w dozwolonych granicach, obliczenie zawartości zanieczyszczenia wobec roztworu porównawczego.
+7. **Kwas askorbinowy (0253)** – HILIC na fazie aminopropylowej, R_s ≥ 3,0, S/N ≥ 20.
+8. **Werapamil (0573)** – izokracja z gradientem wymywającym, zasada na fazie z end-cappingiem,
+   przeniesienie metody gradientowej wg 2.2.46 (L/d_p, F₂, skalowanie segmentów, limit ciśnienia).
+9. **Aspartam (0973)** – kolumna 5–10 µm i SST jako kontrola sprawności.
+10. **Erytromycyna, estolan (0552)** – krok izokratyczny zdefiniowany przez t_R erytromycyny B,
+    stosunek pik/dolina (p/v), dostosowanie zawartości acetonitrylu.
+
+Temperatura, pH, bufor i chemia fazy stacjonarnej nie są modelowane; w przykładzie aspartamu
+czasy retencji są ilustracyjne (monografia ich nie podaje).
+
 Zadania są trzech typów: obliczenie (sprawdzane z tolerancją), pytanie zamknięte oraz cel do
 osiągnięcia w symulatorze (np. „uzyskaj R_s ≥ 2,0 w dozwolonym zakresie %B”).
 Postęp zapisuje się lokalnie w przeglądarce studenta.
