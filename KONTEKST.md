@@ -1,11 +1,11 @@
 # KONTEKST — Repozytorium dydaktyczne (ćwiczenia: LC, MS, ekstrakcja, analityka leków biotechnologicznych)
 
-**Aktualizacja: 25.09.2026 · źródło: Claude Code**
+**Aktualizacja: 28.09.2026 · źródło: Claude Code**
 
 ## Status
 Działający dwujęzyczny (PL/EN) symulator HPLC z trybem zajęć (5 lekcji podstawowych + 5 przykładów z monografii Ph. Eur.) i kartą wzorów Ph. Eur. 2.2.46, opublikowany na GitHub Pages. Następny etap: przebudowa pod telefony, porcjowanie treści, materiały „przed zajęciami” i raport mailem do prowadzącego (D6–D10). Docelowo repozytorium obejmie wszystkie prowadzone ćwiczenia (D11); LC jest pierwszym z nich. **Pierwsze ćwiczenia: grudzień 2026.** Wymagania: indywidualne raporty, zadania casowe, odporność na oszustwa, moduły otwierane wg harmonogramu – wymagają serwera (D12–D16).
 
-Online: https://mariuszbelka.github.io/Dydaktyka/ (ćwiczenie LC: `…/Dydaktyka/lc/?lang=pl|en` po scaleniu nowej struktury do `main`)
+Online: https://mariuszbelka.github.io/Dydaktyka/ (ćwiczenie LC: `…/Dydaktyka/lc/?lang=pl|en`; moduły: `…/Dydaktyka/lc/modul.html`)
 Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`). Stary adres `…/LC/` nie działa od zmiany nazwy.
 
 ## Decyzje
@@ -46,10 +46,10 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 
 ## Następne kroki / blokery
 1. **Moodle/LTI (D17, D28):** ~~wersja~~ → Moodle 5.2 ✓. Wysłać zapytanie do CWD (`docs/zapytanie_CWD_LTI.md`, po akceptacji Mariusza): rejestracja narzędzia LTI 1.3, usługa ocen, hosting i IOD, kurs testowy – **blokuje D12, D14, D15 w wersji produkcyjnej**; termin: październik 2026. Do tego czasu: wspólny silnik, ścieżka mobilna, casy i serwer narzędzia z logowaniem zapasowym (D18).
-1a. ~~Zmiana nazwy~~ – zrobione (25.09.2026). Nowa struktura `shared/` + `lc/` + strona główna – zrobione na gałęzi roboczej (krok 1); do scalenia z `main` po akceptacji.
+1a. ~~Zmiana nazwy~~ – zrobione (25.09.2026). Nowa struktura `shared/` + `lc/` + strona główna – scalone z `main` 28.09.2026.
 1b. ~~Widoczność~~ → repo **na razie publiczne i darmowe** (D24).
 2. Odpowiedzi Mariusza na pytania z `docs/ZALOZENIA_PROJEKTOWE.md` §7 (czas modułu „przed”, podział lekcji, wariant raportu, adres e-mail, EN, pre-test) – **blokują implementację D8–D9**.
-3. ~~Ocena prototypu~~ → zaakceptowany (D27). ~~Moduły 2–5~~ → zrobione na gałęzi roboczej (D29), **do oceny przez Mariusza** i scalenia z `main`. Dalej: casy z monografii (lekcje 6–10) w formacie modułów; raport (po Moodle).
+3. ~~Ocena prototypu~~ → zaakceptowany (D27). ~~Moduły 2–5~~ → zrobione (D29), scalone z `main` 28.09.2026. Dalej: casy z monografii (lekcje 6–10) w formacie modułów; raport (po Moodle).
 4. Przegląd merytoryczny wersji EN przez English Division.
 5. Rozszerzenie `npm test` o kryteria z §8.
 
@@ -64,6 +64,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 28.09.2026 — Claude Code: scalenie gałęzi roboczej do `main` (nowa struktura, moduły 1–5) i publikacja na GitHub Pages.
 - 25.09.2026 — Claude Code: D29 – moduły LC 2–5 (retencja/selektywność, sprawność, aparatura, SST), lista modułów, kontrolki w zadaniach „cel”; testy wszystkich modułów PL/EN.
 - 25.09.2026 — Claude Code: D28 – Moodle 5.2; szkic zapytania do CWD.
 - 25.09.2026 — Claude Code: D27 – akceptacja mikrokroków i odsłaniania rozwiązań.
