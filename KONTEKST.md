@@ -1,12 +1,14 @@
 # KONTEKST — Repozytorium dydaktyczne (ćwiczenia: LC, MS, ekstrakcja, analityka leków biotechnologicznych)
 
-**Aktualizacja: 28.09.2026 · źródło: Claude Code**
+**Aktualizacja: 01.11.2026 · źródło: Claude**
 
 ## Status
 Działający dwujęzyczny (PL/EN) symulator HPLC z trybem zajęć (5 lekcji podstawowych + 5 przykładów z monografii Ph. Eur.) i kartą wzorów Ph. Eur. 2.2.46, opublikowany na GitHub Pages. Następny etap: przebudowa pod telefony, porcjowanie treści, materiały „przed zajęciami” i raport mailem do prowadzącego (D6–D10). Docelowo repozytorium obejmie wszystkie prowadzone ćwiczenia (D11); LC jest pierwszym z nich. **Pierwsze ćwiczenia: grudzień 2026.** Wymagania: indywidualne raporty, zadania casowe, odporność na oszustwa, moduły otwierane wg harmonogramu – wymagają serwera (D12–D16).
 
 Online: https://mariuszbelka.github.io/Dydaktyka/ (ćwiczenie LC: `…/Dydaktyka/lc/?lang=pl|en`; moduły: `…/Dydaktyka/lc/modul.html`)
 Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy; gałąź robocza `claude/keen-shannon-18w04r`, publikacja z `main`). Stary adres `…/LC/` nie działa od zmiany nazwy.
+
+**Materiały merytoryczne (poza repo):** `D:\OneDrive\___Mariusz\Dydaktyka` — folder nadrzędny wszystkich zajęć z własnym `KONTEKST.md` (ćwiczenia: `Analityka_bialek/`, `Ekstrakcja/`; wspólne: `_WSPOLNE/`). Tam leżą źródła (Ph. Eur./FP, ICH, EMA), scenariusze i decyzje dydaktyczne. Kopia tego repozytorium: `Dydaktyka\Repo_GitHub_Dydaktyka\` (drzewo + `git bundle`).
 
 ## Decyzje
 | # | Data | Decyzja | Uzasadnienie / uwaga |
@@ -30,7 +32,7 @@ Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy
 | D17 | 25.09.2026 | Platforma: **Moodle uczelni przez LTI 1.3**; terminy otwarcia/zamknięcia modułów ustawiane w Moodle | tożsamość, grupy i harmonogram z Moodle; potrzebny mały serwer narzędzia + rejestracja przez IT; §10.7 |
 | D18 | 25.09.2026 | Logowanie przez Moodle (LTI); zapasowo jednorazowy link na mail uczelniany | dostęp spoza Moodle i pilotaż przed konfiguracją IT |
 | D19 | 25.09.2026 | Wyniki **nie wpływają na ocenę** – raport = informacja zwrotna | umiarkowany poziom zabezpieczeń (warianty, serwer, okna, rejestr), bez proctoringu |
-| D20 | 25.09.2026 | Repozytorium = **prywatne źródło prawdy Mariusza** dla wszystkich zajęć; Moodle = kanał udostępniania studentom | treści, zadania i decyzje powstają w repo, do Moodle trafiają aktywności/linki |
+| D20 | 25.09.2026 | ~~Repozytorium = **prywatne źródło prawdy Mariusza** dla wszystkich zajęć~~ → zob. D30; Moodle = kanał udostępniania studentom | ~~treści, zadania i decyzje powstają w repo~~ |
 | D21 | 25.09.2026 | Nazwa repozytorium: **`dydaktyka`** (zamiast `LC`) | zgodne z D11; zmianę nazwy wykonuje Mariusz w ustawieniach GitHub; adres stron zmieni się na `mariuszbelka.github.io/Dydaktyka/` |
 | D22 | 25.09.2026 | Skala: **~80 studentów, 10 grup**; kursy Moodle **PL i EN są osobne** | język ćwiczenia ustalany przez kurs (parametr LTI), harmonogramy grup w Moodle |
 | D23 | 25.09.2026 | Cel: **zbiorcze zaliczenie w Moodle** dla wszystkich studentów | narzędzie zwraca do Moodle wynik „ukończono” (LTI Assignment and Grade Services); w kursie: ukończenie aktywności „po otrzymaniu oceny/zaliczenia”, pozycja oceny ukryta, waga 0 (zgodnie z D19) – raport ukończenia kursu pokazuje wszystkich naraz |
@@ -40,6 +42,8 @@ Repozytorium: https://github.com/mariuszbelka/Dydaktyka (publiczne, plan darmowy
 | D27 | 25.09.2026 | **Zaakceptowano** kierunek mikrokroków: ilość treści na ekran odpowiednia, pytania prowadzą krok po kroku; w materiałach „przed zajęciami” **wolno odsłaniać rozwiązanie** (po 3 próbach, krok „z pomocą”) | ocena prototypu modułu 1 przez Mariusza; ten format obowiązuje dla kolejnych modułów |
 | D28 | 25.09.2026 | Moodle GUMed = **wersja 5.2** (komunikat CWD) – wymaganie LTI 1.3 (≥ 3.10) spełnione; do ustalenia z CWD: narzędzie na poziomie kursu czy platformy, usługa ocen LTI, hosting/IOD, kurs testowy | kontakt: Centrum Wsparcia Dydaktyki (osoba wskazana w komunikacie); szkic zapytania: `docs/zapytanie_CWD_LTI.md` (niewysłany) |
 | D29 | 25.09.2026 | Moduły LC **m1–m5** = lekcje podstawowe 1–5 w formacie mikrokroków; zadania modułów 2–5 **pobierają logikę z trybu „Zajęcia”** (`from: [lekcja, krok]`: te same progi, tolerancje i sprawdzenia), moduł dodaje tylko krótkie teksty; zadania „cel” na telefonie z kontrolkami (suwak/pole/lista) i wskaźnikami na żywo; `modul.html` bez `?m` = lista modułów z postępem | jedno źródło wymagań dla zajęć i modułów (D7); test przechodzi wszystkie moduły PL/EN, w tym zadania „cel” (nie zaliczone na starcie, zaliczone z rozwiązaniem) |
+
+| D30 | 01.11.2026 | D20′: repozytorium = źródło prawdy **dla materiałów interaktywnych** (symulatory, moduły, zadania); merytoryka, źródła, scenariusze i decyzje dydaktyczne = `D:\OneDrive\___Mariusz\Dydaktyka` (KONTEKST.md nadrzędny i podprojektów) | decyzja Mariusza 01.11.2026; tekstów Ph. Eur. i tak nie wolno umieszczać w publicznym repo (D2) |
 
 ## Stan merytoryczny
 Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemter, dyspersja pozakolumnowa, piki EMG (ogonowanie zasad), szum i S/N, ciśnienie (Darcy); parametry liczone wzorami Ph. Eur. z pomiaru pików. Retencje w przykładach z monografii dopasowane do podanych t_R/RRT (aspartam – ilustracyjnie). Nie modelujemy temperatury, pH, buforu ani chemii fazy stacjonarnej.
@@ -64,6 +68,7 @@ Model: retencja LSS (izokracja/gradient z objętością opóźnienia), van Deemt
 | `tests/run.js` | test obu wersji (`npm test`) |
 
 ## Historia zmian
+- 01.11.2026 — Claude: D30 (zastępuje D20) — podział ról repo / folder OneDrive `Dydaktyka`; odsyłacz do materiałów merytorycznych.
 - 28.09.2026 — Claude Code: scalenie gałęzi roboczej do `main` (nowa struktura, moduły 1–5) i publikacja na GitHub Pages.
 - 25.09.2026 — Claude Code: D29 – moduły LC 2–5 (retencja/selektywność, sprawność, aparatura, SST), lista modułów, kontrolki w zadaniach „cel”; testy wszystkich modułów PL/EN.
 - 25.09.2026 — Claude Code: D28 – Moodle 5.2; szkic zapytania do CWD.
